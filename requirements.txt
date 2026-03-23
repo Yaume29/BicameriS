@@ -1,0 +1,8 @@
+flask
+requests
+python-dotenv
+qdrant-client
+numpy
+llama-cpp-python
+beautifulsoup4
+psutil

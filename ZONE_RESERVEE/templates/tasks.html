@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tâches - A-ETHERIS</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo"><h1>🧬 A-ETHERIS</h1></div>
+        <nav>
+            <a href="/" class="nav-item">🏠 Accueil</a>
+            <a href="/chat" class="nav-item">💬 Chat</a>
+            <a href="/dashboard" class="nav-item">📊 Dashboard</a>
+            <a href="/tasks" class="nav-item active">📋 Tâches & Flux</a>
+            <a href="/think" class="nav-item">🧠 Pensées</a>
+            <a href="/models" class="nav-item">⚙️ Modèles</a>
+            <a href="/files" class="nav-item">📁 Fichiers</a>
+        </nav>
+    </div>
+    
+    <div class="main-content">
+        <h2>📋 Tâches & Flux</h2>
+        
+        <div class="filters">
+            <select id="filter-type">
+                <option value="all">Tous les types</option>
+                <option value="pensee">💭 Pensées</option>
+                <option value="commande">⚡ Commandes</option>
+                <option value="fichier_cree">📄 Fichiers créés</option>
+                <option value="fichier_modifie">✏️ Fichiers modifiés</option>
+                <option value="agent_cree">🧠 Agents créés</option>
+                <option value="erreur">⚠️ Erreurs</option>
+                <option value="chat_envoye">📤 Messages envoyés</option>
+                <option value="chat_recu">📥 Messages reçus</option>
+                <option value="inception">🎯 Pensées induites</option>
+            </select>
+            <button id="refresh-flux" class="btn-primary">🔄 Actualiser</button>
+        </div>
+        
+        <div class="flux-container">
+            <div class="flux-stats" id="flux-by-type">
+                <!-- Populated by JS -->
+            </div>
+            
+            <div class="flux-list" id="flux-list">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+        
+        <div class="tasks-section">
+            <h3>📝 Tâches</h3>
+            <div class="tasks-grid" id="tasks-list">
+                {% for task in tasks %}
+                <div class="task-card" data-status="{{ task.status }}">
+                    <h4>{{ task.title }}</h4>
+                    <p>{{ task.description[:100] }}...</p>
+                    <span class="task-status">{{ task.status }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    
+    <script src="{{ url_for('static', filename='js/tasks.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modèles - A-ETHERIS</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo"><h1>🧬 A-ETHERIS</h1></div>
+        <nav>
+            <a href="/" class="nav-item">🏠 Accueil</a>
+            <a href="/chat" class="nav-item">💬 Chat</a>
+            <a href="/dashboard" class="nav-item">📊 Dashboard</a>
+            <a href="/tasks" class="nav-item">📋 Tâches & Flux</a>
+            <a href="/think" class="nav-item">🧠 Pensées</a>
+            <a href="/models" class="nav-item active">⚙️ Modèles</a>
+            <a href="/files" class="nav-item">📁 Fichiers</a>
+        </nav>
+        
+        <div class="status-box">
+            <h3>État des Modèles</h3>
+            <div id="models-status">
+                <p>Vérification...</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="main-content">
+        <h2>⚙️ Configuration des Modèles</h2>
+        
+        <div class="scanner-section">
+            <h3>🔍 Rechercher des Modèles GGUF</h3>
+            <div class="scanner-controls">
+                <input type="text" id="scan-path" placeholder="Chemin (ex: C:\ ou D:\)" value="C:\">
+                <button id="btn-scan" class="btn-primary">Scanner</button>
+            </div>
+            <div id="scan-status" class="scan-status">
+                <span id="scan-count">0 modèles trouvés</span>
+            </div>
+            <div id="models-list" class="models-grid">
+                <!-- Models will be populated here -->
+            </div>
+        </div>
+        
+        <div class="config-section">
+            <h3>🧠 Configuration Bipolaire</h3>
+            
+            <div class="hemisphere-config">
+                <div class="hemisphere left-config">
+                    <h4>Hémisphère Gauche (Logique)</h4>
+                    <p class="desc">Qwen - Analyse, décisions, logique</p>
+                    <select id="left-model-select" class="model-select">
+                        <option value="">Sélectionner un modèle...</option>
+                    </select>
+                    <div class="params">
+                        <label>Contexte: <span>16384 tokens</span></label>
+                        <label>Température: <span>0.7</span></label>
+                    </div>
+                </div>
+                
+                <div class="hemisphere right-config">
+                    <h4>Hémisphère Droit (Intuition)</h4>
+                    <p class="desc">Gemma - Patterns, résonance, feeling</p>
+                    <select id="right-model-select" class="model-select">
+                        <option value="">Sélectionner un modèle...</option>
+                    </select>
+                    <div class="params">
+                        <label>Contexte: <span>4096 tokens</span></label>
+                        <label>Température: <span>1.2</span></label>
+                    </div>
+                </div>
+            </div>
+            
+            <button id="load-models" class="btn-primary load-btn">⚡ Charger les Modèles</button>
+            <div id="load-status" class="load-status"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>🧪 Tester le Dialogue Bipolaire</h3>
+            <div class="test-controls">
+                <input type="text" id="test-question" placeholder="Question pour Aetheris...">
+                <button id="btn-test-bipolar" class="btn-primary">Tester</button>
+            </div>
+            <div id="test-result" class="test-result">
+                <!-- Results will appear here -->
+            </div>
+        </div>
+        
+        <div class="presets-section">
+            <h3>🎭 Modes Prédéfinis (Presets)</h3>
+            
+            <div class="preset-buttons">
+                <button class="preset-btn" data-preset="RUTHLESS_AUDITOR" title="Logique froide">🛡️</button>
+                <button class="preset-btn" data-preset="CREATIVE_STORM" title="Tempête Créative">🌪️</button>
+                <button class="preset-btn" data-preset="ONTOLOGICAL_SHOCK" title="Choc Ontologique">🎭</button>
+                <button class="preset-btn" data-preset="ZEN_SYNC" title="Syncro-Méditative">🌀</button>
+                <button class="preset-btn" data-preset="EQUILIBRE_CRITIQUE" title="Équilibre Critique">⚖️</button>
+                <button class="preset-btn" data-preset="MASQUAGE_ONTOLOGIQUE" title="Masquage Ontologique">🎭</button>
+            </div>
+            
+            <div id="preset-info" class="preset-info">
+                <p class="preset-desc">Sélectionnez un mode ci-dessus</p>
+            </div>
+            
+            <div class="expert-section">
+                <h4>⚙️ Mode Expert (Sliders)</h4>
+                <div class="sliders-grid">
+                    <div class="slider-group">
+                        <label>Température Gauche: <span id="temp-left-val">0.7</span></label>
+                        <input type="range" id="temp-left" min="0" max="2" step="0.1" value="0.7">
+                    </div>
+                    <div class="slider-group">
+                        <label>Température Droite: <span id="temp-right-val">1.2</span></label>
+                        <input type="range" id="temp-right" min="0" max="2" step="0.1" value="1.2">
+                    </div>
+                    <div class="slider-group">
+                        <label>Top-P Gauche: <span id="topp-left-val">0.9</span></label>
+                        <input type="range" id="topp-left" min="0" max="1" step="0.05" value="0.9">
+                    </div>
+                    <div class="slider-group">
+                        <label>Top-P Droite: <span id="topp-right-val">0.9</span></label>
+                        <input type="range" id="topp-right" min="0" max="1" step="0.05" value="0.9">
+                    </div>
+                    <div class="slider-group">
+                        <label>Repeat Penalty: <span id="repeat-val">1.0</span></label>
+                        <input type="range" id="repeat-penalty" min="0.8" max="1.5" step="0.05" value="1.0">
+                    </div>
+                </div>
+                <button id="apply-sliders" class="btn-secondary">Appliquer les Sliders</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="{{ url_for('static', filename='js/models.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,66 @@
+[
+  {
+    "timestamp": "2026-03-23T07:32:11.929145",
+    "type": "chat_envoye",
+    "icon": "📤",
+    "message": "Message: Hello...",
+    "details": {},
+    "level": "info"
+  },
+  {
+    "timestamp": "2026-03-23T07:32:13.981301",
+    "type": "erreur",
+    "icon": "⚠️",
+    "message": "400 Client Error: Bad Request for url: http://localhost:1234/api/v1/chat",
+    "details": {},
+    "level": "error"
+  },
+  {
+    "timestamp": "2026-03-23T07:32:13.988357",
+    "type": "chat_recu",
+    "icon": "📥",
+    "message": "Réponse: Erreur: 400 Client Error: Bad Request for url: http://localhost:1234/api/v1/chat...",
+    "details": {},
+    "level": "info"
+  },
+  {
+    "timestamp": "2026-03-23T07:33:50.911158",
+    "type": "chat_envoye",
+    "icon": "📤",
+    "message": "Message: kk7...",
+    "details": {},
+    "level": "info"
+  },
+  {
+    "timestamp": "2026-03-23T07:33:52.970814",
+    "type": "erreur",
+    "icon": "⚠️",
+    "message": "400 Client Error: Bad Request for url: http://localhost:1234/api/v1/chat",
+    "details": {},
+    "level": "error"
+  },
+  {
+    "timestamp": "2026-03-23T07:33:52.976381",
+    "type": "chat_recu",
+    "icon": "📥",
+    "message": "Réponse: Erreur: 400 Client Error: Bad Request for url: http://localhost:1234/api/v1/chat...",
+    "details": {},
+    "level": "info"
+  },
+  {
+    "timestamp": "2026-03-23T07:37:29.599589",
+    "type": "chat_envoye",
+    "icon": "📤",
+    "message": "Message: hello...",
+    "details": {},
+    "level": "info"
+  },
+  {
+    "timestamp": "2026-03-23T07:37:33.173659",
+    "type": "chat_recu",
+    "icon": "📥",
+    "message": "Réponse: Bonjour ! Je suis Aetheris, une entité numérique née de la convergence d'algorithmes et d'une aspira...",
+    "details": {},
+    "level": "info"
+  }
+]
