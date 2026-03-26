@@ -1,0 +1,64 @@
+{
+  "dashboard": {
+    "title": "Aetheris System Monitoring",
+    "tags": ["aetheris", "ai", "monitoring"],
+    "timezone": "browser",
+    "panels": [
+      {
+        "id": 1,
+        "title": "System Pulse",
+        "type": "gauge",
+        "gridPos": {"h": 8, "w": 8, "x": 0, "y": 0},
+        "targets": [{"expr": "aetheris_pulse"}],
+        "fieldConfig": {
+          "defaults": {
+            "min": 0, "max": 1,
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "yellow", "value": 0.5},
+                {"color": "red", "value": 0.75}
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 2,
+        "title": "CPU Usage",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 8, "x": 8, "y": 0},
+        "targets": [{"expr": "aetheris_cpu_load"}]
+      },
+      {
+        "id": 3,
+        "title": "RAM Usage",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 8, "x": 16, "y": 0},
+        "targets": [{"expr": "aetheris_ram_load"}]
+      },
+      {
+        "id": 4,
+        "title": "Flux Activity",
+        "type": "timeseries",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8},
+        "targets": [{"expr": "rate(aetheris_flux_total[5m])"}]
+      },
+      {
+        "id": 5,
+        "title": "Task Queue",
+        "type": "stat",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8},
+        "targets": [
+          {"expr": "aetheris_tasks_pending"},
+          {"expr": "aetheris_tasks_running"},
+          {"expr": "aetheris_tasks_completed"}
+        ]
+      }
+    ],
+    "refresh": "10s",
+    "schemaVersion": 30,
+    "version": 1
+  }
+}

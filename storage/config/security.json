@@ -1,0 +1,15 @@
+{
+  "mode": "auto",
+  "docker_mode": false,
+  "security_level": "secured",
+  "permissions": {
+    "file_write": false,
+    "file_delete": false,
+    "file_modify": false,
+    "explore_outside": false,
+    "immediate_execution": false,
+    "admin_interface": false
+  },
+  "pending_approvals": [],
+  "approval_history": []
+}

@@ -1,0 +1,26 @@
+[
+  {
+    "timestamp": "2026-03-24T21:41:35.655590",
+    "type": "chat_envoye",
+    "icon": "📤",
+    "message": "Message: test...",
+    "details": {},
+    "level": "info"
+  },
+  {
+    "timestamp": "2026-03-24T21:41:51.876356",
+    "type": "erreur",
+    "icon": "⚠️",
+    "message": "LM Studio not responding correctly",
+    "details": {},
+    "level": "error"
+  },
+  {
+    "timestamp": "2026-03-24T21:41:51.882892",
+    "type": "chat_recu",
+    "icon": "📥",
+    "message": "Réponse: Erreur: LM Studio not responding correctly...",
+    "details": {},
+    "level": "info"
+  }
+]

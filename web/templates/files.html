@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fichiers - A-ETHERIS</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.4/socket.io.min.js"></script>
+    <script src="{{ url_for('static', filename='js/brain-monitor.js') }}" defer></script>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo"><h1>🧬 A-ETHERIS</h1></div>
+        <nav>
+            <a href="/" class="nav-item">🏠 Accueil</a>
+            <a href="/chat" class="nav-item">💬 Chat</a>
+            <a href="/dashboard" class="nav-item">📊 Dashboard</a>
+            <a href="/inception" class="nav-item">🌀 Inception</a>
+            <a href="/tasks" class="nav-item">📋 Tâches & Flux</a>
+            <a href="/think" class="nav-item">🧠 Pensées</a>
+            <a href="/models" class="nav-item">⚙️ Modèles</a>
+            <a href="/files" class="nav-item active">📁 Fichiers</a>
+            <a href="/launcher" class="nav-item" style="margin-top: 20px; color: #00ff00; border-top: 1px solid #333; padding-top: 10px;">🚀 Relancer</a>
+        </nav>
+    </div>
+    
+    <div class="main-content">
+        <h2>📁 Gestion des Fichiers</h2>
+        
+        <div class="file-tabs">
+            <button class="tab-btn active" data-tab="journal">📖 Journal</button>
+            <button class="tab-btn" data-tab="seed">🧬 Seed Prompt</button>
+            <button class="tab-btn" data-tab="config">⚙️ Configuration</button>
+            <button class="tab-btn" data-tab="identity">🆔 Identité</button>
+            <button class="tab-btn" data-tab="tasks">📝 Tâches</button>
+        </div>
+        
+        <div class="file-content">
+            <div class="tab-panel active" id="panel-journal">
+                <h3>📖 Journal d'Aetheris</h3>
+                <textarea id="journal-editor" class="editor">{{ journal }}</textarea>
+                <button class="btn-primary" data-save="journal">💾 Sauvegarder</button>
+            </div>
+            
+            <div class="tab-panel" id="panel-seed">
+                <h3>🧬 Seed Prompt (Identité)</h3>
+                <textarea id="seed-editor" class="editor">{{ seed }}</textarea>
+                <button class="btn-primary" data-save="seed">💾 Sauvegarder</button>
+            </div>
+            
+            <div class="tab-panel" id="panel-config">
+                <h3>⚙️ Configuration</h3>
+                <textarea id="config-editor" class="editor">{{ config }}</textarea>
+                <button class="btn-primary" data-save="config">💾 Sauvegarder</button>
+            </div>
+            
+            <div class="tab-panel" id="panel-tasks">
+                <h3>📝 Tâches (Zone Partagée)</h3>
+                <textarea id="tasks-editor" class="editor">{{ tasks_md }}</textarea>
+                <button class="btn-primary" data-save="tasks">💾 Sauvegarder</button>
+            </div>
+
+            <div class="tab-panel" id="panel-identity">
+                <h3>🆔 Identité de l'Entité</h3>
+                <p style="color: #888; margin-bottom: 20px;">Définissez le nom sous lequel l'entité bicamérale se reconnaît.</p>
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label for="entity-name" style="display: block; margin-bottom: 8px;">Nom de l'Entité</label>
+                    <input type="text" id="entity-name" value="{{ config.name }}" style="width: 100%; background: #000; border: 1px solid #333; color: #fff; padding: 10px; border-radius: 4px;">
+                </div>
+                <button onclick="saveIdentity()" class="btn-primary" style="background: #00ff00; color: #000; border: none; padding: 10px 20px; border-radius: 4px; font-weight: bold; cursor: pointer;">Sauvegarder l'Identité</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function saveIdentity() {
+            const name = document.getElementById('entity-name').value;
+            try {
+                const response = await fetch('/api/identity/save', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name })
+                });
+                const result = await response.json();
+                if (result.status === 'ok') {
+                    alert("Identité mise à jour !");
+                    location.reload();
+                } else {
+                    alert("Erreur: " + result.error);
+                }
+            } catch (err) {
+                alert("Erreur de connexion.");
+            }
+        }
+    </script>
+    
+    <script src="{{ url_for('static', filename='js/files.js') }}"></script>
+</body>
+</html>

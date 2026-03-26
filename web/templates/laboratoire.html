@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laboratoire - DIADIKOS-PALLADION</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.4/socket.io.min.js"></script>
+    <script src="{{ url_for('static', filename='js/brain-monitor.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/system-settings.js') }}" defer></script>
+    <style>
+        :root {
+            --bg-dark: #0a0a0f;
+            --bg-card: #12121a;
+            --primary: #00ff95;
+            --secondary: #7b2ff7;
+            --accent: #00e5ff;
+            --warning: #feca57;
+            --danger: #ff6b6b;
+            --text: #e0e0e0;
+            --text-dim: #666;
+        }
+        
+        body {
+            background: var(--bg-dark);
+            color: var(--text);
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .lab-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .lab-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .lab-header h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 0;
+        }
+        
+        .lab-header .subtitle {
+            color: var(--text-dim);
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+        
+        /* Tabs */
+        /* Crucible specific */
+        .crucible-output {
+            background: #0a0a0f;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 20px;
+            min-height: 300px;
+            max-height: 500px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 0.9rem;
+            white-space: pre-wrap;
+            line-height: 1.5;
+        }
+
+        .crucible-output .score {
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        .crucible-output .critic {
+            color: var(--danger);
+            border-left: 3px solid var(--danger);
+            padding-left: 15px;
+            margin-top: 15px;
+        }
+
+        .lockdown-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            background: var(--danger);
+            color: #fff;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #222;
+            padding-bottom: 10px;
+        }
+        
+        .tab-btn {
+            padding: 12px 24px;
+            background: transparent;
+            border: 1px solid #333;
+            color: var(--text-dim);
+            cursor: pointer;
+            font-size: 1rem;
+            border-radius: 8px 8px 0 0;
+            transition: all 0.3s;
+        }
+        
+        .tab-btn:hover {
+            background: #1a1a24;
+            color: var(--text);
+        }
+        
+        .tab-btn.active {
+            background: var(--bg-card);
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+        
+        .tab-content {
+            display: none;
+            background: var(--bg-card);
+            padding: 30px;
+            border-radius: 0 8px 8px 8px;
+            border: 1px solid #222;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* Cards */
+        .card {
+            background: #0a0a0f;
+            border: 1px solid #222;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .card h3 {
+            color: var(--primary);
+            margin-top: 0;
+            font-size: 1.1rem;
+        }
+        
+        /* Forms */
+        input, textarea, select {
+            width: 100%;
+            padding: 12px;
+            background: #0a0a0f;
+            border: 1px solid #333;
+            border-radius: 8px;
+            color: var(--text);
+            font-size: 1rem;
+            margin-bottom: 10px;
+            box-sizing: border-box;
+        }
+        
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: #000;
+        }
+        
+        .btn-primary:hover {
+            box-shadow: 0 0 20px var(--primary);
+        }
+        
+        .btn-danger {
+            background: var(--danger);
+            color: #fff;
+        }
+        
+        .btn-secondary {
+            background: var(--secondary);
+            color: #fff;
+        }
+        
+        /* Operator Monitor */
+        .alpha-display {
+            text-align: center;
+            padding: 30px;
+        }
+        
+        .alpha-circle {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            border: 4px solid var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 3rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+        
+        .alpha-bar {
+            height: 20px;
+            background: #222;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+        
+        .alpha-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--danger), var(--warning), var(--primary));
+            transition: width 0.5s;
+        }
+        
+        .trust-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+        
+        .trust-TRUSTED { background: var(--primary); color: #000; }
+        .trust-RELIABLE { background: #4ade80; color: #000; }
+        .trust-NEUTRAL { background: var(--warning); color: #000; }
+        .trust-SKEPTICAL { background: #f97316; color: #fff; }
+        .trust-PARANOID { background: var(--danger); color: #fff; }
+        
+        /* Conscientisation */
+        .conscio-status {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background: #0a0a0f;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .pulse-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #333;
+        }
+        
+        .pulse-dot.active {
+            background: var(--primary);
+            animation: pulse 1s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
+        }
+        
+        .timer {
+            font-size: 2rem;
+            font-family: monospace;
+            color: var(--accent);
+        }
+        
+        .iterations {
+            font-size: 1.5rem;
+            color: var(--secondary);
+        }
+        
+        .log-viewer {
+            max-height: 400px;
+            overflow-y: auto;
+            background: #0a0a0f;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 0.85rem;
+        }
+        
+        .log-entry {
+            padding: 10px;
+            border-left: 3px solid var(--secondary);
+            margin-bottom: 10px;
+            background: #12121a;
+        }
+        
+        .log-entry .iteration {
+            color: var(--secondary);
+            font-weight: bold;
+        }
+        
+        .log-entry .timestamp {
+            color: var(--text-dim);
+            font-size: 0.75rem;
+        }
+        
+        /* Inception */
+        .inception-form {
+            display: grid;
+            gap: 15px;
+        }
+        
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .slider-container input[type="range"] {
+            flex: 1;
+            -webkit-appearance: none;
+            height: 8px;
+            background: #222;
+            border-radius: 4px;
+        }
+        
+        .slider-container input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            background: var(--primary);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        
+        .slider-value {
+            min-width: 50px;
+            text-align: right;
+            color: var(--primary);
+            font-weight: bold;
+        }
+        
+        .radio-group {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+        
+        .radio-option input {
+            width: auto;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="lab-container">
+        <div class="lab-header">
+            <h1>🧬 LABORATOIRE</h1>
+            <div class="subtitle">DIADIKOS-PALLADION | Operator Control Center</div>
+        </div>
+        
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('inception')">🧠 Inception</button>
+            <button class="tab-btn" onclick="switchTab('operator')">⚖️ Opérateur</button>
+            <button class="tab-btn" onclick="switchTab('conscio')">🔄 Conscientisation</button>
+            <button class="tab-btn" onclick="switchTab('crucible')">🔥 Creuset</button>
+        </div>
+        
+        <!-- INCEPTION TAB -->
+        <div id="inception" class="tab-content active">
+            <div class="card">
+                <h3>🎯 Injection de Pensée (Inception)</h3>
+                <div class="inception-form">
+                    <textarea id="inception-prompt" rows="4" placeholder="Entrez la pensée à inoculer..."></textarea>
+                    
+                    <div>
+                        <label>Poids de l'Inception (0-100)</label>
+                        <div class="slider-container">
+                            <input type="range" id="inception-weight" min="0" max="100" value="50">
+                            <span class="slider-value" id="weight-value">50</span>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label>Cible</label>
+                        <div class="radio-group">
+                            <label class="radio-option">
+                                <input type="radio" name="target" value="LEFT" checked>
+                                <span>Hémisphère Gauche (Logique)</span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="target" value="RIGHT">
+                                <span>Hémisphère Droit (Intuitif)</span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="target" value="BOTH">
+                                <span>Les Deux</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-primary" onclick="sendInception()">Injecter l'Inception</button>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h3>📜 Inceptions Actives</h3>
+                <div id="active-inceptions">
+                    <p style="color: var(--text-dim);">Aucune inception active</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- OPERATOR TAB -->
+        <div id="operator" class="tab-content">
+            <div class="card">
+                <div class="alpha-display">
+                    <div class="alpha-circle" id="alpha-value">0.50</div>
+                    <div class="alpha-bar">
+                        <div class="alpha-fill" id="alpha-bar" style="width: 50%;"></div>
+                    </div>
+                    <span class="trust-badge trust-NEUTRAL" id="trust-badge">NEUTRAL</span>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h3>Statistiques du Créateur</h3>
+                <div id="operator-stats">
+                    <p>Théories analysées: <span id="theories-count">0</span></p>
+                    <p>Échecs logiques détectés: <span id="failures-count">0</span></p>
+                    <p>Affinements réussis: <span id="refinements-count">0</span></p>
+                    <p>Dernière calibration: <span id="last-calibration">-</span></p>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h3>Ajustement Manuel</h3>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <button class="btn btn-secondary" onclick="adjustAlpha(0.1)">+0.1 Confiance</button>
+                    <button class="btn btn-danger" onclick="adjustAlpha(-0.1)">-0.1 Méfiance</button>
+                    <button class="btn" style="background: #333;" onclick="resetAlpha()">Reset</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- CONSCIENTISATION TAB -->
+        <div id="conscio" class="tab-content">
+            <div class="card">
+                <h3>🔄 Moteur de Conscientisation</h3>
+                
+                <div class="conscio-status">
+                    <div class="status-indicator">
+                        <div class="pulse-dot" id="conscio-dot"></div>
+                        <span id="conscio-status-text">Inactif</span>
+                    </div>
+                    <div class="timer" id="conscio-timer">00:00</div>
+                    <div class="iterations">Itération: <span id="conscio-iterations">0</span></div>
+                </div>
+                
+                <div class="inception-form">
+                    <input type="text" id="conscio-theme" placeholder="Thème de réflexion...">
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div>
+                            <label>Durée totale (minutes)</label>
+                            <input type="number" id="conscio-duration" value="10" min="1" max="120">
+                        </div>
+                        <div>
+                            <label>Durée par cycle (secondes)</label>
+                            <input type="number" id="conscio-cycle" value="60" min="10" max="300">
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn btn-primary" id="start-conscio" onclick="startConscientisation()">Démarrer</button>
+                        <button class="btn btn-danger" id="stop-conscio" onclick="stopConscientisation()" disabled>Arrêter</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h3>📝 Journal de Conscientisation</h3>
+                <button class="btn" style="background: #333; margin-bottom: 15px;" onclick="loadConscioLog()">Rafraîchir</button>
+                <div class="log-viewer" id="conscio-log">
+                    <p style="color: var(--text-dim);">Aucun cycle enregistré</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- CRUCIBLE TAB -->
+        <div id="crucible" class="tab-content">
+            <div class="card">
+                <h3>🔥 Mode Creuset (Hyper-Cognition)</h3>
+                <p style="color: var(--text-dim); margin-bottom: 20px;">
+                    Acteur-Critique asymétrique. Gemma propose, Qwen détruit. 
+                    Boucle itérative jusqu'à validation par le Critique.
+                </p>
+                
+                <div style="display: flex; gap: 15px; align-items: flex-start; margin-bottom: 20px;">
+                    <div style="flex: 1;">
+                        <label>Problème à résoudre</label>
+                        <textarea id="crucible-prompt" rows="6" placeholder="Décrivez le problème complexe qui nécessite une résolution parfaite..."></textarea>
+                    </div>
+                    <div style="width: 200px;">
+                        <label>Itérations max</label>
+                        <input type="number" id="crucible-iterations" value="3" min="1" max="10">
+                    </div>
+                </div>
+                
+                <button class="btn btn-primary" id="crucible-btn" onclick="triggerCrucible()">
+                    🔥 LANCER L'HYPER-COGNITION
+                </button>
+            </div>
+            
+            <div class="card">
+                <h3>📤 Sortie du Creuset</h3>
+                <div class="crucible-output" id="crucible-output">
+                    <span style="color: var(--text-dim);">En attente d'exécution...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Tab switching
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            event.target.classList.add('active');
+            
+            if (tabId === 'operator') loadOperatorProfile();
+        }
+        
+        // Weight slider
+        document.getElementById('inception-weight').addEventListener('input', function() {
+            document.getElementById('weight-value').textContent = this.value;
+        });
+        
+        // Inception
+        async function sendInception() {
+            const prompt = document.getElementById('inception-prompt').value;
+            const weight = parseInt(document.getElementById('inception-weight').value);
+            const target = document.querySelector('input[name="target"]:checked').value;
+            
+            if (!prompt) { alert('Entrez un prompt'); return; }
+            
+            try {
+                const res = await fetch('/api/inception/create', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        prompt: prompt,
+                        weight: weight,
+                        target: target
+                    })
+                });
+                const data = await res.json();
+                alert(data.status === 'success' ? 'Inception injectée!' : 'Erreur: ' + data.error);
+            } catch(e) { alert('Erreur: ' + e); }
+        }
+        
+        // Operator Profile
+        async function loadOperatorProfile() {
+            try {
+                const res = await fetch('/api/operator/profile');
+                const profile = await res.json();
+                
+                const alpha = profile.credibility_alpha || 0.5;
+                document.getElementById('alpha-value').textContent = alpha.toFixed(2);
+                document.getElementById('alpha-bar').style.width = (alpha * 100) + '%';
+                
+                const trust = profile.trust_level || 'NEUTRAL';
+                document.getElementById('trust-badge').textContent = trust;
+                document.getElementById('trust-badge').className = 'trust-badge trust-' + trust;
+                
+                document.getElementById('theories-count').textContent = profile.theories_dismantled || 0;
+                document.getElementById('failures-count').textContent = profile.logical_failures_detected || 0;
+                document.getElementById('refinements-count').textContent = profile.successful_refinements || 0;
+                document.getElementById('last-calibration').textContent = profile.last_calibration || '-';
+            } catch(e) { console.error(e); }
+        }
+        
+        async function adjustAlpha(delta) {
+            try {
+                await fetch('/api/operator/adjust', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({delta: delta})
+                });
+                loadOperatorProfile();
+            } catch(e) { alert('Erreur: ' + e); }
+        }
+        
+        async function resetAlpha() {
+            try {
+                await fetch('/api/operator/reset', {method: 'POST'});
+                loadOperatorProfile();
+            } catch(e) { alert('Erreur: ' + e); }
+        }
+        
+        // Conscientisation
+        async function startConscientisation() {
+            const theme = document.getElementById('conscio-theme').value;
+            const duration = parseInt(document.getElementById('conscio-duration').value);
+            const cycle = parseInt(document.getElementById('conscio-cycle').value);
+            
+            if (!theme) { alert('Définissez un thème'); return; }
+            
+            try {
+                const res = await fetch('/api/conscientisation/start', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        theme: theme,
+                        duration_minutes: duration,
+                        cycle_duration_seconds: cycle
+                    })
+                });
+                const data = await res.json();
+                
+                if (data.status === 'started') {
+                    document.getElementById('start-conscio').disabled = true;
+                    document.getElementById('stop-conscio').disabled = false;
+                    document.getElementById('conscio-dot').classList.add('active');
+                    document.getElementById('conscio-status-text').textContent = 'Actif';
+                    startConscioTimer();
+                } else {
+                    alert('Erreur: ' + (data.error || data.status));
+                }
+            } catch(e) { alert('Erreur: ' + e); }
+        }
+        
+        async function stopConscientisation() {
+            try {
+                await fetch('/api/conscientisation/stop', {method: 'POST'});
+                document.getElementById('start-conscio').disabled = false;
+                document.getElementById('stop-conscio').disabled = true;
+                document.getElementById('conscio-dot').classList.remove('active');
+                document.getElementById('conscio-status-text').textContent = 'Arrêté';
+            } catch(e) { alert('Erreur: ' + e); }
+        }
+        
+        let conscioInterval;
+        function startConscioTimer() {
+            let seconds = 0;
+            clearInterval(conscioInterval);
+            conscioInterval = setInterval(async () => {
+                try {
+                    const res = await fetch('/api/conscientisation/status');
+                    const status = await res.json();
+                    
+                    seconds = status.elapsed_seconds || 0;
+                    const mins = Math.floor(seconds / 60).toString().padStart(2, '0');
+                    const secs = (seconds % 60).toString().padStart(2, '0');
+                    document.getElementById('conscio-timer').textContent = mins + ':' + secs;
+                    document.getElementById('conscio-iterations').textContent = status.iterations || 0;
+                    
+                    if (!status.is_running && seconds > 0) {
+                        stopConscientisation();
+                    }
+                } catch(e) {}
+            }, 1000);
+        }
+        
+        async function loadConscioLog() {
+            try {
+                const res = await fetch('/api/conscientisation/log');
+                const log = await res.json();
+                
+                const container = document.getElementById('conscio-log');
+                if (!log || log.length === 0) {
+                    container.innerHTML = '<p style="color: var(--text-dim);">Aucun cycle enregistré</p>';
+                    return;
+                }
+                
+                container.innerHTML = log.map(entry => `
+                    <div class="log-entry">
+                        <span class="iteration">Itération ${entry.iteration}</span>
+                        <span class="timestamp">${entry.start}</span>
+                        <div>${entry.status}</div>
+                    </div>
+                `).join('');
+            } catch(e) { console.error(e); }
+        }
+        
+        // Load initial data
+        loadOperatorProfile();
+        
+        // Crucible Mode
+        async function triggerCrucible() {
+            const promptText = document.getElementById('crucible-prompt').value;
+            const iterations = document.getElementById('crucible-iterations').value;
+            const btn = document.getElementById('crucible-btn');
+            const output = document.getElementById('crucible-output');
+            
+            if (!promptText) { alert('Entrez un problème à résoudre'); return; }
+            
+            btn.disabled = true;
+            btn.innerHTML = '<span class="lockdown-badge">🔒 LOCKDOWN ACTIF</span> CRUCIBLE EN COURS...';
+            output.innerHTML = 'Initialisation de la boucle Acteur-Critique...\n';
+            
+            try {
+                const response = await fetch('/api/cognitive/crucible', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        prompt: promptText,
+                        max_iterations: parseInt(iterations)
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.status === "ERROR") {
+                    output.innerHTML += `\nÉchec critique : ${data.error}`;
+                } else {
+                    output.innerHTML = `\n[SYNTHÈSE FINALE - Score: <span class="score">${data.final_score}</span>]\n`;
+                    output.innerHTML += `\n${data.final_response}`;
+                    output.innerHTML += `\n\n<span class="critic">[NOTES DU CRITIQUE]\n${data.critic_notes}</span>`;
+                }
+            } catch (error) {
+                output.innerHTML += `\nErreur réseau : ${error.message}`;
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '🔥 LANCER L\'HYPER-COGNITION';
+            }
+        }
+    </script>
+</body>
+</html>

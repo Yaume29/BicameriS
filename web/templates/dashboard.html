@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - A-ETHERIS</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.4/socket.io.min.js"></script>
+    <script src="{{ url_for('static', filename='js/brain-monitor.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/interpreter.js') }}" defer></script>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo"><h1>🧬 A-ETHERIS</h1></div>
+        <nav>
+            <a href="/" class="nav-item">🏠 Accueil</a>
+            <a href="/chat" class="nav-item">💬 Chat</a>
+            <a href="/dashboard" class="nav-item active">📊 Dashboard</a>
+            <a href="/inception" class="nav-item">🌀 Inception</a>
+            <a href="/tasks" class="nav-item">📋 Tâches & Flux</a>
+            <a href="/think" class="nav-item">🧠 Pensées</a>
+            <a href="/models" class="nav-item">⚙️ Modèles</a>
+            <a href="/files" class="nav-item">📁 Fichiers</a>
+            <a href="/launcher" class="nav-item" style="margin-top: 20px; color: #00ff00; border-top: 1px solid #333; padding-top: 10px;">🚀 Relancer</a>
+        </nav>
+        
+        <div class="status-box">
+            <h3>État du Système</h3>
+            {% if lm_ready %}
+            <div class="status-indicator active"></div><span>LM Studio OK</span>
+            {% else %}
+            <div class="status-indicator inactive"></div><span>LM Studio non détecté</span>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="main-content">
+        <h2>📊 Dashboard</h2>
+        
+        <div class="metrics-row">
+            <div class="metric-card">
+                <h4>Modèle</h4>
+                <p class="metric-value">{{ model_info.display_name or 'Aucun' }}</p>
+            </div>
+            <div class="metric-card">
+                <h4>Total Flux</h4>
+                <p class="metric-value">{{ stats.total }}</p>
+            </div>
+            <div class="metric-card">
+                <h4>Tâches</h4>
+                <p class="metric-value">{{ task_stats.total }}</p>
+            </div>
+        </div>
+        
+        <div class="dashboard-grid">
+            <div class="dashboard-card">
+                <h3>🎚️ Contrôles</h3>
+                <div class="control-group">
+                    <label>Température</label>
+                    <input type="range" min="0" max="2" step="0.1" value="0.7" id="dash-temp">
+                    <span>0.7</span>
+                </div>
+                <div class="control-group">
+                    <label>Max Tokens</label>
+                    <input type="range" min="256" max="8192" step="256" value="2048" id="dash-tokens">
+                    <span>2048</span>
+                </div>
+            </div>
+            
+            <div class="dashboard-card">
+                <h3>🧠 Mémoire Vectorielle</h3>
+                <div class="memory-visualization">
+                    <div class="memory-stats">
+                        <div class="mem-total">
+                            <span class="mem-value" id="mem-total">0</span>
+                            <span class="mem-label">Souvenirs</span>
+                        </div>
+                        <div class="mem-embedding">
+                            <span id="mem-embedding-type">Hash</span>
+                        </div>
+                    </div>
+                    <div class="concept-cloud" id="concept-cloud">
+                        <!-- Concepts loaded by JS -->
+                    </div>
+                    <div class="memory-recent" id="memory-recent">
+                        <p class="no-data">Chargement...</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="dashboard-card col-span-2">
+                <h3>🧠 Interprète Temps Réel (Bicaméral)</h3>
+                <div class="interpreter-container">
+                    <div class="interpreter-header">
+                        <div class="interpreter-filter">
+                            <span class="filter-badge active" data-type="all">Tout</span>
+                            <span class="filter-badge" data-type="thought">Pensées</span>
+                            <span class="filter-badge" data-type="corps">Corps Calleux</span>
+                            <span class="filter-badge" data-type="hemisphere">Hémisphères</span>
+                        </div>
+                        <div class="interpreter-status">
+                            <span id="interpreter-pulse" class="pulse-dot"></span>
+                            <span id="interpreter-status-text">Écoute du flux...</span>
+                        </div>
+                    </div>
+                    <div id="interpreter-feed" class="interpreter-feed">
+                        <div class="feed-placeholder">Initialisation de l'interprète...</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="dashboard-card">
+                <h3>🛑 Entropie Matérielle</h3>
+                <div class="entropy-visualization">
+                    <div class="entropy-gauge">
+                        <svg viewBox="0 0 100 100" class="gauge-svg">
+                            <circle cx="50" cy="50" r="40" fill="none" stroke="#333" stroke-width="8"/>
+                            <circle cx="50" cy="50" r="40" fill="none" stroke="url(#gaugeGradient)" stroke-width="8" 
+                                stroke-dasharray="251.2" stroke-dashoffset="251.2" id="entropy-arc"/>
+                            <defs>
+                                <linearGradient id="gaugeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                    <stop offset="0%" style="stop-color:#00ff88"/>
+                                    <stop offset="50%" style="stop-color:#ffaa00"/>
+                                    <stop offset="100%" style="stop-color:#ff0044"/>
+                                </linearGradient>
+                            </defs>
+                        </svg>
+                        <div class="gauge-center">
+                            <span class="pulse-value" id="pulse-display">0.00</span>
+                            <span class="pulse-label">PULSE</span>
+                        </div>
+                    </div>
+                    <div class="entropy-details">
+                        <div class="entropy-bar">
+                            <label>CPU</label>
+                            <div class="bar-container"><div class="bar-fill" id="cpu-bar"></div></div>
+                            <span id="cpu-val">0%</span>
+                        </div>
+                        <div class="entropy-bar">
+                            <label>RAM</label>
+                            <div class="bar-container"><div class="bar-fill" id="ram-bar"></div></div>
+                            <span id="ram-val">0%</span>
+                        </div>
+                        <div class="entropy-bar">
+                            <label>VRAM</label>
+                            <div class="bar-container"><div class="bar-fill" id="vram-bar"></div></div>
+                            <span id="vram-val">0%</span>
+                        </div>
+                    </div>
+                    <div class="mood-indicator" id="mood-display">
+                        <span class="mood-badge">NEUTRE</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="dashboard-card full-width">
+            <h3>📈 Statistiques des Flux</h3>
+            <div class="stats-grid" id="flux-stats">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+        
+        <div class="dashboard-card full-width">
+            <h3>⚠️ Erreurs Récentes</h3>
+            <div id="recent-errors">
+                <p class="no-data">Chargement...</p>
+            </div>
+        </div>
+        
+        <div class="dashboard-card full-width">
+            <h3>🤖 Agents & VRAM</h3>
+            <div class="agents-panel">
+                <div class="agents-header">
+                    <button id="refresh-agents" class="btn-primary">🔄 Actualiser</button>
+                    <span id="vram-status">VRAM: calcul...</span>
+                </div>
+                <div class="agents-list" id="agents-list">
+                    <p class="no-data">Chargement des agents...</p>
+                </div>
+                <div class="providers-config">
+                    <h4>📡 Providers API</h4>
+                    <div id="providers-list"></div>
+                    <div class="api-config-form">
+                        <select id="provider-select">
+                            <option value="">Sélectionner provider...</option>
+                            <option value="groq">Groq (Gratuit)</option>
+                            <option value="openrouter">OpenRouter</option>
+                            <option value="together">Together AI</option>
+                            <option value="cohere">Cohere</option>
+                            <option value="huggingface">HuggingFace</option>
+                        </select>
+                        <input type="password" id="api-key-input" placeholder="API Key...">
+                        <button id="save-api-key" class="btn-primary">💾 Configurer</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BICAMERIS</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% if session.get('is_initiator') %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.4/socket.io.min.js"></script>
+    <script src="{{ url_for('static', filename='js/brain-monitor.js') }}" defer></script>
+    {% endif %}
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo">
+            <div class="brain-status-container">
+                <svg viewBox="0 0 100 100" class="brain-svg">
+                    <!-- Hémisphère Gauche -->
+                    <path id="brain-left" class="brain-part status-red" d="M50,10 C30,10 10,30 10,50 C10,70 30,90 50,90 L50,10 Z" />
+                    <!-- Hémisphère Droit -->
+                    <path id="brain-right" class="brain-part status-red" d="M50,10 C70,10 90,30 90,50 C90,70 70,90 50,90 L50,10 Z" />
+                </svg>
+            </div>
+            <h1>BICAMERIS</h1>
+            <p>L'Esprit Auto-Généré</p>
+        </div>
+        
+        <nav>
+            <a href="/" class="nav-item active">🏠 Accueil</a>
+            <a href="/chat" class="nav-item">💬 Chat</a>
+            {% if session.get('is_initiator') %}
+            <a href="/dashboard" class="nav-item">📊 Dashboard</a>
+            <a href="/inception" class="nav-item">🌀 Inception</a>
+            <a href="/laboratoire" class="nav-item">🧬 Laboratoire</a>
+            <a href="/tasks" class="nav-item">📋 Tâches & Flux</a>
+            <a href="/think" class="nav-item">🧠 Pensées</a>
+            <a href="/models" class="nav-item">⚙️ Modèles</a>
+            <a href="/files" class="nav-item">📁 Fichiers</a>
+            <a href="/research" class="nav-item" style="color: #ff3e3e;">🔬 Recherche</a>
+            <a href="/launcher" class="nav-item" style="margin-top: 20px; color: #00ff00; border-top: 1px solid #333; padding-top: 10px;">🚀 Relancer</a>
+            {% endif %}
+        </nav>
+        
+        {% if session.get('is_initiator') %}
+        <div class="status-box">
+            <h3>État du Système</h3>
+            <div class="metrics">
+                <div class="metric">
+                    <span class="metric-label">Modèle</span>
+                    <span class="metric-value">{{ model_info.display_name or 'Aucun' }}</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Total Flux</span>
+                    <span class="metric-value">{{ stats.total }}</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Tâches</span>
+                    <span class="metric-value">{{ task_stats.total }}</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Pensées induites</span>
+                    <span class="metric-value">{{ inception_stats.pending }}</span>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    
+    <div class="main-content">
+        <div class="welcome-card">
+            <h2>Bienvenue dans BICAMERIS</h2>
+            <p>Interface de contrôle pour l'esprit auto-généré</p>
+            
+            <div class="quick-links">
+                <a href="/chat" class="quick-btn primary">💬 Commencer à discuter</a>
+                {% if session.get('is_initiator') %}
+                <a href="/dashboard" class="quick-btn">📊 Voir le dashboard</a>
+                {% endif %}
+            </div>
+        </div>
+        
+        {% if session.get('is_initiator') %}
+        <div class="info-grid">
+            <div class="info-card">
+                <h3>💬 Chat</h3>
+                <p>Dialoguer avec Aetheris, injecter des pensées via Thought Inception</p>
+            </div>
+            <div class="info-card">
+                <h3>📊 Dashboard</h3>
+                <p>Métriques, contrôles de température, configuration</p>
+            </div>
+            <div class="info-card">
+                <h3>📋 Tâches & Flux</h3>
+                <p>Suivre les activités, filtrer par type, gérer les tâches</p>
+            </div>
+            <div class="info-card">
+                <h3>📁 Fichiers</h3>
+                <p>Journal, seed prompt, configuration</p>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    
+    <button class="mobile-menu-btn" onclick="toggleMobileMenu()">☰</button>
+    
+    <script>
+    function toggleMobileMenu() {
+        const sidebar = document.querySelector('.sidebar');
+        sidebar.classList.toggle('mobile-open');
+    }
+    
+    document.querySelectorAll('.sidebar nav a').forEach(link => {
+        link.addEventListener('click', () => {
+            document.querySelector('.sidebar').classList.remove('mobile-open');
+        });
+    });
+    </script>
+</body>
+</html>

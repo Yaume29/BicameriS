@@ -1,0 +1,17 @@
+# Normalize line endings to LF for all files
+* text=auto
+
+# Force LF for specific file types
+*.py text eol=lf
+*.js text eol=lf
+*.md text eol=lf
+*.json text eol=lf
+*.txt text eol=lf
+
+# Binary files
+*.png binary
+*.jpg binary
+*.gif binary
+*.ico binary
+*.so binary
+*.pyc binary

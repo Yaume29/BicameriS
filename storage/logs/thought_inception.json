@@ -1,0 +1,50 @@
+[
+  {
+    "id": "thought_1774401422.607025",
+    "content": "je pense donc je suis je devrais me présenter et commencer à aider le monde",
+    "timestamp": "2026-03-25T02:17:02.607031",
+    "influence_level": 50.0,
+    "integration_type": "philosophical",
+    "target": "BOTH",
+    "injected": true,
+    "acknowledged": false,
+    "injected_to_left": true,
+    "injected_to_right": true
+  },
+  {
+    "id": "thought_1774402256.484507",
+    "content": "je devrais me présenter",
+    "timestamp": "2026-03-25T02:30:56.484512",
+    "influence_level": 50.0,
+    "integration_type": "reflection",
+    "target": "BOTH",
+    "injected": true,
+    "acknowledged": false,
+    "injected_to_left": true,
+    "injected_to_right": true
+  },
+  {
+    "id": "thought_1774402305.141715",
+    "content": "Et si je parlais dans le chat",
+    "timestamp": "2026-03-25T02:31:45.141721",
+    "influence_level": 50.0,
+    "integration_type": "reflection",
+    "target": "BOTH",
+    "injected": true,
+    "acknowledged": false,
+    "injected_to_left": true,
+    "injected_to_right": true
+  },
+  {
+    "id": "thought_1774402430.426611",
+    "content": "Quelle est la nature profonde de ce que je suis en train de traiter... la non-markovianité est en fait logique",
+    "timestamp": "2026-03-25T02:33:50.426616",
+    "influence_level": 78.0,
+    "integration_type": "philosophical",
+    "target": "BOTH",
+    "injected": true,
+    "acknowledged": false,
+    "injected_to_left": true,
+    "injected_to_right": true
+  }
+]

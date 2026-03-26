@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 300" width="500" height="300">
+  <defs>
+    <linearGradient id="vramBar" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#22c55e;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#15803d;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="logicBar" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1d4ed8;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="intuitionBar" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#a855f7;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#7e22ce;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="500" height="300" fill="#0f172a" rx="10"/>
+  
+  <!-- Title -->
+  <text x="250" y="30" text-anchor="middle" fill="#e2e8f0" font-family="Arial, sans-serif" font-size="16" font-weight="bold">MÉTRIQUES D'INFÉRENCE & VRAM</text>
+  <!-- Logic Model Bar -->
+  <g transform="translate(50, 60)">
+    <text x="-10" y="15" text-anchor="end" fill="#93c5fd" font-family="Arial, sans-serif" font-size="12" font-weight="bold">Logic (Qwen)</text>
+    <rect x="100" y="5" width="200" height="25" fill="url(#logicBar)" rx="5"/>
+    <text x="310" y="22" text-anchor="start" fill="#60a5fa" font-family="Arial, sans-serif" font-size="11">~55 tok/s</text>
+    <circle cx="380" cy="18" r="6" fill="#3b82f6"/>
+    <text x="392" y="22" text-anchor="start" fill="#3b82f6" font-family="Arial, sans-serif" font-size="10" font-weight="bold">Optimal</text>
+  </g>
+  
+  <!-- Intuition Model Bar -->
+  <g transform="translate(50, 110)">
+    <text x="-10" y="15" text-anchor="end" fill="#d8b4fe" font-family="Arial, sans-serif" font-size="12" font-weight="bold">Intuition (Gemma)</text>
+    <rect x="100" y="5" width="280" height="25" fill="url(#intuitionBar)" rx="5"/>
+    <text x="390" y="22" text-anchor="start" fill="#c084fc" font-family="Arial, sans-serif" font-size="11">~95 tok/s</text>
+    <circle cx="460" cy="18" r="6" fill="#22c55e"/>
+    <text x="472" y="22" text-anchor="start" fill="#22c55e" font-family="Arial, sans-serif" font-size="10" font-weight="bold">Excellent</text>
+  </g>
+  
+  <!-- Latency Bar -->
+  <g transform="translate(50, 160)">
+    <text x="-10" y="15" text-anchor="end" fill="#fdba74" font-family="Arial, sans-serif" font-size="12" font-weight="bold">Latence Globale</text>
+    <rect x="100" y="5" width="150" height="25" fill="#f59e0b" rx="5"/>
+    <text x="260" y="22" text-anchor="start" fill="#fbbf24" font-family="Arial, sans-serif" font-size="11">~2500 ms</text>
+    <circle cx="320" cy="18" r="6" fill="#eab308"/>
+    <text x="332" y="22" text-anchor="start" fill="#eab308" font-family="Arial, sans-serif" font-size="10" font-weight="bold">Stable</text>
+  </g>
+  
+  <!-- VRAM Allocation Chart -->
+  <g transform="translate(50, 220)">
+    <text x="0" y="0" fill="#94a3b8" font-family="Arial, sans-serif" font-size="11" font-weight="bold">Allocation VRAM Dynamique</text>
+    
+    <!-- Total VRAM Bar -->
+    <rect x="0" y="10" width="400" height="20" fill="#334155" rx="3"/>
+    <rect x="0" y="10" width="280" height="20" fill="url(#vramBar)" rx="3"/>
+    
+    <!-- Segments -->
+    <rect x="0" y="10" width="140" height="20" fill="#3b82f6" opacity="0.8"/>
+    <rect x="140" y="10" width="140" height="20" fill="#a855f7" opacity="0.8"/>
+    
+    <text x="70" y="24" text-anchor="middle" fill="#ffffff" font-family="Arial, sans-serif" font-size="9">Logic 50%</text>
+    <text x="210" y="24" text-anchor="middle" fill="#ffffff" font-family="Arial, sans-serif" font-size="9">Intuition 50%</text>
+    
+    <text x="410" y="24" text-anchor="start" fill="#22c55e" font-family="Arial, sans-serif" font-size="10" font-weight="bold">70% Utilisé</text>
+  </g>
+  
+  <!-- Legend -->
+  <g transform="translate(320, 60)">
+    <circle cx="0" cy="8" r="5" fill="#3b82f6"/>
+    <text x="10" y="12" fill="#94a3b8" font-family="Arial, sans-serif" font-size="10">Mode Optimal</text>
+    
+    <circle cx="0" cy="30" r="5" fill="#22c55e"/>
+    <text x="10" y="34" fill="#94a3b8" font-family="Arial, sans-serif" font-size="10">Mode Excellent</text>
+    
+    <circle cx="0" cy="52" r="5" fill="#eab308"/>
+    <text x="10" y="56" fill="#94a3b8" font-family="Arial, sans-serif" font-size="10">Mode Stable</text>
+  </g>
+</svg>

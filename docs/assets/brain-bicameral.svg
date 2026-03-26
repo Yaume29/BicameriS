@@ -1,0 +1,93 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400" fill="none">
+  <defs>
+    <linearGradient id="brainLeft" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#6366f1;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#4338ca;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="brainRight" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ec4899;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#be185d;stop-opacity:1" />
+    </linearGradient>
+    <filter id="glowBrain" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="600" height="400" fill="#0f172a"/>
+  
+  <!-- Title -->
+  <text x="300" y="35" text-anchor="middle" fill="#f8fafc" font-family="system-ui" font-size="22" font-weight="bold">Modèle Bicaméral de Décision</text>
+  <text x="300" y="55" text-anchor="middle" fill="#94a3b8" font-family="system-ui" font-size="12">S = α·L + β·R + γ·C(L,R)</text>
+  
+  <!-- Left Hemisphere (Logic) -->
+  <g transform="translate(120, 100)">
+    <path d="M 0 60 Q 0 0 60 0 Q 110 0 110 50 Q 110 90 70 100 Q 50 105 30 95 Q 0 85 0 60" 
+          fill="url(#brainLeft)" opacity="0.3" stroke="#6366f1" stroke-width="2"/>
+    <!-- Neural connections -->
+    <circle cx="30" cy="30" r="4" fill="#6366f1" opacity="0.8"/>
+    <circle cx="70" cy="25" r="3" fill="#6366f1" opacity="0.6"/>
+    <circle cx="50" cy="60" r="5" fill="#6366f1" opacity="0.9"/>
+    <circle cx="85" cy="55" r="3" fill="#6366f1" opacity="0.5"/>
+    <circle cx="40" cy="75" r="4" fill="#6366f1" opacity="0.7"/>
+    <line x1="30" y1="30" x2="50" y2="60" stroke="#6366f1" stroke-width="1" opacity="0.5"/>
+    <line x1="50" y1="60" x2="70" y2="25" stroke="#6366f1" stroke-width="1" opacity="0.5"/>
+    <line x1="50" y1="60" x2="85" y2="55" stroke="#6366f1" stroke-width="1" opacity="0.5"/>
+    <line x1="40" y1="75" x2="50" y2="60" stroke="#6366f1" stroke-width="1" opacity="0.5"/>
+  </g>
+  
+  <!-- Right Hemisphere (Intuition) -->
+  <g transform="translate(370, 100)">
+    <path d="M 110 60 Q 110 0 50 0 Q 0 0 0 50 Q 0 90 40 100 Q 60 105 80 95 Q 110 85 110 60" 
+          fill="url(#brainRight)" opacity="0.3" stroke="#ec4899" stroke-width="2"/>
+    <!-- Neural connections -->
+    <circle cx="80" cy="30" r="4" fill="#ec4899" opacity="0.8"/>
+    <circle cx="40" cy="25" r="3" fill="#ec4899" opacity="0.6"/>
+    <circle cx="60" cy="60" r="5" fill="#ec4899" opacity="0.9"/>
+    <circle cx="25" cy="55" r="3" fill="#ec4899" opacity="0.5"/>
+    <circle cx="70" cy="75" r="4" fill="#ec4899" opacity="0.7"/>
+    <line x1="80" y1="30" x2="60" y2="60" stroke="#ec4899" stroke-width="1" opacity="0.5"/>
+    <line x1="60" y1="60" x2="40" y2="25" stroke="#ec4899" stroke-width="1" opacity="0.5"/>
+    <line x1="60" y1="60" x2="25" y2="55" stroke="#ec4899" stroke-width="1" opacity="0.5"/>
+    <line x1="70" y1="75" x2="60" y2="60" stroke="#ec4899" stroke-width="1" opacity="0.5"/>
+  </g>
+  
+  <!-- Corpus Callosum Connection -->
+  <rect x="280" y="130" width="40" height="60" rx="20" fill="#f59e0b" opacity="0.3" stroke="#f59e0b" stroke-width="2"/>
+  <path d="M 300 145 L 300 175" stroke="#fbbf24" stroke-width="2" stroke-dasharray="3"/>
+  <circle cx="300" cy="145" r="4" fill="#fbbf24">
+    <animate attributeName="opacity" values="1;0.3;1" dur="2s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="300" cy="160" r="4" fill="#fbbf24">
+    <animate attributeName="opacity" values="0.3;1;0.3" dur="2s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="300" cy="175" r="4" fill="#fbbf24">
+    <animate attributeName="opacity" values="1;0.3;1" dur="2s" repeatCount="indefinite"/>
+  </circle>
+  
+  <!-- Labels -->
+  <text x="175" y="240" text-anchor="middle" fill="#6366f1" font-family="system-ui" font-size="14" font-weight="bold">Hémisphère Gauche</text>
+  <text x="175" y="258" text-anchor="middle" fill="#94a3b8" font-family="system-ui" font-size="11">Logique • Analyse • Code</text>
+  <text x="175" y="275" text-anchor="middle" fill="#64748b" font-family="system-ui" font-size="10">α coefficient</text>
+  
+  <text x="425" y="240" text-anchor="middle" fill="#ec4899" font-family="system-ui" font-size="14" font-weight="bold">Hémisphère Droit</text>
+  <text x="425" y="258" text-anchor="middle" fill="#94a3b8" font-family="system-ui" font-size="11">Intuition • Créativité • Patterns</text>
+  <text x="425" y="275" text-anchor="middle" fill="#64748b" font-family="system-ui" font-size="10">β coefficient</text>
+  
+  <text x="300" y="215" text-anchor="middle" fill="#fbbf24" font-family="system-ui" font-size="12" font-weight="bold">Corps Calleux</text>
+  <text x="300" y="320" text-anchor="middle" fill="#94a3b8" font-family="system-ui" font-size="11">Synthèse dynamique γ·C(L,R)</text>
+  
+  <!-- Mode indicators -->
+  <rect x="50" y="340" width="140" height="45" rx="8" fill="#ef4444" opacity="0.2" stroke="#ef4444" stroke-width="1"/>
+  <text x="120" y="360" text-anchor="middle" fill="#f87171" font-family="system-ui" font-size="11" font-weight="bold">🔴 REPOS</text>
+  <text x="120" y="375" text-anchor="middle" fill="#94a3b8" font-family="system-ui" font-size="9">Pulse 0.0 - 0.3</text>
+  
+  <rect x="230" y="340" width="140" height="45" rx="8" fill="#eab308" opacity="0.2" stroke="#eab308" stroke-width="1"/>
+  <text x="300" y="360" text-anchor="middle" fill="#facc15" font-family="system-ui" font-size="11" font-weight="bold">🟡 ACTIF</text>
+  <text x="300" y="375" text-anchor="middle" fill="#94a3b8" font-family="system-ui" font-size="9">Pulse 0.3 - 0.7</text>
+  
+  <rect x="410" y="340" width="140" height="45" rx="8" fill="#3b82f6" opacity="0.2" stroke="#3b82f6" stroke-width="1"/>
+  <text x="480" y="360" text-anchor="middle" fill="#60a5fa" font-family="system-ui" font-size="11" font-weight="bold">🔵 DÉRIVE</text>
+  <text x="480" y="375" text-anchor="middle" fill="#94a3b8" font-family="system-ui" font-size="9">Pulse 0.7 - 1.0</text>
+</svg>
