@@ -1,0 +1,199 @@
+# BicameriS Configuration Examples
+
+# =============================================================================
+# MINIMAL CONFIG - Single model, basic features
+# =============================================================================
+minimal:
+  server:
+    host: "0.0.0.0"
+    port: 8000
+  
+  models:
+    # Use a single model for both hemispheres (fallback mode)
+    default:
+      path: "C:/Models/qwen2.5-7b-q4_k_m.gguf"
+      temperature: 0.7
+      max_tokens: 2048
+  
+  # Disable all optional features for minimal setup
+  features:
+    autonomous_loop: false
+    auto_scaffolding: false
+    docker_sandbox: true
+    telemetry: true
+    websocket_push: false
+
+
+# =============================================================================
+# FULL CONFIG - Dual hemisphere, all features
+# =============================================================================
+full:
+  server:
+    host: "0.0.0.0"
+    port: 8000
+    workers: 1
+    reload: false
+  
+  models:
+    # Left Hemisphere (Qwen) - Logic, analysis
+    left_hemisphere:
+      name: "Qwen2.5-14B-Instruct"
+      path: "C:/Models/qwen2.5-14b-q4_k_m.gguf"
+      temperature: 0.7
+      top_p: 0.9
+      max_tokens: 4096
+      context_length: 32768
+      
+    # Right Hemisphere (Gemma) - Intuition, creativity
+    right_hemisphere:
+      name: "Gemma-3-12B-IT"
+      path: "C:/Models/gemma-3-12b-q4_k_m.gguf"
+      temperature: 0.9
+      top_p: 0.95
+      max_tokens: 2048
+      context_length: 8192
+  
+  # Hardware management
+  hardware:
+    thermal_monitoring: true
+    entropy_tracking: true
+    vr_guillotine: true
+    
+    # Thresholds
+    max_cpu_temp: 85
+    max_gpu_temp: 83
+    min_free_vram_gb: 2
+  
+  # Cognitive modes
+  cognition:
+    # Pulse thresholds for mode switching
+    pulse_high: 0.75      # >0.75 = autonomous drift (right hemisphere leads)
+    pulse_low: 0.25       # <0.25 = DMN mode (dreamer)
+    
+    # Thinking intervals (seconds)
+    autonomous_interval: 30
+    dreamer_interval: 300
+    
+  # Endocrine system (hardware influence on LLM)
+  endocrine:
+    enabled: true
+    sensitivity: 0.5       # How much hardware pulse affects thinking
+    impact: 0.5           # How much mood affects temperature
+  
+  # Security
+  security:
+    strict_airgap: false
+    auto_scaffolding: false
+    docker_sandbox: true
+    trauma_filter: true
+  
+  # MCP (Model Context Protocol) - External tools
+  mcp:
+    enabled: true
+    servers:
+      - name: "filesystem"
+        command: "npx"
+        args: ["-y", "@modelcontextprotocol/server-filesystem", "/"]
+      - name: "web-search"
+        command: "npx"
+        args: ["-y", "@modelcontextprotocol/server-brave-search"]
+        env:
+          BRAVE_API_KEY: "${BRAVE_API_KEY}"
+  
+  # Tool RAG (Retrieval Augmented Generation)
+  tool_rag:
+    enabled: true
+    vector_store: "qdrant"
+    collection_name: "aetheris_tools"
+
+
+# =============================================================================
+# RESEARCH CONFIG - MCP tools, crucible mode, etc.
+# =============================================================================
+research:
+  server:
+    host: "0.0.0.0"
+    port: 8000
+  
+  models:
+    left_hemisphere:
+      name: "Qwen2.5-14B"
+      path: "C:/Models/qwen2.5-14b-q5_k_m.gguf"
+      temperature: 0.5
+      
+    right_hemisphere:
+      name: "Gemma-3-12B"
+      path: "C:/Models/gemma-3-12b-q5_k_m.gguf"
+      temperature: 1.0
+  
+  cognition:
+    # Enable all cognitive modes
+    cognitive_dissonance: true    # Parallel left/right synthesis
+    hyper_cognition: true         # Crucible mode (actor-critic loop)
+    tool_rag: true               # Tool retrieval from vector store
+  
+  # Advanced features
+  advanced:
+    # Maximum iterations in crucible mode
+    crucible_iterations: 4
+    
+    # Tool calling
+    max_tool_calls: 10
+    
+    # Memory
+    memory_limit: 50
+    trauma_threshold: 5
+  
+  mcp:
+    enabled: true
+    servers:
+      - name: "filesystem"
+      - name: "web-search"
+      - name: "github"
+      - name: "sqlite"
+
+
+# =============================================================================
+# SECURITY CONFIG - Air-gapped, read-only
+# =============================================================================
+secure:
+  server:
+    host: "127.0.0.1"
+    port: 8000
+  
+  security:
+    strict_airgap: true     # Disable all external tools
+    auto_scaffolding: false
+    docker_sandbox: true
+    trauma_filter: true
+    
+  features:
+    autonomous_loop: false
+    web_search: false
+    file_system: false      # Only sandbox execution
+
+
+# =============================================================================
+# GPU PROFILES - Based on available VRAM
+# =============================================================================
+gpu_profiles:
+  8gb_vram:
+    models:
+      left: "Qwen2.5-7B-Q4_K_M"
+      right: "Gemma-3-4B-Q4_K_M"
+    batch_size: 1
+    threads: 4
+    
+  16gb_vram:
+    models:
+      left: "Qwen2.5-14B-Q4_K_M"
+      right: "Gemma-3-12B-Q4_K_M"
+    batch_size: 2
+    threads: 8
+    
+  24gb_vram:
+    models:
+      left: "Qwen2.5-14B-Q5_K_M"
+      right: "Gemma-3-12B-Q5_K_M"
+    batch_size: 4
+    threads: 12

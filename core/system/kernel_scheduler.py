@@ -23,6 +23,9 @@ class KernelScheduler:
         self.entropy = entropy
 
         self._is_running = False
+        self._is_thinking = False
+        self._is_dreaming = False
+        self._dream_cooldown = 0
         self._task: Optional[asyncio.Task] = None
         self._base_interval = 2.0
         self._force_tick_event = asyncio.Event()
@@ -51,7 +54,6 @@ class KernelScheduler:
 
     async def _run_loop(self):
         """Main loop - checks switchboard and triggers ticks"""
-        from core.cognition.autonomous_thinker import get_autonomous_thinker
         from core.system.endocrine import get_endocrine_system
 
         while self._is_running:
@@ -70,7 +72,10 @@ class KernelScheduler:
                     except:
                         pass
 
-                if pulse < 0.2:
+                if self._dream_cooldown > 0:
+                    self._dream_cooldown -= 1
+
+                if pulse < 0.2 and not self._is_dreaming and self._dream_cooldown == 0:
                     logging.info(
                         "[KernelScheduler] 💤 Entropie très basse. Activation du DMN (Dreamer)."
                     )
@@ -78,23 +83,35 @@ class KernelScheduler:
 
                     dreamer = get_dreamer_agent()
                     if dreamer and dreamer.is_available():
+                        self._is_dreaming = True
                         await asyncio.to_thread(dreamer.trigger_rem_sleep)
                         from core.system.endocrine import get_endocrine_system
 
                         get_endocrine_system().spike_dopamine(0.1)
-                    await asyncio.sleep(self._calculate_interval(pulse))
+                        self._dream_cooldown = 10
+
+                    interval = self._calculate_interval(pulse)
+                    try:
+                        await asyncio.wait_for(self._force_tick_event.wait(), timeout=interval)
+                        self._force_tick_event.clear()
+                    except asyncio.TimeoutError:
+                        pass
                     continue
+                elif self._is_dreaming and pulse >= 0.2:
+                    self._is_dreaming = False
 
                 tasks = []
                 if self.corps_calleux:
-                    tasks.append(asyncio.to_thread(self.corps_calleux.tick, pulse))
+                    if self.switchboard.is_active("autonomous_loop") and not self._is_thinking:
+                        self._is_thinking = True
 
-                thinker = get_autonomous_thinker()
-                if thinker:
-                    tasks.append(asyncio.to_thread(thinker.tick))
+                        async def _think_worker():
+                            try:
+                                await asyncio.to_thread(self.corps_calleux.tick, pulse)
+                            finally:
+                                self._is_thinking = False
 
-                if tasks:
-                    await asyncio.gather(*tasks)
+                        asyncio.create_task(_think_worker())
 
                 interval = self._calculate_interval(pulse)
                 try:

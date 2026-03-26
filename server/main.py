@@ -46,22 +46,7 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         logging.warning(f"⚠️ Entropy non disponible: {e}")
 
-    # KernelScheduler (Master Clock)
-    try:
-        from core.system.kernel_scheduler import init_kernel_scheduler
-
-        registry.scheduler = init_kernel_scheduler(
-            switchboard=registry.switchboard,
-            corps_calleux=registry.corps_calleux,
-            conductor=registry.conductor,
-            entropy=registry.entropy,
-        )
-        await registry.scheduler.start()
-        logging.info("[Bicameris] ⏱️ Horloge Maître démarrée")
-    except Exception as e:
-        logging.error(f"💀 ÉCHEC CRITIQUE - Kernel Scheduler: {e}")
-
-    # CRITICAL: Cognition & Inference (Fail-Fast)
+    # CRITICAL: Cognition & Inference (Fail-Fast) - MUST be before KernelScheduler
     try:
         from core.cognition.conductor import get_conductor
 
@@ -87,14 +72,8 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         logging.warning(f"⚠️ Corps Calleux non disponible: {e}")
 
-    # Optional: Autonomous Thinker
-    try:
-        from core.cognition.autonomous_thinker import AutonomousThinker
-
-        registry.autonomous_thinker = AutonomousThinker()
-        logging.info("[Bicameris] ✅ Autonomous Thinker chargé")
-    except Exception as e:
-        logging.warning(f"⚠️ Autonomous Thinker non disponible: {e}")
+    # Note: Autonomous Thinker is now integrated into CorpsCalleux
+    # Controlled via Switchboard "autonomous_loop" switch
 
     # Telemetry (must be started before logging)
     try:
@@ -112,6 +91,21 @@ async def lifespan(app: FastAPI):
         logging.info("[Bicameris] ✅ SensoryBuffer (Data Hose) démarré")
     except Exception as e:
         logging.warning(f"⚠️ SensoryBuffer non disponible: {e}")
+
+    # KernelScheduler (Master Clock) - MUST be after Conductor & Corps Calleux
+    try:
+        from core.system.kernel_scheduler import init_kernel_scheduler
+
+        registry.scheduler = init_kernel_scheduler(
+            switchboard=registry.switchboard,
+            corps_calleux=registry.corps_calleux,
+            conductor=registry.conductor,
+            entropy=registry.entropy,
+        )
+        await registry.scheduler.start()
+        logging.info("[Bicameris] ⏱️ Horloge Maître démarrée")
+    except Exception as e:
+        logging.error(f"💀 ÉCHEC CRITIQUE - Kernel Scheduler: {e}")
 
     logging.info("[Bicameris] Système en ligne.")
 
@@ -176,16 +170,19 @@ async def websocket_neural(websocket: WebSocket):
     try:
         while True:
             if registry.thermal:
-                # Passive read O(1) - no thread spawn, no CPU impact
                 status = registry.thermal.get_status_passive()
                 await websocket.send_json({"type": "thermal", **status})
 
-            # Push 10 times per second (indolore pour le CPU)
             await asyncio.sleep(0.1)
     except WebSocketDisconnect:
-        pass
+        logging.info("WebSocket neural déconnecté proprement.")
     except Exception as e:
-        logging.warning(f"WebSocket error: {e}")
+        logging.warning(f"WebSocket error (fermeture brutale): {e}")
+    finally:
+        try:
+            await websocket.close()
+        except:
+            pass
 
 
 # ============ RUN ============

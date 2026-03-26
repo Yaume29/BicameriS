@@ -45,7 +45,6 @@ async def system_status():
         "switchboard": get_switchboard().get_all_states(),
         "endocrine": get_switchboard().get_endocrine_config(),
         "corps_calleux": registry.corps_calleux is not None,
-        "autonomous_thinker": registry.autonomous_thinker is not None,
         "conductor": registry.conductor is not None,
         "inference_manager": registry.inference_manager is not None,
     }

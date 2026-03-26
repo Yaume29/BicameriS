@@ -215,13 +215,14 @@ class SovereignWorker:
 
 
 def worker_loop(ipc_address: str, model_path: str, config: Dict):
-    """Worker loop with ZMQ IPC (Named Pipes)"""
+    """Worker loop with ZMQ IPC + Dead Man's Switch"""
     if not ZMQ_AVAILABLE:
         logging.error("[Worker] ZMQ not installed. Stop.")
         return
 
     ctx = zmq.Context()
     socket = ctx.socket(zmq.PAIR)
+    socket.setsockopt(zmq.RCVTIMEO, 5000)
     socket.connect(ipc_address)
 
     try:
@@ -232,20 +233,43 @@ def worker_loop(ipc_address: str, model_path: str, config: Dict):
         socket.send_pyobj({"error": f"Init failed: {e}"})
         return
 
+    def sigterm_handler(signum, frame):
+        logging.info("[Worker] SIGTERM reçu. Libération VRAM en cours...")
+        if worker and hasattr(worker, "model"):
+            del worker.model
+        try:
+            socket.close(linger=0)
+        except:
+            pass
+        try:
+            ctx.term()
+        except:
+            pass
+        sys.exit(0)
+
+    signal.signal(signal.SIGTERM, sigterm_handler)
+
     while True:
         try:
             msg = socket.recv_pyobj()
-
             if msg is None:
                 break
-
             result = worker.process_task(msg)
             socket.send_pyobj(result)
+        except zmq.Again:
+            if os.name == "posix" and os.getppid() == 1:
+                logging.error("[Worker] Processus parent mort. Auto-destruction (Libération VRAM).")
+                break
+            continue
         except Exception as e:
             try:
                 socket.send_pyobj({"error": f"Worker Exception: {str(e)}"})
             except:
                 break
+
+    if worker and hasattr(worker, "model"):
+        del worker.model
+        logging.info("[Worker] VRAM libérée.")
 
     socket.close(linger=0)
     ctx.term()
@@ -275,42 +299,60 @@ class InferenceManager:
         ctx = zmq.Context()
         socket = ctx.socket(zmq.PAIR)
 
-        socket.setsockopt(zmq.RCVTIMEO, 600000)
+        socket.setsockopt(zmq.RCVTIMEO, 60000)
         socket.setsockopt(zmq.SNDTIMEO, 5000)
         socket.setsockopt(zmq.LINGER, 0)
 
         try:
             socket.bind(ipc_address)
-        except Exception as e:
+        except OSError as e:
             logging.error(f"[InferenceManager] ZMQ bind failed on {ipc_address}: {e}")
             return False
 
         proc = mp.Process(target=worker_loop, args=(ipc_address, model_path, config), daemon=True)
         proc.start()
 
-        try:
-            ready = socket.recv()
-            if ready == b"READY":
-                socket.setsockopt(zmq.RCVTIMEO, 120000)
+        poller = zmq.Poller()
+        poller.register(socket, zmq.POLLIN)
 
-                with cls._global_lock:
-                    cls._incarnations[name] = {
-                        "process": proc,
-                        "socket": socket,
-                        "context": ctx,
-                        "ipc_address": ipc_address,
-                        "model_path": model_path,
-                        "spawn_time": time.time(),
-                        "lock": threading.Lock(),
-                    }
-                logging.info(
-                    f"[InferenceManager] ✅ Incarnation '{name}' active (IPC: {ipc_address})"
+        start_wait = time.time()
+        ready = None
+
+        while time.time() - start_wait < 120:
+            if not proc.is_alive():
+                logging.error(
+                    f"[InferenceManager] ❌ Le worker '{name}' a crashé pendant l'initialisation (OOM probable)."
                 )
-                return True
-            else:
-                logging.error(f"[InferenceManager] ❌ Worker '{name}' returned corrupted status.")
+                socket.close(linger=0)
+                ctx.term()
                 return False
-        except zmq.Again:
+
+            socks = dict(poller.poll(500))
+            if socket in socks and socks[socket] == zmq.POLLIN:
+                ready = socket.recv()
+                break
+
+        if ready == b"READY":
+            socket.setsockopt(zmq.RCVTIMEO, 120000)
+
+            with cls._global_lock:
+                cls._incarnations[name] = {
+                    "process": proc,
+                    "socket": socket,
+                    "context": ctx,
+                    "ipc_address": ipc_address,
+                    "model_path": model_path,
+                    "spawn_time": time.time(),
+                    "lock": threading.Lock(),
+                }
+            logging.info(f"[InferenceManager] ✅ Incarnation '{name}' active (IPC: {ipc_address})")
+            return True
+        else:
+            logging.error(f"[InferenceManager] ❌ Worker '{name}' returned corrupted status.")
+            proc.terminate()
+            return False
+
+        if ready is None:
             logging.error(
                 f"[InferenceManager] ❌ Init timeout for '{name}'. Model too heavy or crashed."
             )
@@ -363,7 +405,7 @@ class InferenceManager:
 
     @classmethod
     def execute(cls, name: str, prompt: str, **kwargs) -> Dict:
-        """Execute inference via IPC with Thread-Safe guarantee"""
+        """Execute inference via IPC with ZMQ Poller - no freeze on crash"""
         with cls._global_lock:
             if name not in cls._incarnations:
                 return {"error": f"Incarnation '{name}' is offline."}
@@ -374,6 +416,7 @@ class InferenceManager:
             return {"error": "Corrupted incarnation: Mutex missing."}
 
         task = {"prompt": prompt, **kwargs}
+        dead_incarnation = False
 
         with inc_lock:
             try:
@@ -386,20 +429,44 @@ class InferenceManager:
                     socket = inc["socket"]
                     socket.send_pyobj(task)
 
-                    try:
-                        result = socket.recv_pyobj()
-                        inc["last_used"] = time.time()
-                        return result
-                    except zmq.Again:
+                    poller = zmq.Poller()
+                    poller.register(socket, zmq.POLLIN)
+
+                    timeout_ms = 120000
+                    start_time = time.time()
+
+                    while (time.time() - start_time) * 1000 < timeout_ms:
+                        socks = dict(poller.poll(100))
+
+                        if socket in socks and socks[socket] == zmq.POLLIN:
+                            result = socket.recv_pyobj()
+                            inc["last_used"] = time.time()
+                            return result
+
+                        if not inc["process"].is_alive():
+                            dead_incarnation = True
+                            break
+
+                    if dead_incarnation:
                         return {
-                            "error": "Timeout ZMQ: Hemisphere stopped responding (CUDA/VRAM deadlock potential)."
+                            "error": "ZMQ IPC Crash: Le processus Llama a été tué (OOM ou Segfault)."
                         }
+
+                    return {"error": "Timeout ZMQ: Inference trop longue."}
+
             except Exception as e:
                 return {"error": f"IPC channel crash: {str(e)}"}
 
+        if dead_incarnation:
+            logging.error(f"[InferenceManager] Modèle {name} mort (OOM/Segfault). Auto-purge.")
+            cls.guillotine(name)
+            return {"error": "ZMQ IPC Crash: Le processus Llama a été tué."}
+
+        return {"error": "Inconnu"}
+
     @classmethod
     def guillotine(cls, name: str) -> bool:
-        """Clean execution and Named Pipe closure"""
+        """Clean execution with SIGTERM (VRAM release)"""
         with cls._global_lock:
             if name not in cls._incarnations:
                 return False
@@ -408,24 +475,36 @@ class InferenceManager:
         proc = inc.get("process")
         socket = inc.get("socket")
         ctx = inc.get("context")
+        inc_lock = inc.get("lock")
 
-        if socket:
-            try:
-                socket.close(linger=0)
-            except:
-                pass
         if ctx:
             try:
                 ctx.term()
             except:
                 pass
 
+        if inc_lock:
+            with inc_lock:
+                if socket:
+                    try:
+                        socket.close(linger=0)
+                    except:
+                        pass
+
         if proc and proc.is_alive():
             proc.terminate()
-            proc.join(timeout=1.0)
+            proc.join(timeout=2.0)
             if proc.is_alive():
-                os.kill(proc.pid, signal.SIGKILL)
-                logging.warning(f"[InferenceManager] ⚡⚡ SIGKILL on '{name}' (Zombie Process).")
+                try:
+                    os.kill(proc.pid, signal.SIGTERM)
+                    proc.join(timeout=1.0)
+                except:
+                    pass
+                if proc.is_alive():
+                    os.kill(proc.pid, signal.SIGKILL)
+                    logging.warning(
+                        f"[InferenceManager] ⚡⚡ SIGKILL on '{name}' after SIGTERM timeout."
+                    )
 
         logging.info(f"[InferenceManager] ⚡ Incarnation '{name}' purged successfully.")
         return True

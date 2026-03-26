@@ -17,7 +17,6 @@ class Registry:
     modelscanner: Optional[object] = None
     conductor: Optional[object] = None
     corps_calleux: Optional[object] = None
-    autonomous_thinker: Optional[object] = None
     inference_manager: Optional[type] = None
     flux_logger: Optional[object] = None
     supervisor: Optional[object] = None
@@ -51,8 +50,5 @@ def get_corps_calleux():
 
 
 def get_autonomous_thinker():
-    if not registry.autonomous_thinker:
-        from core.cognition.autonomous_thinker import AutonomousThinker
-
-        registry.autonomous_thinker = AutonomousThinker()
-    return registry.autonomous_thinker
+    """Legacy compatibility - redirects to CorpsCalleux"""
+    return get_corps_calleux()

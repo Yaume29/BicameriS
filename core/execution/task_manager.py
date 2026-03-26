@@ -1,4 +1,5 @@
 import json
+import copy
 import threading
 from pathlib import Path
 from datetime import datetime
@@ -100,7 +101,8 @@ class TaskManager:
         return None
 
     def get_all_tasks(self) -> List[Task]:
-        return self._tasks.copy()
+        with self._io_lock:
+            return copy.deepcopy(self._tasks)
 
     def get_tasks_by_status(self, status: TaskStatus) -> List[Task]:
         return [t for t in self._tasks if t.status == status.value]

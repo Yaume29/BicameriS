@@ -1,11 +1,12 @@
 """
 BICAMERIS - Cortex Logique (Graph Database)
-==========================================
+=========================================
 Epistemological graph using Kùzu for logical reasoning.
 Complements Qdrant (intuition) with causal relationships.
 """
 
 import logging
+import threading
 from pathlib import Path
 from typing import Dict, Any, List, Optional
 
@@ -35,6 +36,7 @@ class CortexLogique:
         self.db = None
         self.conn = None
         self._initialized = False
+        self._db_lock = threading.Lock()
         self._init_db()
 
     def _init_db(self):
@@ -56,13 +58,14 @@ class CortexLogique:
     def _create_schema(self):
         """Create the ontological schema"""
         try:
-            self.conn.execute("CREATE NODE TABLE Concept (name STRING, PRIMARY KEY(name))")
-            self.conn.execute(
-                "CREATE REL TABLE RelatesTo (FROM Concept TO Concept, relation STRING, confidence DOUBLE)"
-            )
-            self.conn.execute(
-                "CREATE REL TABLE Contradicts (FROM Concept TO Concept, evidence STRING)"
-            )
+            with self._db_lock:
+                self.conn.execute("CREATE NODE TABLE Concept (name STRING, PRIMARY KEY(name))")
+                self.conn.execute(
+                    "CREATE REL TABLE RelatesTo (FROM Concept TO Concept, relation STRING, confidence DOUBLE)"
+                )
+                self.conn.execute(
+                    "CREATE REL TABLE Contradicts (FROM Concept TO Concept, evidence STRING)"
+                )
             logger.info("[CortexLogique] ✅ Schéma créé")
         except Exception as e:
             logger.debug(f"[CortexLogique] Schéma peut-être déjà existant: {e}")
@@ -79,15 +82,16 @@ class CortexLogique:
             MERGE (s)-[r:RelatesTo {relation: $predicat}]->(o)
             SET r.confidence = $confidence
             """
-            self.conn.execute(
-                query,
-                parameters={
-                    "sujet": sujet,
-                    "objet": objet,
-                    "predicat": predicat,
-                    "confidence": confidence,
-                },
-            )
+            with self._db_lock:
+                self.conn.execute(
+                    query,
+                    parameters={
+                        "sujet": sujet,
+                        "objet": objet,
+                        "predicat": predicat,
+                        "confidence": confidence,
+                    },
+                )
         except Exception as e:
             logger.warning(f"[CortexLogique] Erreur triplet: {e}")
 
@@ -101,7 +105,8 @@ class CortexLogique:
             MATCH (c:Concept {name: $concept})-[r:RelatesTo]->(other)
             RETURN r.relation, other.name, r.confidence
             """
-            result = self.conn.execute(query, parameters={"concept": concept})
+            with self._db_lock:
+                result = self.conn.execute(query, parameters={"concept": concept})
             return result.get_as_df().to_dict("records")
         except Exception as e:
             logger.warning(f"[CortexLogique] Erreur audit: {e}")
@@ -117,7 +122,8 @@ class CortexLogique:
             MATCH (c:Concept {name: $concept})-[r:Contradicts]->(other)
             RETURN other.name, r.evidence
             """
-            result = self.conn.execute(query, parameters={"concept": concept})
+            with self._db_lock:
+                result = self.conn.execute(query, parameters={"concept": concept})
             return result.get_as_df().to_dict("records")
         except Exception as e:
             return []
@@ -133,10 +139,15 @@ class CortexLogique:
             MERGE (b:Concept {name: $concept_b})
             MERGE (a)-[r:Contradicts {evidence: $evidence}]->(b)
             """
-            self.conn.execute(
-                query,
-                parameters={"concept_a": concept_a, "concept_b": concept_b, "evidence": evidence},
-            )
+            with self._db_lock:
+                self.conn.execute(
+                    query,
+                    parameters={
+                        "concept_a": concept_a,
+                        "concept_b": concept_b,
+                        "evidence": evidence,
+                    },
+                )
         except Exception as e:
             logger.warning(f"[CortexLogique] Erreur contradiction: {e}")
 

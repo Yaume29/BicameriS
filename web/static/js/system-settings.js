@@ -90,6 +90,30 @@ const SystemSettings = {
                         <p class="empty">Chargement...</p>
                     </div>
                 </div>
+                
+                <div class="settings-section">
+                    <h4>🧬 MODULATEUR ENDOCRINIEN</h4>
+                    <div class="setting-row">
+                        <label class="toggle-label">
+                            <input type="checkbox" id="endocrine-enable" onchange="SystemSettings.toggleEndocrine(this.checked)">
+                            <span>Liaison Soma-Psyché</span>
+                        </label>
+                    </div>
+                    <div class="endocrine-sliders" id="endocrine-sliders">
+                        <div class="setting-row">
+                            <label>Réceptivité au Pulse:</label>
+                            <span class="slider-value" id="val-sens">0.50</span>
+                        </div>
+                        <input type="range" id="slider-sens" min="0" max="1" step="0.05" value="0.5" 
+                               oninput="SystemSettings.updateSliderDisplay('sens', this.value)">
+                        <div class="setting-row">
+                            <label>Impact Température:</label>
+                            <span class="slider-value" id="val-imp">0.50</span>
+                        </div>
+                        <input type="range" id="slider-imp" min="0" max="1" step="0.05" value="0.5"
+                               oninput="SystemSettings.updateSliderDisplay('imp', this.value)">
+                    </div>
+                </div>
             </div>
         `;
         document.body.appendChild(panel);
@@ -275,6 +299,33 @@ const SystemSettings = {
                 height: 18px;
                 accent-color: var(--primary, #00ff95);
             }
+            
+            .endocrine-sliders {
+                margin-top: 8px;
+                padding: 8px;
+                background: #0a0a0f;
+                border-radius: 6px;
+                opacity: 1;
+                pointer-events: auto;
+                transition: opacity 0.2s;
+            }
+            
+            .endocrine-sliders.disabled {
+                opacity: 0.4;
+                pointer-events: none;
+            }
+            
+            .slider-value {
+                color: var(--primary, #00ff95);
+                font-weight: 600;
+                font-size: 0.85rem;
+            }
+            
+            .endocrine-sliders input[type="range"] {
+                width: 100%;
+                margin: 4px 0 12px 0;
+                accent-color: var(--secondary, #7b2ff7);
+            }
         `;
         document.head.appendChild(style);
     },
@@ -285,9 +336,9 @@ const SystemSettings = {
     },
     
     bindEvents() {
-        // Chargement initial des données
         this.loadThermalStatus();
         this.loadIncarnations();
+        this.loadEndocrineConfig();
     },
     
     async toggleThermal(enabled) {
@@ -462,6 +513,76 @@ const SystemSettings = {
         } catch(e) {
             console.error('Toggle switch error:', e);
         }
+    },
+    
+    // ============ ENDOCRINE METHODS ============
+    
+    endocrineTimeout: null,
+    
+    async loadEndocrineConfig() {
+        try {
+            const res = await fetch('/api/system/status');
+            const data = await res.json();
+            const endocrine = data.endocrine || {enabled: true, sensitivity: 0.5, impact: 0.5};
+            
+            const toggle = document.getElementById('endocrine-enable');
+            const slidersDiv = document.getElementById('endocrine-sliders');
+            const sensSlider = document.getElementById('slider-sens');
+            const impSlider = document.getElementById('slider-imp');
+            
+            if (toggle) toggle.checked = endocrine.enabled;
+            if (slidersDiv) {
+                slidersDiv.classList.toggle('disabled', !endocrine.enabled);
+            }
+            if (sensSlider) sensSlider.value = endocrine.sensitivity;
+            if (impSlider) impSlider.value = endocrine.impact;
+            
+            document.getElementById('val-sens').textContent = endocrine.sensitivity.toFixed(2);
+            document.getElementById('val-imp').textContent = endocrine.impact.toFixed(2);
+            
+        } catch(e) {
+            console.error('Load endocrine error:', e);
+        }
+    },
+    
+    async toggleEndocrine(enabled) {
+        const slidersDiv = document.getElementById('endocrine-sliders');
+        if (slidersDiv) {
+            slidersDiv.classList.toggle('disabled', !enabled);
+        }
+        this.sendEndocrineConfig();
+    },
+    
+    updateSliderDisplay(type, value) {
+        document.getElementById(`val-${type}`).textContent = parseFloat(value).toFixed(2);
+        this.sendEndocrineConfig();
+    },
+    
+    sendEndocrineConfig() {
+        clearTimeout(this.endocrineTimeout);
+        this.endocrineTimeout = setTimeout(async () => {
+            const enabled = document.getElementById('endocrine-enable')?.checked ?? true;
+            const sensitivity = parseFloat(document.getElementById('slider-sens')?.value ?? 0.5);
+            const impact = parseFloat(document.getElementById('slider-imp')?.value ?? 0.5);
+            
+            try {
+                const res = await fetch('/api/system/endocrine', {
+                    method: 'PUT',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        enabled: enabled,
+                        sensitivity: sensitivity,
+                        impact: impact
+                    })
+                });
+                if (!res.ok) {
+                    const err = await res.json();
+                    console.error('Endocrine config error:', err);
+                }
+            } catch(e) {
+                console.error('Endocrine API error:', e);
+            }
+        }, 250);
     }
 };
 

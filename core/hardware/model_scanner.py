@@ -7,7 +7,7 @@ from typing import Optional, List, Dict
 
 
 class ModelScanner:
-    def __init__(self):
+    def __init__(self, max_scan_seconds: int = 60):
         self.blacklist = {
             "$Recycle.Bin",
             "System Volume Information",
@@ -26,6 +26,7 @@ class ModelScanner:
         self.scan_path = None
         self._scan_thread = None
         self._stop_event = threading.Event()
+        self.max_scan_seconds = max_scan_seconds
 
     def _is_gguf_file(self, filename: str) -> bool:
         """Check if file is a GGUF model"""
@@ -53,7 +54,7 @@ class ModelScanner:
         return {"status": "started", "path": root_path}
 
     def _run_scan(self, root_path: str):
-        """Scan récursif avec os.walk et blacklist"""
+        """Scan récursif avec os.walk et blacklist + timeout"""
         target = Path(root_path)
 
         if not target.exists():
@@ -61,9 +62,17 @@ class ModelScanner:
             print(f"[ModelScanner] Chemin introuvable: {root_path}")
             return
 
+        scan_start = time.time()
+
         try:
             for root, dirs, files in os.walk(target, topdown=True):
-                # Filtrer les dossiers interdits (in-place)
+                if self._stop_event.is_set():
+                    break
+
+                if time.time() - scan_start > self.max_scan_seconds:
+                    print(f"[ModelScanner] Scan timeout après {self.max_scan_seconds}s")
+                    break
+
                 dirs[:] = [d for d in dirs if d not in self.blacklist]
 
                 for file in files:

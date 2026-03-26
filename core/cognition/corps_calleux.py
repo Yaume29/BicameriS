@@ -17,6 +17,7 @@ from datetime import datetime
 from typing import Dict, Any, Optional, List
 from dataclasses import dataclass, asdict
 from concurrent.futures import ThreadPoolExecutor
+from collections import deque
 
 BASE_DIR = Path(__file__).parent.parent.parent.absolute()
 
@@ -49,7 +50,7 @@ class CorpsCalleux:
     def __init__(self, left_hemisphere=None, right_hemisphere=None):
         self.left = left_hemisphere
         self.right = right_hemisphere
-        self.history: List[DialogueCycle] = []
+        self.history: deque = deque(maxlen=50)
         self.current_preset = None
         self.inception_config = {"weight": 50.0, "target": "BOTH", "mode": "balance"}
         self.is_split_mode = False
@@ -137,16 +138,53 @@ class CorpsCalleux:
         """
         Single thought cycle for Master Clock.
         Called by KernelScheduler - no internal loop.
+        Handles both manual prompts and autonomous drift.
         """
+        context = self._hydrate_from_hippocampus()
+        noise = self._get_peripheral_noise()
+
+        full_context = context
+        if noise:
+            full_context += f"\n\n[Bruit périphérique]: {noise}"
+
         if pulse > 0.75:
-            prompt = "Haute entropie détectée. Analyse critique de l'état système."
+            prompt = (
+                f"Haute entropie détectée (pulse: {pulse:.2f}). Analyse critique: {full_context}"
+            )
         elif pulse < 0.25:
-            prompt = "État stable. Réfléchis à une amélioration potentielle."
+            prompt = f"État stable. Réfléchis à une amélioration: {full_context}"
         else:
-            prompt = "Cycle de pensée standard. Quel est l'état actuel?"
+            prompt = f"Cycle de pensée standard. Contexte: {full_context}"
 
         result = self.dialogue_interieur(prompt)
         return result
+
+    def _get_peripheral_noise(self) -> str:
+        """Get peripheral noise from sensory buffer"""
+        try:
+            from core.system.sensory_buffer import get_sensory_buffer
+
+            buffer = get_sensory_buffer()
+            if buffer:
+                noise = buffer.get_peripheral_noise(count=2)
+                if noise:
+                    return " | ".join(noise)
+        except Exception:
+            pass
+        return ""
+
+    def _hydrate_from_hippocampus(self) -> str:
+        """Hydrate context from Qdrant vector store, NOT from Telemetry JSONL"""
+        hippocampus = self._get_hippocampus()
+        if hippocampus and hippocampus.is_available():
+            try:
+                recent = hippocampus.get_pending_thoughts(limit=3)
+                if recent:
+                    return "\n".join([f"- {t.content[:100]}..." for t in recent])
+            except Exception as e:
+                logging.warning(f"[CorpsCalleux] Qdrant hydration failed: {e}")
+
+        return "Mémoire vectorielle vide. Génère une pensée ex nihilo."
 
     def set_hemispheres(self, left, right, split_mode=False):
         """Affecte les deux hémisphères et définit le mode split"""

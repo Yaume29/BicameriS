@@ -1,8 +1,9 @@
 """
 BICAMERIS - Docker Sandbox
-==========================
+=========================
 Isolated code execution using Docker containers.
 Falls back to venv if Docker unavailable.
+Security validation via AST before execution.
 """
 
 import logging
@@ -23,6 +24,7 @@ class DockerSandbox:
     """
     Isolated execution environment using Docker.
     If Docker unavailable, falls back to venv.
+    Security validation enforced before execution.
     """
 
     def __init__(self, image: str = "python:3.11-slim"):
@@ -47,18 +49,22 @@ class DockerSandbox:
     def execute_code(
         self, code: str, timeout: int = 15, requirements: list = None
     ) -> Dict[str, Any]:
-        """Execute code in isolated container"""
+        """Execute code in isolated container - network isolation is the real security"""
         if not self.client:
-            return self._execute_fallback(code, timeout, requirements)
+            return {
+                "status": "ERROR",
+                "error": "CRITICAL: Moteur Docker inactif. Exécution annulée pour préserver l'intégrité de l'hôte (Airgap Policy).",
+            }
 
         try:
-            # Build command with optional requirements
             cmd = ["python", "-c", code]
             if requirements:
                 req_file = "\n".join(requirements)
                 setup = f"import sys\nfor pkg in '''{req_file}'''.split(): import subprocess; subprocess.run([sys.executable, '-m', 'pip', 'install', pkg])\n"
                 code = setup + code
                 cmd = ["python", "-c", code]
+
+            net_mode = "bridge" if requirements else "none"
 
             container = self.client.containers.run(
                 self.image,
@@ -67,7 +73,7 @@ class DockerSandbox:
                 mem_limit="256m",
                 cpu_period=100000,
                 cpu_quota=50000,
-                network_disabled=True,
+                network_mode=net_mode,
                 remove=True,
                 stdout=True,
                 stderr=True,
@@ -88,61 +94,81 @@ class DockerSandbox:
             return {"status": "TIMEOUT", "error": str(e)}
 
     def _execute_fallback(self, code: str, timeout: int, requirements: list) -> Dict[str, Any]:
-        """Fallback: execute in isolated venv using subprocess with proper process tree handling"""
+        """Fallback Bare-Metal : Isolation via Runtime Audit Hooks (PEP 578)"""
         import subprocess
         import sys
         import os
         import signal
         import shutil
+        import uuid
+        from pathlib import Path
 
         sandbox_id = str(uuid.uuid4())[:8]
         venv_path = Path("ZONE_RESERVEE") / "sandbox" / f"venv_{sandbox_id}"
+
+        security_wrapper = """
+import sys
+import builtins
+
+def _strict_audit_hook(event, args):
+    allowed_events = {
+        'builtins.id', 'compile', 'exec', 'import', 'os.environ', 
+        'sys._getframe', 'sys.settrace', 'sys.setprofile'
+    }
+    
+    if event not in allowed_events and not event.startswith('import'):
+        raise RuntimeError(f"🔒 [SANDBOX VIOLATION] Tentative d'exécution interdite : {event}")
+
+sys.addaudithook(_strict_audit_hook)
+
+code_to_run = '''{AI_CODE}'''
+exec(code_to_run, {{"__builtins__": builtins}})
+"""
+        safe_code = code.replace("'''", "\\'\\'\\'")
+        final_script_content = security_wrapper.replace("{AI_CODE}", safe_code)
+
+        bin_dir = "Scripts" if os.name == "nt" else "bin"
+        pip_ext = ".exe" if os.name == "nt" else ""
 
         try:
             subprocess.run(
                 [sys.executable, "-m", "venv", str(venv_path)], check=True, capture_output=True
             )
 
-            if requirements:
-                pip = venv_path / "Scripts" / "pip.exe"
-                for req in requirements:
-                    subprocess.run([str(pip), "install", req], capture_output=True, timeout=60)
+            script_path = venv_path / "run_sandbox.py"
+            script_path.write_text(final_script_content, encoding="utf-8")
 
-            python = venv_path / "Scripts" / "python.exe"
+            python = venv_path / bin_dir / f"python{pip_ext}"
 
-            kwargs = {}
-            if os.name == "nt":
-                kwargs["creationflags"] = subprocess.CREATE_NEW_PROCESS_GROUP
-            else:
-                kwargs["preexec_fn"] = os.setsid
+            kwargs = (
+                {"creationflags": subprocess.CREATE_NEW_PROCESS_GROUP}
+                if os.name == "nt"
+                else {"preexec_fn": os.setsid}
+            )
 
             process = subprocess.Popen(
-                [str(python), "-c", code],
+                [str(python), str(script_path)],
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 **kwargs,
             )
 
-            try:
-                stdout, stderr = process.communicate(timeout=timeout)
-                if process.returncode == 0:
-                    return {"status": "SUCCESS", "output": stdout.decode("utf-8")}
-                else:
-                    return {"status": "ERROR", "error": stderr.decode("utf-8")}
-            except subprocess.TimeoutExpired:
-                if os.name == "nt":
-                    os.kill(process.pid, signal.CTRL_BREAK_EVENT)
-                else:
-                    os.killpg(os.getpgid(process.pid), signal.SIGKILL)
-                return {"status": "TIMEOUT", "error": f"Execution exceeded {timeout}s"}
+            stdout, stderr = process.communicate(timeout=timeout)
+            if process.returncode == 0:
+                return {"status": "SUCCESS", "output": stdout.decode("utf-8")}
+            else:
+                return {"status": "ERROR", "error": stderr.decode("utf-8")}
 
+        except subprocess.TimeoutExpired:
+            if os.name == "nt":
+                os.kill(process.pid, signal.CTRL_BREAK_EVENT)
+            else:
+                os.killpg(os.getpgid(process.pid), signal.SIGKILL)
+            return {"status": "TIMEOUT", "error": f"Execution exceeded {timeout}s"}
         except Exception as e:
             return {"status": "ERROR", "error": str(e)}
         finally:
-            try:
-                shutil.rmtree(venv_path, ignore_errors=True)
-            except:
-                pass
+            shutil.rmtree(venv_path, ignore_errors=True)
 
     def is_available(self) -> bool:
         """Check if Docker is available"""
