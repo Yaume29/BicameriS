@@ -509,9 +509,34 @@ const SystemSettings = {
                 body: JSON.stringify({state})
             });
             const data = await res.json();
+            
+            if (data.conflicts && data.conflicts.length > 0) {
+                let conflictMsg = `⚠️ Conflits détectés en activant "${feature}":\n\n`;
+                for (const conflict of data.conflicts) {
+                    conflictMsg += `• "${conflict.feature}" sera désactivé\n  Raison: ${conflict.reason}\n\n`;
+                }
+                conflictMsg += "Continuer ?";
+                
+                if (!confirm(conflictMsg)) {
+                    const checkbox = document.querySelector(`input[data-feature="${feature}"]`);
+                    if (checkbox) checkbox.checked = !state;
+                    return;
+                }
+                
+                for (const conflict of data.conflicts) {
+                    const checkbox = document.querySelector(`input[data-feature="${conflict.feature}"]`);
+                    if (checkbox) {
+                        checkbox.checked = false;
+                        this.showToast(`${conflict.feature} désactivé (conflit avec ${feature})`, 'warning');
+                    }
+                }
+            }
+            
+            this.showToast(`${feature}: ${state ? 'ON' : 'OFF'}`, state ? 'success' : 'info');
             console.log(`[Switchboard] ${feature}: ${state ? 'ON' : 'OFF'}`, data);
         } catch(e) {
             console.error('Toggle switch error:', e);
+            this.showToast(`Erreur: ${e.message}`, 'error');
         }
     },
     
@@ -583,6 +608,29 @@ const SystemSettings = {
                 console.error('Endocrine API error:', e);
             }
         }, 250);
+    },
+    
+    showToast(message, type = 'info') {
+        const toast = document.createElement('div');
+        toast.className = `toast toast-${type}`;
+        toast.textContent = message;
+        toast.style.cssText = `
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 12px 20px;
+            border-radius: 8px;
+            color: white;
+            font-size: 14px;
+            z-index: 10000;
+            animation: slideIn 0.3s ease;
+            background: ${type === 'success' ? '#4CAF50' : type === 'warning' ? '#FF9800' : type === 'error' ? '#f44336' : '#2196F3'};
+        `;
+        document.body.appendChild(toast);
+        setTimeout(() => {
+            toast.style.animation = 'slideOut 0.3s ease';
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
     }
 };
 

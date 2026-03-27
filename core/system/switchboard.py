@@ -16,6 +16,26 @@ class Switchboard:
     Gestionnaire d'état thread-safe pour les fonctionnalités du laboratoire.
     """
 
+    CONFLICT_MAP = {
+        "hyper_cognition_mode": {
+            "disables": ["autonomous_loop"],
+            "reason": "Le mode Crucible monopolise le GPU. La boucle autonome doit être désactivée.",
+        },
+        "strict_airgap_mode": {
+            "disables": ["auto_forge_agents"],
+            "reason": "Le mode Airgap coupe le réseau. L'auto-forge nécessite des téléchargements.",
+        },
+        "sandbox_docker": {
+            "disables": [],
+            "requires": [],
+            "reason": "",
+        },
+        "hemisphere_split_mode": {
+            "disables": [],
+            "reason": "",
+        },
+    }
+
     def __init__(self):
         self._states: Dict[str, bool] = {
             "autonomous_loop": False,
@@ -55,19 +75,33 @@ class Switchboard:
             "impact": self.mood_impact_factor,
         }
 
-    def toggle(self, feature: str, state: bool) -> bool:
-        """Bascule l'état d'une fonctionnalité de manière sécurisée et non-bloquante."""
+    def toggle(self, feature: str, state: bool) -> Dict[str, Any]:
+        """Bascule l'état d'une fonctionnalité avec détection de conflits."""
         callbacks_to_run = []
+        conflicts = []
 
         with self._lock:
             if feature not in self._states:
                 logging.warning(f"[Switchboard] Option inconnue: {feature}")
-                return False
+                return {"success": False, "error": f"Option '{feature}' inconnue"}
 
             if self._states[feature] == state:
-                return True
+                return {"success": True, "conflicts": []}
+
+            if state and feature in self.CONFLICT_MAP:
+                conflict_info = self.CONFLICT_MAP[feature]
+                for disabled_feature in conflict_info.get("disables", []):
+                    if self._states.get(disabled_feature, False):
+                        conflicts.append({
+                            "feature": disabled_feature,
+                            "action": "disable",
+                            "reason": conflict_info.get("reason", ""),
+                        })
 
             self._states[feature] = state
+            for conflict in conflicts:
+                self._states[conflict["feature"]] = False
+
             logging.info(f"[Switchboard] 🎛️ {feature} -> {'ON' if state else 'OFF'}")
             callbacks_to_run = list(self._listeners)
 
@@ -77,7 +111,23 @@ class Switchboard:
             except Exception as e:
                 logging.warning(f"[Switchboard] Listener error: {e}")
 
-        return True
+        return {"success": True, "conflicts": conflicts}
+
+    def check_conflicts(self, feature: str, state: bool) -> List[Dict]:
+        """Vérifie les conflits potentiels sans appliquer les changements."""
+        if not state or feature not in self.CONFLICT_MAP:
+            return []
+
+        conflicts = []
+        conflict_info = self.CONFLICT_MAP[feature]
+        for disabled_feature in conflict_info.get("disables", []):
+            if self._states.get(disabled_feature, False):
+                conflicts.append({
+                    "feature": disabled_feature,
+                    "action": "disable",
+                    "reason": conflict_info.get("reason", ""),
+                })
+        return conflicts
 
     def is_active(self, feature: str) -> bool:
         """Vérifie l'état d'une fonctionnalité (Thread-Safe)."""

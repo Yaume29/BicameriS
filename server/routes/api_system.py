@@ -28,14 +28,27 @@ async def list_switches():
 
 @router.post("/switches/{feature}")
 async def toggle_switch(feature: str, req: ToggleRequest):
-    """Bascule un interrupteur."""
+    """Bascule un interrupteur avec détection de conflits."""
     switchboard = get_switchboard()
-    success = switchboard.toggle(feature, req.state)
+    result = switchboard.toggle(feature, req.state)
 
-    if not success:
-        raise HTTPException(status_code=404, detail=f"Fonctionnalité '{feature}' inconnue.")
+    if not result["success"]:
+        raise HTTPException(status_code=404, detail=result.get("error", "Unknown error"))
 
-    return {"status": "success", "feature": feature, "state": req.state}
+    return {
+        "status": "success",
+        "feature": feature,
+        "state": req.state,
+        "conflicts": result.get("conflicts", []),
+    }
+
+
+@router.get("/switches/{feature}/conflicts")
+async def check_switch_conflicts(feature: str, state: bool = True):
+    """Vérifie les conflits potentiels pour un interrupteur."""
+    switchboard = get_switchboard()
+    conflicts = switchboard.check_conflicts(feature, state)
+    return {"feature": feature, "state": state, "conflicts": conflicts}
 
 
 @router.get("/status")
