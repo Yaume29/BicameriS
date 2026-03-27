@@ -58,19 +58,31 @@ class KernelScheduler:
 
         while self._is_running:
             try:
-                if not self.switchboard.is_active("autonomous_loop"):
-                    await asyncio.sleep(1.0)
-                    continue
-
-                # Metabolisme endocrinien
-                get_endocrine_system().decay()
-
                 pulse = 0.5
                 if self.entropy:
                     try:
                         pulse = self.entropy.get_pulse()
                     except:
                         pass
+
+                interval = (
+                    self._calculate_interval(pulse)
+                    if self.switchboard.is_active("autonomous_loop")
+                    else 1.0
+                )
+
+                manual_trigger = False
+                try:
+                    await asyncio.wait_for(self._force_tick_event.wait(), timeout=interval)
+                    self._force_tick_event.clear()
+                    manual_trigger = True
+                except asyncio.TimeoutError:
+                    pass
+
+                if not self.switchboard.is_active("autonomous_loop") and not manual_trigger:
+                    continue
+
+                get_endocrine_system().decay()
 
                 if self._dream_cooldown > 0:
                     self._dream_cooldown -= 1
@@ -90,13 +102,13 @@ class KernelScheduler:
                         get_endocrine_system().spike_dopamine(0.1)
                         self._dream_cooldown = 10
 
-                    interval = self._calculate_interval(pulse)
                     try:
-                        await asyncio.wait_for(self._force_tick_event.wait(), timeout=interval)
+                        await asyncio.wait_for(
+                            self._force_tick_event.wait(), timeout=self._calculate_interval(pulse)
+                        )
                         self._force_tick_event.clear()
                     except asyncio.TimeoutError:
                         pass
-                    continue
                 elif self._is_dreaming and pulse >= 0.2:
                     self._is_dreaming = False
 
@@ -112,13 +124,6 @@ class KernelScheduler:
                                 self._is_thinking = False
 
                         asyncio.create_task(_think_worker())
-
-                interval = self._calculate_interval(pulse)
-                try:
-                    await asyncio.wait_for(self._force_tick_event.wait(), timeout=interval)
-                    self._force_tick_event.clear()
-                except asyncio.TimeoutError:
-                    pass
 
             except asyncio.CancelledError:
                 break

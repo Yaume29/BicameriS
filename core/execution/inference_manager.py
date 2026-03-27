@@ -294,7 +294,7 @@ class InferenceManager:
             if name in cls._incarnations:
                 cls.guillotine(name)
 
-        ipc_address = f"ipc://aetheris_model_{name}"
+        ipc_address = f"tcp://127.0.0.1"
 
         ctx = zmq.Context()
         socket = ctx.socket(zmq.PAIR)
@@ -304,9 +304,10 @@ class InferenceManager:
         socket.setsockopt(zmq.LINGER, 0)
 
         try:
-            socket.bind(ipc_address)
+            port = socket.bind_to_random_port(ipc_address)
+            ipc_address = f"tcp://127.0.0.1:{port}"
         except OSError as e:
-            logging.error(f"[InferenceManager] ZMQ bind failed on {ipc_address}: {e}")
+            logging.error(f"[InferenceManager] ZMQ bind failed: {e}")
             return False
 
         proc = mp.Process(target=worker_loop, args=(ipc_address, model_path, config), daemon=True)
@@ -447,12 +448,8 @@ class InferenceManager:
                             dead_incarnation = True
                             break
 
-                    if dead_incarnation:
-                        return {
-                            "error": "ZMQ IPC Crash: Le processus Llama a été tué (OOM ou Segfault)."
-                        }
-
-                    return {"error": "Timeout ZMQ: Inference trop longue."}
+                    if not dead_incarnation:
+                        return {"error": "Timeout ZMQ: Inference trop longue."}
 
             except Exception as e:
                 return {"error": f"IPC channel crash: {str(e)}"}
@@ -483,13 +480,11 @@ class InferenceManager:
             except:
                 pass
 
-        if inc_lock:
-            with inc_lock:
-                if socket:
-                    try:
-                        socket.close(linger=0)
-                    except:
-                        pass
+        if socket:
+            try:
+                socket.close(linger=0)
+            except:
+                pass
 
         if proc and proc.is_alive():
             proc.terminate()

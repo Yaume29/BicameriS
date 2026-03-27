@@ -42,8 +42,8 @@ class HardwareEntropy:
             return False
 
     def get_cpu_load(self) -> float:
-        """Charge CPU actuelle (0-1)"""
-        return psutil.cpu_percent(interval=0.1) / 100.0
+        """Charge CPU actuelle (0-1) - NON BLOQUANT"""
+        return psutil.cpu_percent(interval=None) / 100.0
 
     def get_ram_load(self) -> float:
         """Charge RAM actuelle (0-1)"""

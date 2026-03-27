@@ -11,6 +11,8 @@ import uuid
 from pathlib import Path
 from typing import Dict, Any, Optional
 
+import requests
+
 try:
     import docker
 
@@ -49,13 +51,12 @@ class DockerSandbox:
     def execute_code(
         self, code: str, timeout: int = 15, requirements: list = None
     ) -> Dict[str, Any]:
-        """Execute code in isolated container - network isolation is the real security"""
+        """Execute code in isolated container or fallback to PEP 578 airgap"""
         if not self.client:
-            return {
-                "status": "ERROR",
-                "error": "CRITICAL: Moteur Docker inactif. Exécution annulée pour préserver l'intégrité de l'hôte (Airgap Policy).",
-            }
+            logging.warning("[DockerSandbox] Docker down. Bascule sur l'Audit Hook natif.")
+            return self._execute_fallback(code, timeout, requirements or [])
 
+        container = None
         try:
             cmd = ["python", "-c", code]
             if requirements:
@@ -79,19 +80,33 @@ class DockerSandbox:
                 stderr=True,
             )
 
-            result = container.wait(timeout=timeout)
-            logs = container.logs().decode("utf-8")
+            try:
+                result = container.wait(timeout=timeout)
+                logs = container.logs().decode("utf-8")
 
-            if result["StatusCode"] == 0:
-                return {"status": "SUCCESS", "output": logs}
-            else:
-                return {"status": "ERROR", "error": logs}
+                if result["StatusCode"] == 0:
+                    return {"status": "SUCCESS", "output": logs}
+                else:
+                    return {"status": "ERROR", "error": logs}
+
+            except requests.exceptions.ReadTimeout:
+                container.stop(timeout=1)
+                return {
+                    "status": "TIMEOUT",
+                    "error": f"Execution tuée : boucle infinie ou script trop long (> {timeout}s).",
+                }
 
         except docker.errors.ContainerError as e:
             return {"status": "ERROR", "error": str(e)}
         except Exception as e:
             logging.error(f"[DockerSandbox] Execution error: {e}")
             return {"status": "TIMEOUT", "error": str(e)}
+        finally:
+            if container:
+                try:
+                    container.remove(force=True)
+                except:
+                    pass
 
     def _execute_fallback(self, code: str, timeout: int, requirements: list) -> Dict[str, Any]:
         """Fallback Bare-Metal : Isolation via Runtime Audit Hooks (PEP 578)"""
@@ -122,7 +137,7 @@ def _strict_audit_hook(event, args):
 sys.addaudithook(_strict_audit_hook)
 
 code_to_run = '''{AI_CODE}'''
-exec(code_to_run, {{"__builtins__": builtins}})
+exec(code_to_run, {"__builtins__": builtins})
 """
         safe_code = code.replace("'''", "\\'\\'\\'")
         final_script_content = security_wrapper.replace("{AI_CODE}", safe_code)

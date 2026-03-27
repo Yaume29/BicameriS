@@ -450,8 +450,7 @@ Si elle est nulle, dis-le. Si elle est profonde, explore-la."""
         if not self.history:
             return {"status": "stable", "message": "Pas encore de dialogues"}
 
-        # Analyser les derniers cycles
-        recent = self.history[-5:]
+        recent = list(self.history)[-5:]
 
         left_lengths = [len(c.left_analysis) for c in recent]
         right_lengths = [len(c.right_intuition) for c in recent]
@@ -471,7 +470,7 @@ Si elle est nulle, dis-le. Si elle est profonde, explore-la."""
 
     def get_history(self, limit: int = 20) -> List[Dict]:
         """Retourne l'historique des dialogues"""
-        cycles = self.history[-limit:]
+        cycles = list(self.history)[-limit:]
         return [asdict(c) for c in cycles]
 
     def get_stats(self) -> Dict:
