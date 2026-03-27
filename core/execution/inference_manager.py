@@ -449,7 +449,8 @@ class InferenceManager:
                             break
 
                     if not dead_incarnation:
-                        return {"error": "Timeout ZMQ: Inference trop longue."}
+                        cls.guillotine(name)
+                        return {"error": "Timeout ZMQ: Inference trop longue. Incarnation purgée pour éviter la désynchronisation."}
 
             except Exception as e:
                 return {"error": f"IPC channel crash: {str(e)}"}

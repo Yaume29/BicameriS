@@ -142,9 +142,11 @@ class KernelScheduler:
         return self._base_interval
 
     def tick_now(self) -> Dict[str, Any]:
-        """Manual trigger for one tick (non-async)"""
-        if self._is_running:
-            self._force_tick_event.set()
+        """Manual trigger for one tick (Thread-Safe)"""
+        if self._is_running and self._task:
+            loop = asyncio.get_event_loop()
+            if loop.is_running():
+                loop.call_soon_threadsafe(self._force_tick_event.set)
             return {"status": "Tick asynchrone commandé"}
         return {"error": "Horloge arrêtée"}
 
