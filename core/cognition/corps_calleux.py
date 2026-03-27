@@ -39,6 +39,7 @@ class DialogueCycle:
     right_intuition: str
     final_synthesis: str
     meditation: bool = False
+    pulse_context: float = 0.5
 
 
 class CorpsCalleux:
@@ -105,7 +106,7 @@ class CorpsCalleux:
                         context=cycle.question,
                         type="dialogue_cycle",
                         status="completed",
-                        pulse_context=0.5,
+                        pulse_context=cycle.pulse_context,
                     )
                     hippocampus.log_thought(thought)
                 except Exception as e:
@@ -156,7 +157,7 @@ class CorpsCalleux:
         else:
             prompt = f"Cycle de pensée standard. Contexte: {full_context}"
 
-        result = self.dialogue_interieur(prompt)
+        result = self.dialogue_interieur(prompt, pulse_context=pulse)
         return result
 
     def _get_peripheral_noise(self) -> str:
@@ -193,7 +194,7 @@ class CorpsCalleux:
         self.is_split_mode = split_mode
 
     def dialogue_interieur(
-        self, question: str, context: str = "", temperature_override: float = None
+        self, question: str, context: str = "", temperature_override: float = None, pulse_context: float = 0.5
     ) -> Dict[str, Any]:
         """
         Orchestre une pensée complète en trois phases métrologiques.
@@ -267,12 +268,12 @@ Décide de la réponse finale en intégrant ou en tranchant entre ces deux persp
             left_analysis=left_analysis,
             right_intuition=right_intuition,
             final_synthesis=final_synthesis,
+            pulse_context=pulse_context,
         )
 
         with self._history_lock:
             self.history.append(cycle)
 
-        # Log to Qdrant via Hippocampus + Telemetry (JSONL append-only)
         self._log_to_hippocampus(cycle)
         self._log_to_telemetry(cycle)
 

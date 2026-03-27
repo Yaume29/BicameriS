@@ -704,10 +704,7 @@ Ne renvoie QUE le code python, aucune explanation."""
                     module_to_check = node.module.split(".")[0]
 
             if module_to_check and module_to_check not in ignore_list:
-                if (
-                    importlib.util.find_spec(module_to_check) is None
-                    and module_to_check not in missing
-                ):
+                if module_to_check not in missing:
                     missing.append(module_to_check)
 
         return missing

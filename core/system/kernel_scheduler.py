@@ -83,7 +83,7 @@ class KernelScheduler:
                 if not self.switchboard.is_active("autonomous_loop") and not manual_trigger:
                     continue
 
-                get_endocrine_system().decay()
+                await asyncio.to_thread(get_endocrine_system().decay)
 
                 if self._dream_cooldown > 0:
                     self._dream_cooldown -= 1

@@ -503,7 +503,7 @@ class InferenceManager:
 
         if ctx:
             try:
-                ctx.term()
+                ctx.destroy(linger=0)
             except:
                 pass
 
