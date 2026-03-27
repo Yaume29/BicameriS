@@ -268,13 +268,14 @@ def worker_loop(ipc_address: str, model_path: str, config: Dict):
                 if socket in socks and socks[socket] == zmq.POLLIN:
                     msg = socket.recv_pyobj()
                     break
+                if os.name == "posix" and os.getppid() == 1:
+                    logging.error("[Worker] Parent mort")
+                    break
             
             if msg is None:
-                logging.error("[Worker] Timeout waiting for message")
+                logging.error("[Worker] Timeout ou processus mort")
                 break
                 
-            if msg is None:
-                break
             result = worker.process_task(msg)
             socket.send_pyobj(result)
         except zmq.Again:
