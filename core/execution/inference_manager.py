@@ -249,9 +249,24 @@ def worker_loop(ipc_address: str, model_path: str, config: Dict):
 
     signal.signal(signal.SIGTERM, sigterm_handler)
 
+    poller = zmq.Poller()
+    poller.register(socket, zmq.POLLIN)
+
     while True:
         try:
-            msg = socket.recv_pyobj()
+            start_time = time.time()
+            msg = None
+            
+            while (time.time() - start_time) < 120.0:
+                socks = dict(poller.poll(100))
+                if socket in socks and socks[socket] == zmq.POLLIN:
+                    msg = socket.recv_pyobj()
+                    break
+            
+            if msg is None:
+                logging.error("[Worker] Timeout waiting for message")
+                break
+                
             if msg is None:
                 break
             result = worker.process_task(msg)
@@ -497,9 +512,9 @@ class InferenceManager:
                 except:
                     pass
                 if proc.is_alive():
-                    os.kill(proc.pid, signal.SIGKILL)
+                    os.kill(proc.pid, signal.SIGTERM)
                     logging.warning(
-                        f"[InferenceManager] ⚡⚡ SIGKILL on '{name}' after SIGTERM timeout."
+                        f"[InferenceManager] ⚡⚡ SIGTERM (retry) on '{name}' after timeout."
                     )
 
         logging.info(f"[InferenceManager] ⚡ Incarnation '{name}' purged successfully.")
