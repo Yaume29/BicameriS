@@ -1,5 +1,5 @@
 """
-BICAMERIS - Docker Sandbox
+Diadikos & Palladion - Docker Sandbox
 =========================
 Isolated code execution using Docker containers.
 Falls back to venv if Docker unavailable.

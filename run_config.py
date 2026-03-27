@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-BicameriS Launcher Configuration Script
+Diadikos Launcher Configuration Script
 ========================================
 Allows setting and modifying default parameters before server startup.
 Can be run standalone or with the launcher.
@@ -100,7 +100,7 @@ HISTORY_FILE = Path("storage/config/config_history.json")
 
 
 class ConfigManager:
-    """Manage BicameriS runtime configuration"""
+    """Manage Diadikos runtime configuration"""
     
     def __init__(self):
         self.config: Dict[str, Any] = {}
@@ -195,7 +195,7 @@ class ConfigManager:
     def show(self):
         """Display current configuration"""
         print("\n" + "=" * 60)
-        print("📋 BICAMERIS CONFIGURATION")
+        print("📋 Diadikos CONFIGURATION")
         print("=" * 60)
         
         for section, values in self.config.items():
@@ -237,7 +237,7 @@ class ConfigManager:
 def interactive_config(manager: ConfigManager):
     """Interactive configuration mode"""
     print("\n" + "=" * 60)
-    print("⚙️  BICAMERIS INTERACTIVE CONFIGURATOR")
+    print("⚙️  Diadikos INTERACTIVE CONFIGURATOR")
     print("=" * 60)
     print("\nAvailable sections:")
     print("  1. Server settings")
@@ -382,7 +382,7 @@ def interactive_config(manager: ConfigManager):
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Bicameris Configuration Manager",
+        description="Diadikos Configuration Manager",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:

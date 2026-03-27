@@ -1,5 +1,5 @@
 """
-BICAMERIS - Sandbox Security Validator
+Diadikos & Palladion - Sandbox Security Validator
 =======================================
 AST-based security validation for sandbox code execution.
 Used only when Docker is unavailable (fallback mode).

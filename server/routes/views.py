@@ -23,7 +23,7 @@ async def root(request: Request):
     """Home page"""
     if _templates:
         return _templates.TemplateResponse("index.html", {"request": request})
-    return HTMLResponse("<h1>Bicameris v1.0.0.6a</h1>")
+    return HTMLResponse("<h1>Diadikos & Palladion v1.0.0.6a</h1>")
 
 
 @router.get("/dashboard", response_class=HTMLResponse)

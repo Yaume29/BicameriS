@@ -1,5 +1,5 @@
 """
-BICAMERIS - Switchboard
+Diadikos & Palladion - Switchboard
 =======================
 Thread-safe state manager for laboratory features.
 Controls ON/OFF states for autonomous loop, auto-forge, docker, debug, etc.

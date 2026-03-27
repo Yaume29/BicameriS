@@ -1,5 +1,5 @@
 """
-Bicameris Test Suite
+Diadikos Test Suite
 """
 
 # Test markers

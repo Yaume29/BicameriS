@@ -1,5 +1,5 @@
 """
-BICAMERIS - Telemetry
+Diadikos & Palladion - Telemetry
 =====================
 Async JSONL logger for cognitive audit trail.
 Uses asyncio.Queue for non-blocking Event Loop.

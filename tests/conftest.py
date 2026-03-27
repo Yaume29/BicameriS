@@ -1,5 +1,5 @@
 """
-Pytest configuration and fixtures for Bicameris tests
+Pytest configuration for Diadikos
 """
 
 import pytest

@@ -1,8 +1,10 @@
 <div align="center">
 
-# BICAMERIS v1.0.0.6a
+# BicameriS
 
-**Cognitive Bicameral Kernel - Where Logic Meets Intuition**
+**Diadikos & Palladion**
+
+*By Hope 'n Mind*
 
 ![Version](https://img.shields.io/badge/version-1.0.0.6a-blue?style=for-the-badge)
 ![Python](https://img.shields.io/badge/python-3.11+-green?style=for-the-badge)
@@ -29,9 +31,22 @@
 <a id="overview"></a>
 ## Overview
 
-**Bicameris** is an autonomous cognitive architecture featuring a dual-hemisphere brain
-powered by local LLM inference. It arbitrates between logic (Qwen) and intuition (Gemma)
-using hardware entropy as a dynamic cognitive driver.
+**BicameriS** is not a conventional AI project. It is **systemic research** -- a cognitive
+laboratory that simulates the architecture of consciousness itself.
+
+The name draws from Greek antiquity:
+
+| Term | Origin | Meaning |
+|------|--------|---------|
+| **Diadikos** | Διαδικός (dia + dikē) | The dialogue through reason -- the process by which two parties converge toward truth |
+| **Palladion** | Παλλάδιον | The sacred statue of Athena that protected Troy -- the guardian, the creative boundaries |
+| **Bicameris** | Latin *bicamer* | Two chambers -- the dual-hemisphere brain |
+
+**Diadikos** is the hemispheric dialogue: Qwen (logic) and Gemma (intuition) converging
+toward synthesis. **Palladion** is the protective system -- the sandbox, the security layers,
+the body that gives Diadikos a safe vessel to exist.
+
+*Without Palladion, no Diadikos is possible. Without boundaries, no creative freedom.*
 
 ### Key Concepts
 
@@ -55,24 +70,25 @@ using hardware entropy as a dynamic cognitive driver.
 
 ```
 +---------------------------------------------------------------+
-|                    BICAMERIS v6.0 KERNEL                      |
+|                  BICAMERIS v1.0.0.6a                          |
+|              Diadikos & Palladion                             |
 +---------------------------------------------------------------+
 |                                                               |
 |  +------------+    +------------+    +------------+          |
 |  | LEFT HEM.  |    |  CORPS     |    | RIGHT HEM. |          |
 |  | (Qwen 14B) |<-->|  CALLEUX   |<-->| (Gemma 9B) |          |
-|  | Logic      |    |  (Bridge)  |    | Intuition  |          |
+|  |   LOGIC    |    |  (Bridge)  |    |  INTUITION |          |
 |  +-----+------+    +-----+------+    +-----+------+          |
 |        |                 |                 |                  |
 |        |    +------------+------------+    |                  |
-|        |    |        CONDUCTOR        |    |                  |
-|        |    |      (Arbitrage)        |    |                  |
+|        |    |       D I A D I K O S    |    |                  |
+|        |    |      (Arbitrage)         |    |                  |
 |        |    +------------+------------+    |                  |
 |        |                 |                 |                  |
 +--------|-----------------|-----------------|------------------+
          |                 |                 |
 +--------v-----------------v-----------------v------------------+
-|                    TRANSIENT REQ > ROUTER                    |
+|                  TRANSIENT REQ > ROUTER                      |
 +---------------------------------------------------------------+
 |  +------------+  +------------+  +------------+             |
 |  | Worker Qwen|  | Worker     |  | Worker     |             |
@@ -80,28 +96,9 @@ using hardware entropy as a dynamic cognitive driver.
 |  | BIND       |  | ROUTER     |  | ROUTER     |             |
 |  +------------+  +------------+  +------------+             |
 +---------------------------------------------------------------+
-```
-
-### IPC Architecture (v6.0)
-
-```
-+-------------------+         ipc://          +------------------+
-| InferenceManager  | ---- TRANSIENT REQ ---> | Worker Process   |
-| (FastAPI Thread)  |                         | (LLM Inference)  |
-|                   | <--- [reply] ---------- |                  |
-|  socket = ctx.    |                         | ROUTER BIND      |
-|    socket(REQ)    |                         | [id, msg] ->     |
-|  connect()        |                         | process_task()   |
-|  send(task)       |                         | send([id,reply]) |
-|  recv()           |                         |                  |
-|  close()          |                         |                  |
-+-------------------+                         +------------------+
-
-Benefits vs PAIR persistent:
-- Zero race conditions (stateless client)
-- Crash-resilient (fresh socket per request)
-- No lock contention
-- Automatic reconnection
+|               P A L L A D I O N                               |
+|          (Triple-Layer Sandbox Security)                      |
++---------------------------------------------------------------+
 ```
 
 ### Component Details
@@ -147,7 +144,9 @@ python run.py
 <a id="security"></a>
 ## Security
 
-### Triple-Layer Sandbox
+### Palladion -- The Guardian
+
+The Palladion system implements three protective layers:
 
 | Layer | Technology | Protection |
 |-------|------------|------------|
@@ -155,13 +154,7 @@ python run.py
 | Layer 2 | Docker Isolation | Network-disabled containers |
 | Layer 3 | PEP 578 Audit Hooks | Runtime monitoring |
 
-### Features
-
-- Airgap Mode for sensitive operations
-- Auto-scaffolding with dependency verification
-- Trauma filter against injection attacks
-- SAL classifier for sensitive content
-- Switchboard controls for all features
+*Like the sacred statue of Athena, Palladion ensures Diadikos can exist safely.*
 
 ---
 
@@ -179,13 +172,6 @@ python run.py
 | /api/system/switches | GET | List switches |
 | /api/inference/spawn | POST | Spawn LLM worker |
 
-### WebSocket
-
-| Endpoint | Type | Description |
-|----------|------|-------------|
-| /ws/neural | PUSH | Neural state updates |
-| /ws/thermal | PUSH | Thermal monitoring |
-
 ---
 
 <div align="center">
@@ -193,6 +179,6 @@ python run.py
 [![GitHub stars](https://img.shields.io/github/stars/Yaume29/BicameriS?style=social)](https://github.com/Yaume29/BicameriS/stargazers)
 [![GitHub forks](https://img.shields.io/github/forks/Yaume29/BicameriS?style=social)](https://github.com/Yaume29/BicameriS/network)
 
-Made with love by the Bicameris Team
+**By Hope 'n Mind**
 
 </div>

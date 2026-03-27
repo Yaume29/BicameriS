@@ -1,5 +1,5 @@
 """
-BICAMERIS - Hippocampus
+Diadikos & Palladion - Hippocampus
 ======================
 Vector memory wrapper using Qdrant.
 Provides semantic search and payload filtering for thoughts, tasks, and trauma.

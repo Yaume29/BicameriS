@@ -1,5 +1,5 @@
 """
-BICAMERIS - Retry Utilities
+Diadikos & Palladion - Retry Utilities
 ==========================
 Generic retry decorator for functions, services, and initializations.
 """

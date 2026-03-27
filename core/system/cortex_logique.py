@@ -1,5 +1,5 @@
 """
-BICAMERIS - Cortex Logique (Graph Database)
+Diadikos & Palladion - Cortex Logique (Graph Database)
 =========================================
 Epistemological graph using Kùzu for logical reasoning.
 Complements Qdrant (intuition) with causal relationships.

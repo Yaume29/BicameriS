@@ -1,5 +1,5 @@
 """
-BICAMERIS - Hardware Profiler
+Diadikos & Palladion - Hardware Profiler
 Scans hardware topology (CPU i9, RAM DDR5, VRAM RTX 4090) for the hybrid allocation.
 """
 

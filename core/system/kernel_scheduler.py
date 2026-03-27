@@ -1,5 +1,5 @@
 """
-BICAMERIS - Kernel Scheduler (Master Clock)
+Diadikos & Palladion - Kernel Scheduler (Master Clock)
 ==========================================
 Single pacemaker that orchestrates cognitive ticks.
 Replaces scattered while loops with centralized tick() calls.

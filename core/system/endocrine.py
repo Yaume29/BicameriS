@@ -1,5 +1,5 @@
 """
-BICAMERIS - Système Endocrinien Synthétique
+Diadikos & Palladion - Système Endocrinien Synthétique
 ==========================================
 Gère les états d'urgence, de récompense et d'humeur avec décroissance temporelle (decay).
 Transmute la chimie virtuelle en hyperparamètres LLM.

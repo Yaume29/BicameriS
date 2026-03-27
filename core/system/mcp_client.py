@@ -1,5 +1,5 @@
 """
-BICAMERIS - MCP Client Manager
+Diadikos & Palladion - MCP Client Manager
 ==============================
 Model Context Protocol integration for dynamic tool discovery.
 Connects to MCP servers defined in mcp_registry.json.

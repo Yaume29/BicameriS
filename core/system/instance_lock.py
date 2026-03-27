@@ -1,5 +1,5 @@
 """
-BICAMERIS - Instance Lock Manager
+Diadikos & Palladion - Instance Lock Manager
 =================================
 Prevents conflicts when multiple instances are running.
 Implements sleep/awakening instead of killing tasks.

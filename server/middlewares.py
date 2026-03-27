@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 
 class SecurityMiddleware(BaseHTTPMiddleware):
-    """Security middleware for Bicameris"""
+    """Security middleware for Diadikos & Palladion"""
 
     # Routes that require special handling
     ADMIN_ROUTES = [

@@ -1,5 +1,5 @@
 """
-BICAMERIS - Sensory Buffer (Data Hose)
+Diadikos & Palladion - Sensory Buffer (Data Hose)
 ====================================
 Passive semantic noise injection to prevent cognitive collapse.
 Provides peripheral concepts from external data streams.

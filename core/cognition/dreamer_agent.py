@@ -1,5 +1,5 @@
 """
-BICAMERIS - Dreamer Agent (Paradoxical Sleep)
+Diadikos & Palladion - Dreamer Agent (Paradoxical Sleep)
 ==========================================
 Semantic collision through vector inversion.
 Generates metaphorical connections between distant concepts.

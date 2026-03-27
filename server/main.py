@@ -1,5 +1,5 @@
 """
-BICAMERIS - Server Main
+Diadikos & Palladion - Server Main
 =======================
 FastAPI application - Hope 'n Mind
 """
@@ -20,14 +20,14 @@ from server.extensions import registry
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Startup and shutdown events with Fail-Fast"""
-    logging.info("[Bicameris] Séquence d'amorçage initiée...")
+    logging.info("[Diadikos] Séquence d'amorçage initiée...")
 
     # 0. Switchboard (Thread-safe state manager)
     try:
         from core.system.switchboard import get_switchboard
 
         registry.switchboard = get_switchboard()
-        logging.info("[Bicameris] ✅ Switchboard initialisé")
+        logging.info("[Diadikos] ✅ Switchboard initialisé")
     except Exception as e:
         logging.warning(f"⚠️ Switchboard non disponible: {e}")
 
@@ -76,11 +76,11 @@ async def lifespan(app: FastAPI):
             right = get_right_hemisphere()
             if left and right:
                 registry.corps_calleux.set_hemispheres(left, right)
-                logging.info("[Bicameris] ✅ Hémisphères connectés au Corps Calleux")
+                logging.info("[Diadikos] ✅ Hémisphères connectés au Corps Calleux")
         except ImportError:
-            logging.warning("[Bicameris] ⚠️ core_reserved non disponible - Corps Calleux en mode dégradé")
+            logging.warning("[Diadikos] ⚠️ core_reserved non disponible - Corps Calleux en mode dégradé")
         
-        logging.info("[Bicameris] ✅ Corps Calleux chargé")
+        logging.info("[Diadikos] ✅ Corps Calleux chargé")
     except Exception as e:
         logging.warning(f"⚠️ Corps Calleux non disponible: {e}")
 
@@ -92,7 +92,7 @@ async def lifespan(app: FastAPI):
         from core.system.telemetry import get_telemetry
 
         await get_telemetry().start()
-        logging.info("[Bicameris] ✅ Telemetry started")
+        logging.info("[Diadikos] ✅ Telemetry started")
     except Exception as e:
         logging.warning(f"⚠️ Telemetry non disponible: {e}")
 
@@ -100,7 +100,7 @@ async def lifespan(app: FastAPI):
         from core.system.sensory_buffer import get_sensory_buffer
 
         await get_sensory_buffer().start()
-        logging.info("[Bicameris] ✅ SensoryBuffer (Data Hose) démarré")
+        logging.info("[Diadikos] ✅ SensoryBuffer (Data Hose) démarré")
     except Exception as e:
         logging.warning(f"⚠️ SensoryBuffer non disponible: {e}")
 
@@ -115,34 +115,34 @@ async def lifespan(app: FastAPI):
             entropy=registry.entropy,
         )
         await registry.scheduler.start()
-        logging.info("[Bicameris] ⏱️ Horloge Maître démarrée")
+        logging.info("[Diadikos] ⏱️ Horloge Maître démarrée")
     except Exception as e:
         logging.error(f"💀 ÉCHEC CRITIQUE - Kernel Scheduler: {e}")
 
-    logging.info("[Bicameris] Système en ligne.")
+    logging.info("[Diadikos] Système en ligne.")
 
     yield
 
-    logging.info("[Bicameris] Extinction propre des sous-systèmes...")
+    logging.info("[Diadikos] Extinction propre des sous-systèmes...")
 
     if hasattr(registry, "scheduler") and registry.scheduler:
         try:
             await registry.scheduler.stop()
-            logging.info("[Bicameris] ✅ Scheduler arrêté proprement")
+            logging.info("[Diadikos] ✅ Scheduler arrêté proprement")
         except Exception as e:
             logging.warning(f"⚠️ Erreur scheduler.stop: {e}")
 
     try:
         from core.system.sensory_buffer import get_sensory_buffer
         await get_sensory_buffer().stop()
-        logging.info("[Bicameris] ✅ SensoryBuffer arrêté")
+        logging.info("[Diadikos] ✅ SensoryBuffer arrêté")
     except Exception:
         pass
 
     try:
         from core.system.telemetry import get_telemetry
         await get_telemetry().stop()
-        logging.info("[Bicameris] ✅ Telemetry arrêté")
+        logging.info("[Diadikos] ✅ Telemetry arrêté")
     except Exception:
         pass
 
@@ -155,7 +155,7 @@ async def lifespan(app: FastAPI):
 
 # Create FastAPI app
 app = FastAPI(
-    title="Bicameris",
+    title="BicameriS - Diadikos & Palladion",
     description="Kernel cognitif bicaméral - Hope 'n Mind",
     version="1.0.0.6a",
     lifespan=lifespan,
@@ -249,16 +249,16 @@ if __name__ == "__main__":
         lock_status = lock.acquire_or_sleep()
 
         if not lock_status.acquired:
-            print(f"[Bicameris] ⚠️ Another instance is running (PID: {lock_status.owner_pid})")
-            print(f"[Bicameris] Entering sleep mode... ({lock_status.wait_time:.0f}s)")
+            print(f"[Diadikos] ⚠️ Another instance is running (PID: {lock_status.owner_pid})")
+            print(f"[Diadikos] Entering sleep mode... ({lock_status.wait_time:.0f}s)")
             if lock.wait_for_wake(timeout=lock_status.wait_time):
-                print("[Bicameris] Wake signal received! Starting up...")
+                print("[Diadikos] Wake signal received! Starting up...")
             else:
-                print("[Bicameris] Timeout exceeded. Force starting anyway...")
+                print("[Diadikos] Timeout exceeded. Force starting anyway...")
     except ImportError:
-        print("[Bicameris] Instance lock not available, starting without protection")
+        print("[Diadikos] Instance lock not available, starting without protection")
     except Exception as e:
-        print(f"[Bicameris] Lock error: {e}, starting anyway")
+        print(f"[Diadikos] Lock error: {e}, starting anyway")
 
     port = 8000
     max_wait = 30
@@ -266,16 +266,16 @@ if __name__ == "__main__":
 
     while not check_port_available(port) and time.time() - start_time < max_wait:
         elapsed = int(time.time() - start_time)
-        print(f"[Bicameris] ⏳ Port {port} busy. Waiting... ({elapsed}s/{max_wait}s)")
+        print(f"[Diadikos] ⏳ Port {port} busy. Waiting... ({elapsed}s/{max_wait}s)")
         time.sleep(2)
 
     if not check_port_available(port):
         try:
             port = find_available_port(port + 1)
-            print(f"[Bicameris] 🔄 Falling back to port {port}")
+            print(f"[Diadikos] 🔄 Falling back to port {port}")
         except RuntimeError as e:
-            print(f"[Bicameris] ❌ {e}")
+            print(f"[Diadikos] ❌ {e}")
             exit(1)
 
-    print(f"[Bicameris] 🚀 Starting server on port {port}")
+    print(f"[Diadikos] 🚀 Starting server on port {port}")
     uvicorn.run(app, host="0.0.0.0", port=port, workers=1)
