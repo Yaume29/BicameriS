@@ -1,6 +1,6 @@
 """
-INFERENCE MANAGER v6.0 - TRANSIENT REQ > BOUND ROUTER
-======================================================
+INFERENCE MANAGER v1.0.0.6a - TRANSIENT REQ > BOUND ROUTER
+===========================================================
 Architecture ZMQ optimisée :
 - Worker: BIND ROUTER (persistent, gère les identity frames)
 - Manager: TRANSIENT REQ (éphémère par requête, état propre)

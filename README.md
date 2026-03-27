@@ -1,10 +1,10 @@
 <div align="center">
 
-# BICAMERIS v6.0
+# BICAMERIS v1.0.0.6a
 
 **Cognitive Bicameral Kernel - Where Logic Meets Intuition**
 
-![Version](https://img.shields.io/badge/version-6.0.0-blue?style=for-the-badge)
+![Version](https://img.shields.io/badge/version-1.0.0.6a-blue?style=for-the-badge)
 ![Python](https://img.shields.io/badge/python-3.11+-green?style=for-the-badge)
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.110+-teal?style=for-the-badge)
 ![License](https://img.shields.io/badge/license-MIT-yellow?style=for-the-badge)

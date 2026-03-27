@@ -157,7 +157,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="Bicameris",
     description="Kernel cognitif bicaméral - Hope 'n Mind",
-    version="4.0.0",
+    version="1.0.0.6a",
     lifespan=lifespan,
 )
 
