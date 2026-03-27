@@ -16,8 +16,8 @@
  * @example
  * const data = await retryAsync(() => fetch("/api/data"), {
  *   maxAttempts: 4,
- *   baseDelay: 500,
- *   backoff: "linear"
+ *   baseDelay: 2000,
+ *   backoff: "exponential"
  * });
  */
 async function retryAsync(fn, {
