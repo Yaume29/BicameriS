@@ -47,8 +47,3 @@ def get_corps_calleux():
 
         registry.corps_calleux = CorpsCalleux()
     return registry.corps_calleux
-
-
-def get_autonomous_thinker():
-    """Legacy compatibility - redirects to CorpsCalleux"""
-    return get_corps_calleux()

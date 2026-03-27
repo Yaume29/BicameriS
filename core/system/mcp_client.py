@@ -9,7 +9,9 @@ import asyncio
 import json
 import logging
 import os
+import queue
 import subprocess
+import threading
 from pathlib import Path
 from typing import Dict, Any, List, Optional
 
@@ -27,6 +29,8 @@ class MCPServer:
         self.args = config.get("args", [])
         self.env = self._resolve_env(config.get("env", {}))
         self.description = config.get("description", "")
+        self._stdout_queue: queue.Queue = queue.Queue()
+        self._reader_thread: Optional[threading.Thread] = None
 
     def _resolve_env(self, env: Dict[str, str]) -> Dict[str, str]:
         """Resolve ${ENV_VAR} placeholders"""
@@ -38,6 +42,18 @@ class MCPServer:
             else:
                 resolved[key] = value
         return resolved
+
+    def _enqueue_output(self):
+        """Thread dédié pour lire le stdout sans bloquer le thread principal"""
+        try:
+            for line in iter(self.process.stdout.readline, ""):
+                if line:
+                    self._stdout_queue.put(line)
+        except Exception:
+            pass
+        finally:
+            if self.process and self.process.stdout:
+                self.process.stdout.close()
 
     async def start(self):
         """Start the MCP server process"""
@@ -51,6 +67,8 @@ class MCPServer:
                 env=self.env,
                 text=True,
             )
+            self._reader_thread = threading.Thread(target=self._enqueue_output, daemon=True)
+            self._reader_thread.start()
             logger.info(f"[MCP] ✅ Server '{self.name}' started (PID: {self.process.pid})")
             return True
         except Exception as e:
@@ -77,9 +95,11 @@ class MCPServer:
             self.process.stdin.write(json.dumps(request) + "\n")
             self.process.stdin.flush()
             for _ in range(50):
-                line = self.process.stdout.readline()
-                if not line:
-                    break
+                try:
+                    line = self._stdout_queue.get(timeout=5.0)
+                except queue.Empty:
+                    logger.error(f"[MCP] Timeout: Server '{self.name}' ne répond plus")
+                    return []
                 try:
                     response = json.loads(line)
                     if response.get("id") == 2:
@@ -107,9 +127,13 @@ class MCPServer:
             self.process.stdin.flush()
 
             for _ in range(50):
-                line = self.process.stdout.readline()
-                if not line:
-                    break
+                try:
+                    line = self._stdout_queue.get(timeout=5.0)
+                except queue.Empty:
+                    logger.error(f"[MCP] Timeout: Server '{self.name}' ne répond plus")
+                    return {
+                        "error": f"Timeout critique: Le serveur MCP '{self.name}' ne répond plus."
+                    }
                 try:
                     response = json.loads(line)
                     if response.get("id") == 1:

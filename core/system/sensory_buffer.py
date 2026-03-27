@@ -1,6 +1,6 @@
 """
 BICAMERIS - Sensory Buffer (Data Hose)
-=====================================
+====================================
 Passive semantic noise injection to prevent cognitive collapse.
 Provides peripheral concepts from external data streams.
 """
@@ -11,6 +11,14 @@ import random
 from collections import deque
 from typing import List, Optional, Dict, Any
 from datetime import datetime
+
+try:
+    import httpx
+
+    HTTPX_AVAILABLE = True
+except ImportError:
+    HTTPX_AVAILABLE = False
+    logging.warning("[SensoryBuffer] httpx not installed - external feeds disabled")
 
 logger = logging.getLogger(__name__)
 
@@ -66,9 +74,9 @@ class SensoryBuffer:
 
     async def _fetch_hackernews(self) -> Optional[Dict[str, Any]]:
         """Fetch top story from HackerNews (mock for now)"""
+        if not HTTPX_AVAILABLE:
+            return None
         try:
-            import httpx
-
             async with httpx.AsyncClient() as client:
                 response = await client.get(
                     "https://hacker-news.firebaseio.com/v0/topstories.json", timeout=10.0
@@ -92,9 +100,9 @@ class SensoryBuffer:
 
     async def _fetch_crypto(self) -> Optional[Dict[str, Any]]:
         """Fetch crypto ticker (mock for now)"""
+        if not HTTPX_AVAILABLE:
+            return None
         try:
-            import httpx
-
             async with httpx.AsyncClient() as client:
                 response = await client.get(
                     "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana&vs_currencies=usd",

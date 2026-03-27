@@ -33,9 +33,8 @@ def get_corps_calleux():
 
 
 def get_autonomous_thinker():
-    if not registry.autonomous_thinker:
-        raise HTTPException(status_code=501, detail="Autonomous Thinker Offline")
-    return registry.autonomous_thinker
+    """Legacy compatibility - redirects to CorpsCalleux"""
+    return get_corps_calleux()
 
 
 # ==============================================================================
@@ -109,10 +108,10 @@ async def sandbox_execute(req: SandboxRequest, conductor=Depends(get_conductor))
 
 
 @router.get("/autonomous/status")
-async def autonomous_status(thinker=Depends(get_autonomous_thinker)):
+async def autonomous_status(corps=Depends(get_corps_calleux)):
     """Get autonomous thinker status"""
     is_running = (
-        await asyncio.to_thread(thinker.is_running) if hasattr(thinker, "is_running") else False
+        await asyncio.to_thread(corps.is_autonomous) if hasattr(corps, "is_autonomous") else False
     )
     return {"running": is_running}
 
