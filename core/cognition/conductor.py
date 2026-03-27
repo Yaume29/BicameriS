@@ -1,6 +1,8 @@
 """
 Conductor - Kernel d'Arbitrage
 Décide dynamiquement quel hémisphère mène selon l'entropie hardware.
+Graceful Degradation : Si core_reserved est absent, le Conductor fonctionne
+en mode dégradé (simulation locale) au lieu de crasher.
 """
 
 import ast
@@ -18,11 +20,45 @@ BASE_DIR = Path(__file__).parent.parent.parent.absolute()
 sys.path.insert(0, str(BASE_DIR / "ZONE_RESERVEE"))
 sys.path.insert(0, str(BASE_DIR))
 
-from core_reserved.left_hemisphere import get_left_hemisphere
-from core_reserved.right_hemisphere import get_right_hemisphere
-from core_reserved.web_search import get_web_searcher
-from core.hardware.entropy_generator import get_entropy_generator
-from core_reserved.traumatic_memory import get_traumatic_memory
+try:
+    from core_reserved.left_hemisphere import get_left_hemisphere
+    LEFT_HEMISPHERE_AVAILABLE = True
+except ImportError:
+    logging.warning("[Conductor] ⚠️ core_reserved.left_hemisphere non trouvé - mode dégradé")
+    LEFT_HEMISPHERE_AVAILABLE = False
+    get_left_hemisphere = None
+
+try:
+    from core_reserved.right_hemisphere import get_right_hemisphere
+    RIGHT_HEMISPHERE_AVAILABLE = True
+except ImportError:
+    logging.warning("[Conductor] ⚠️ core_reserved.right_hemisphere non trouvé - mode dégradé")
+    RIGHT_HEMISPHERE_AVAILABLE = False
+    get_right_hemisphere = None
+
+try:
+    from core_reserved.web_search import get_web_searcher
+    WEB_SEARCH_AVAILABLE = True
+except ImportError:
+    logging.warning("[Conductor] ⚠️ core_reserved.web_search non trouvé - mode dégradé")
+    WEB_SEARCH_AVAILABLE = False
+    get_web_searcher = None
+
+try:
+    from core.hardware.entropy_generator import get_entropy_generator
+    ENTROPY_AVAILABLE = True
+except ImportError:
+    logging.warning("[Conductor] ⚠️ entropy_generator non trouvé - mode dégradé")
+    ENTROPY_AVAILABLE = False
+    get_entropy_generator = None
+
+try:
+    from core_reserved.traumatic_memory import get_traumatic_memory
+    TRAUMA_AVAILABLE = True
+except ImportError:
+    logging.warning("[Conductor] ⚠️ core_reserved.traumatic_memory non trouvé - mode dégradé")
+    TRAUMA_AVAILABLE = False
+    get_traumatic_memory = None
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - [CONDUCTOR] - %(message)s")
 
@@ -92,9 +128,9 @@ class Conductor:
     """
 
     def __init__(self):
-        self.entropy = get_entropy_generator()
-        self.researcher = get_web_searcher()
-        self.trauma = get_traumatic_memory()
+        self.entropy = get_entropy_generator() if ENTROPY_AVAILABLE else None
+        self.researcher = get_web_searcher() if WEB_SEARCH_AVAILABLE else None
+        self.trauma = get_traumatic_memory() if TRAUMA_AVAILABLE else None
         self.last_task = None
         self.task_history = []
         self._history_lock = threading.Lock()
@@ -102,18 +138,26 @@ class Conductor:
     def orchestrate_task(self, prompt_utilisateur: str) -> Dict[str, Any]:
         """
         Orchestre une tâche selon le pulse hardware.
+        Graceful Degradation : fonctionne même si certains composants sont absents.
         """
-        pulse = self.entropy.get_pulse()
+        pulse = self.entropy.get_pulse() if self.entropy else 0.5
         logging.info(f"Pulse matériel: {pulse:.2f} - Décision d'arbitrage...")
 
-        left = get_left_hemisphere()
-        right = get_right_hemisphere()
+        left = get_left_hemisphere() if LEFT_HEMISPHERE_AVAILABLE else None
+        right = get_right_hemisphere() if RIGHT_HEMISPHERE_AVAILABLE else None
 
         if not left or not right:
-            return {"error": "Hémisphères non chargés", "leader": "NONE"}
+            logging.warning("[Conductor] ⚠️ Hémisphères non disponibles, mode simulation")
+            return {
+                "prompt": prompt_utilisateur,
+                "pulse": pulse,
+                "leader": "SIMULATION",
+                "final_response": f"[MODE DÉGRADÉ] Réponse simulée pour: {prompt_utilisateur}",
+                "status": "degraded",
+            }
 
-        similar_traumas = self.trauma.query_similar(prompt_utilisateur)
-        trauma_injection = self.trauma.get_context_injection(similar_traumas)
+        similar_traumas = self.trauma.query_similar(prompt_utilisateur) if self.trauma else []
+        trauma_injection = self.trauma.get_context_injection(similar_traumas) if self.trauma else None
 
         task_result = {
             "timestamp": datetime.now().isoformat(),
@@ -669,7 +713,7 @@ Ne renvoie QUE le code python, aucune explanation."""
         return missing
 
     def _write_file(self, args: Dict) -> Dict:
-        """Outil: Écrit du contenu dans un fichier"""
+        """Outil: Écrit du contenu dans un fichier (sandboxé à ZONE_AETHERIS_DIR)"""
         path = args.get("path", "")
         content = args.get("content", "")
 
@@ -677,7 +721,10 @@ Ne renvoie QUE le code python, aucune explanation."""
             return {"status": "ERROR", "error": "Chemin du fichier requis"}
 
         try:
-            file_path = Path(path)
+            file_path = Path(path).resolve()
+            # SECURITY: Reject absolute paths and directory traversal
+            if not str(file_path).startswith(str(ZONE_AETHERIS_DIR.resolve())):
+                return {"status": "ERROR", "error": "Chemin non autorisé - écrivure limitée à ZONE_AETHERIS_DIR"}
             file_path.parent.mkdir(parents=True, exist_ok=True)
             file_path.write_text(content, encoding="utf-8")
             return {"status": "SUCCESS", "path": str(file_path), "size": len(content)}
@@ -685,14 +732,17 @@ Ne renvoie QUE le code python, aucune explanation."""
             return {"status": "ERROR", "error": str(e)}
 
     def _read_file(self, args: Dict) -> Dict:
-        """Outil: Lit le contenu d'un fichier"""
+        """Outil: Lit le contenu d'un fichier (sandboxé à ZONE_AETHERIS_DIR)"""
         path = args.get("path", "")
 
         if not path:
             return {"status": "ERROR", "error": "Chemin du fichier requis"}
 
         try:
-            file_path = Path(path)
+            file_path = Path(path).resolve()
+            # SECURITY: Reject absolute paths and directory traversal
+            if not str(file_path).startswith(str(ZONE_AETHERIS_DIR.resolve())):
+                return {"status": "ERROR", "error": "Chemin non autorisé - lecture limitée à ZONE_AETHERIS_DIR"}
             if not file_path.exists():
                 return {"status": "ERROR", "error": f"Fichier non trouvé: {path}"}
 

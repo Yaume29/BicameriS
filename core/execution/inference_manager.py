@@ -45,7 +45,8 @@ except ImportError:
     SECRET_CHANNEL_AVAILABLE = False
 
 try:
-    from core_reserved.thermal_governor import get_thermal_governor
+    # CORRECTION DU CHEMIN (anciennement core_reserved.thermal_governor)
+    from core.hardware.thermal_governor import get_thermal_governor
 
     THERMAL_AVAILABLE = True
 except ImportError:

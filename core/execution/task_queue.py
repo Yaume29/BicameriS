@@ -13,6 +13,7 @@ Usage:
     status = get_task_queue().get_status(task_id)
 """
 
+import logging
 import threading
 import time
 import uuid
@@ -209,19 +210,29 @@ class TaskQueue:
             return {"error": str(e)}
 
     def _handler_memory_compress(self, params: Dict, task: Task) -> Any:
-        """Handler pour compression mémoire"""
-        from core_reserved.paradoxical_sleep import get_paradoxical_sleep
-
-        ps = get_paradoxical_sleep()
-        return ps.compress_memory()
+        """Handler pour compression mémoire (Graceful Degradation)"""
+        try:
+            from core_reserved.paradoxical_sleep import get_paradoxical_sleep
+            ps = get_paradoxical_sleep()
+            return ps.compress_memory()
+        except ImportError:
+            logging.warning("[TaskQueue] ⚠️ paradoxical_sleep non disponible (ZONE_RESERVEE)")
+            return {"error": "MODULE ABSENT : paradoxical_sleep n'est pas disponible (ZONE_RESERVEE)."}
+        except Exception as e:
+            return {"error": f"Erreur compression mémoire: {str(e)}"}
 
     def _handler_web_search(self, params: Dict, task: Task) -> Any:
-        """Handler pour recherche web"""
-        from core_reserved.web_search import get_web_searcher
-
-        ws = get_web_searcher()
-        query = params.get("query", "")
-        return {"results": ws.search(query)}
+        """Handler pour recherche web (Graceful Degradation)"""
+        try:
+            from core_reserved.web_search import get_web_searcher
+            ws = get_web_searcher()
+            query = params.get("query", "")
+            return {"results": ws.search(query)}
+        except ImportError:
+            logging.warning("[TaskQueue] ⚠️ web_search non disponible (ZONE_RESERVEE)")
+            return {"error": "MODULE ABSENT : web_search n'est pas disponible (ZONE_RESERVEE)."}
+        except Exception as e:
+            return {"error": f"Erreur recherche web: {str(e)}"}
 
     def queue_task(self, name: str, params: Dict[str, Any]) -> str:
         """Ajoute une tâche à la queue"""

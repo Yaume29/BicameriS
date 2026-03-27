@@ -11,7 +11,13 @@ import uuid
 from pathlib import Path
 from typing import Dict, Any, Optional
 
-import requests
+try:
+    import requests
+    REQUESTS_AVAILABLE = True
+except ImportError:
+    requests = None
+    REQUESTS_AVAILABLE = False
+    logging.warning("[DockerSandbox] requests non installé - gestion timeout dégradée")
 
 try:
     import docker
