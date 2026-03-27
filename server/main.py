@@ -194,7 +194,62 @@ async def websocket_neural(websocket: WebSocket):
 
 # ============ RUN ============
 
+def check_port_available(port: int) -> bool:
+    """Check if a port is available"""
+    import socket
+    try:
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.bind(("0.0.0.0", port))
+            return True
+    except OSError:
+        return False
+
+
+def find_available_port(start_port: int = 8000, max_attempts: int = 10) -> int:
+    """Find an available port starting from start_port"""
+    for port in range(start_port, start_port + max_attempts):
+        if check_port_available(port):
+            return port
+    raise RuntimeError(f"No available ports found in range {start_port}-{start_port + max_attempts}")
+
+
 if __name__ == "__main__":
     import uvicorn
+    import time
 
-    uvicorn.run(app, host="0.0.0.0", port=8000, workers=1)
+    try:
+        from core.system.instance_lock import get_instance_lock
+        lock = get_instance_lock()
+        lock_status = lock.acquire_or_sleep()
+
+        if not lock_status.acquired:
+            print(f"[Bicameris] ⚠️ Another instance is running (PID: {lock_status.owner_pid})")
+            print(f"[Bicameris] Entering sleep mode... ({lock_status.wait_time:.0f}s)")
+            if lock.wait_for_wake(timeout=lock_status.wait_time):
+                print("[Bicameris] Wake signal received! Starting up...")
+            else:
+                print("[Bicameris] Timeout exceeded. Force starting anyway...")
+    except ImportError:
+        print("[Bicameris] Instance lock not available, starting without protection")
+    except Exception as e:
+        print(f"[Bicameris] Lock error: {e}, starting anyway")
+
+    port = 8000
+    max_wait = 30
+    start_time = time.time()
+
+    while not check_port_available(port) and time.time() - start_time < max_wait:
+        elapsed = int(time.time() - start_time)
+        print(f"[Bicameris] ⏳ Port {port} busy. Waiting... ({elapsed}s/{max_wait}s)")
+        time.sleep(2)
+
+    if not check_port_available(port):
+        try:
+            port = find_available_port(port + 1)
+            print(f"[Bicameris] 🔄 Falling back to port {port}")
+        except RuntimeError as e:
+            print(f"[Bicameris] ❌ {e}")
+            exit(1)
+
+    print(f"[Bicameris] 🚀 Starting server on port {port}")
+    uvicorn.run(app, host="0.0.0.0", port=port, workers=1)
