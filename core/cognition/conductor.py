@@ -30,6 +30,7 @@ ZONE_AETHERIS_DIR = BASE_DIR / "ZONE_AETHERIS"
 def extract_code(text: str) -> str:
     """
     Extrait le code Python avec regex blindé et vérification AST.
+    Si aucun bloc trouvé, tente d'extraire les lignes indentées.
     """
     patterns = [
         r"```python\s*\n(.*?)```",
@@ -47,11 +48,30 @@ def extract_code(text: str) -> str:
             except SyntaxError:
                 pass
 
-    try:
-        ast.parse(text.strip())
-        return text.strip()
-    except SyntaxError:
-        pass
+    lines = text.split("\n")
+    code_lines = []
+    in_code_block = False
+    for line in lines:
+        if line.startswith("    ") or line.startswith("\t"):
+            code_lines.append(line)
+        elif code_lines and line.strip() and not line.strip().startswith("#"):
+            code_lines.append(line)
+
+    if code_lines:
+        candidate = "\n".join(code_lines)
+        try:
+            ast.parse(candidate)
+            return candidate
+        except SyntaxError:
+            pass
+
+    if text.strip():
+        try:
+            ast.parse(text.strip())
+            return text.strip()
+        except SyntaxError as e:
+            logging.warning(f"[Conductor] Code extraction failed: {e}")
+            return ""
 
     return ""
 

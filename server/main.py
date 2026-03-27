@@ -112,7 +112,14 @@ async def lifespan(app: FastAPI):
     yield
 
     logging.info("[Bicameris] Extinction propre des sous-systèmes...")
-    # Cleanup
+
+    if hasattr(registry, "scheduler") and registry.scheduler:
+        try:
+            await registry.scheduler.stop()
+            logging.info("[Bicameris] ✅ Scheduler arrêté proprement")
+        except Exception as e:
+            logging.warning(f"⚠️ Erreur scheduler.stop: {e}")
+
     if registry.inference_manager:
         try:
             registry.inference_manager.guillotine_all()
