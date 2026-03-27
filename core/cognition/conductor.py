@@ -348,7 +348,7 @@ Rationalise cette intuition. Ne la rejette pas."""
             from core.system.switchboard import get_switchboard
 
             dissonance_active = get_switchboard().is_active("cognitive_dissonance")
-        except:
+        except Exception:
             pass
 
         if dissonance_active:

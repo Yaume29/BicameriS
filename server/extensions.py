@@ -4,8 +4,8 @@ Server Extensions - Registry
 Links server to core modules with proper typing
 """
 
-from dataclasses import dataclass, field
-from typing import Optional, TYPE_CHECKING
+from dataclasses import dataclass
+from typing import Optional
 
 
 @dataclass

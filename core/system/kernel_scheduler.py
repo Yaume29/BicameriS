@@ -37,6 +37,7 @@ class KernelScheduler:
         if self._is_running:
             return
 
+        self._loop = asyncio.get_running_loop()
         self._is_running = True
         self._task = asyncio.create_task(self._run_loop())
         logging.info("[KernelScheduler] ⏱️ Master Clock: ON")
@@ -143,10 +144,8 @@ class KernelScheduler:
 
     def tick_now(self) -> Dict[str, Any]:
         """Manual trigger for one tick (Thread-Safe)"""
-        if self._is_running and self._task:
-            loop = asyncio.get_event_loop()
-            if loop.is_running():
-                loop.call_soon_threadsafe(self._force_tick_event.set)
+        if self._is_running and self._loop:
+            self._loop.call_soon_threadsafe(self._force_tick_event.set)
             return {"status": "Tick asynchrone commandé"}
         return {"error": "Horloge arrêtée"}
 

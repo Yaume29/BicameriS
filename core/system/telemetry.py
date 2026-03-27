@@ -152,7 +152,10 @@ class CognitiveLogger:
 
     def _enqueue(self, file_path: Path, data: Dict):
         """Enqueue strictement thread-safe via call_soon_threadsafe"""
-        if self._loop is None or not self._loop.is_running():
+        if self._loop is None or self._loop.is_closed():
+            logging.warning("[Telemetry] Loop is closed, dropping log entry")
+            return
+        if not self._loop.is_running():
             self._pre_boot_queue.append((file_path, data))
             return
 
