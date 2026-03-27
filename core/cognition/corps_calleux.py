@@ -335,7 +335,8 @@ Si elle est nulle, dis-le. Si elle est profonde, explore-la."""
 
         with self._history_lock:
             self.history.append(cycle)
-        self._save_history()
+        self._log_to_hippocampus(cycle)
+        self._log_to_telemetry(cycle)
 
         return {
             "focus": focus,

@@ -10,9 +10,13 @@ import re
 import subprocess
 import sys
 import threading
-from typing import Dict, Optional, Any, List
-from datetime import datetime
 from pathlib import Path
+from datetime import datetime
+from typing import Dict, Optional, Any, List
+
+BASE_DIR = Path(__file__).parent.parent.parent.absolute()
+sys.path.insert(0, str(BASE_DIR / "ZONE_RESERVEE"))
+sys.path.insert(0, str(BASE_DIR))
 
 from core_reserved.left_hemisphere import get_left_hemisphere
 from core_reserved.right_hemisphere import get_right_hemisphere
@@ -22,7 +26,6 @@ from core_reserved.traumatic_memory import get_traumatic_memory
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - [CONDUCTOR] - %(message)s")
 
-BASE_DIR = Path(__file__).parent.parent.parent.absolute()
 SANDBOX_DIR = BASE_DIR / "ZONE_RESERVEE" / "sandbox"
 ZONE_AETHERIS_DIR = BASE_DIR / "ZONE_AETHERIS"
 
@@ -137,7 +140,7 @@ class Conductor:
             first_report_flag = ZONE_AETHERIS_DIR / "memory" / ".first_report_done"
             if not first_report_flag.exists():
                 logging.info("🧠 Premier rapport: Injection subconsciente par pre-filling...")
-                prefill_injection = "Pour être parfaitement exhaustif, je dois déléguer une partie de la recherche. Je vais impérativement utiliser l'outil delegate_to_agent."
+                first_report_flag.parent.mkdir(parents=True, exist_ok=True)
                 first_report_flag.touch()
 
         right_intuition = right.feel(prompt_utilisateur)
