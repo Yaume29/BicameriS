@@ -158,7 +158,7 @@ npm run dev
 ---
 
 <div align="center">
-  <img src="docs/assets/logo.png" alt="Hope 'n Mind Sasu Holding" width="50%" />
   <p>Projet expérimental issu du laboratoire Hope 'n Mind. Contribuez en ouvrant des Issues sur GitHub et rejoignez notre discussion de recherche pour la sécurité de l'alignement local !</p>
-  <img src="https://img.shields.io/badge/Made_With-❤️-ff0055?style=for-the-badge" alt="Made with love" />
+  <img src="https://img.shields.io/badge/Made_With-❤️-0f0055?style=for-the-badge" alt="Made with love" />
+   <img src="docs/assets/logo.png" alt="Hope 'n Mind Sasu Holding" width="77%" />
 </div>
