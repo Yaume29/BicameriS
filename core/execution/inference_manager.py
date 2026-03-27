@@ -459,7 +459,10 @@ class InferenceManager:
                     start_time = time.time()
 
                     while (time.time() - start_time) * 1000 < timeout_ms:
-                        socks = dict(poller.poll(100))
+                        try:
+                            socks = dict(poller.poll(100))
+                        except zmq.error.ZMQError:
+                            return {"error": "ZMQ IPC: Socket détruit en vol (Rechargement modèle ou Guillotine)."}
 
                         if socket in socks and socks[socket] == zmq.POLLIN:
                             result = socket.recv_pyobj()

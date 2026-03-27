@@ -44,17 +44,13 @@ class CognitiveLogger:
         logging.info(f"[Telemetry] ✅ Logger initialisé avec Ring Buffer (max 50)")
 
     def _hydrate_buffer(self):
-        """Remplit le buffer une seule fois au démarrage"""
+        """Remplit le buffer une seule fois au démarrage (OOM-Safe et Zéro I/O bloquant)"""
         if not self.thought_file.exists():
             return
 
         try:
-            if self.thought_file.stat().st_size > 1024 * 1024:
-                return
-
             with open(self.thought_file, "r", encoding="utf-8") as f:
-                lines = f.readlines()[-50:]
-                for line in lines:
+                for line in collections.deque(f, maxlen=50):
                     if line.strip():
                         try:
                             self._recent_thoughts.append(json.loads(line))

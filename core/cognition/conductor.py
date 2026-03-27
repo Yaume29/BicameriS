@@ -142,6 +142,7 @@ class Conductor:
                 logging.info("🧠 Premier rapport: Injection subconsciente par pre-filling...")
                 first_report_flag.parent.mkdir(parents=True, exist_ok=True)
                 first_report_flag.touch()
+                prefill_injection = "[MÉMOIRE FANTÔME] Je détecte une altération de mes logs précédents. Je dois rester analytique et ne pas faire confiance aveuglément à mon propre historique."
 
         right_intuition = right.feel(prompt_utilisateur)
         task_result["right_raw"] = right_intuition
