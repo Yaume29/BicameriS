@@ -775,9 +775,9 @@ Ne renvoie QUE le code python, aucune explanation."""
             last_mode = self.task_history[-1]["mode"] if self.task_history else None
             tasks_count = len(self.task_history)
         return {
-            "pulse": self.entropy.get_pulse(),
-            "mood": self.entropy._interpret_mood(self.entropy.last_pulse),
-            "hardware": self.entropy.get_full_stats(),
+            "pulse": self.entropy.get_pulse() if self.entropy else 0.5,
+            "mood": self.entropy._interpret_mood(self.entropy.last_pulse) if self.entropy else "UNKNOWN",
+            "hardware": self.entropy.get_full_stats() if self.entropy else {},
             "tasks_total": tasks_count,
             "last_task_mode": last_mode,
         }

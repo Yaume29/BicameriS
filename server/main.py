@@ -68,6 +68,18 @@ async def lifespan(app: FastAPI):
         from core.cognition.corps_calleux import CorpsCalleux
 
         registry.corps_calleux = CorpsCalleux()
+        
+        try:
+            from core_reserved.left_hemisphere import get_left_hemisphere
+            from core_reserved.right_hemisphere import get_right_hemisphere
+            left = get_left_hemisphere()
+            right = get_right_hemisphere()
+            if left and right:
+                registry.corps_calleux.set_hemispheres(left, right)
+                logging.info("[Bicameris] ✅ Hémisphères connectés au Corps Calleux")
+        except ImportError:
+            logging.warning("[Bicameris] ⚠️ core_reserved non disponible - Corps Calleux en mode dégradé")
+        
         logging.info("[Bicameris] ✅ Corps Calleux chargé")
     except Exception as e:
         logging.warning(f"⚠️ Corps Calleux non disponible: {e}")
@@ -119,6 +131,20 @@ async def lifespan(app: FastAPI):
             logging.info("[Bicameris] ✅ Scheduler arrêté proprement")
         except Exception as e:
             logging.warning(f"⚠️ Erreur scheduler.stop: {e}")
+
+    try:
+        from core.system.sensory_buffer import get_sensory_buffer
+        await get_sensory_buffer().stop()
+        logging.info("[Bicameris] ✅ SensoryBuffer arrêté")
+    except Exception:
+        pass
+
+    try:
+        from core.system.telemetry import get_telemetry
+        await get_telemetry().stop()
+        logging.info("[Bicameris] ✅ Telemetry arrêté")
+    except Exception:
+        pass
 
     if registry.inference_manager:
         try:

@@ -97,11 +97,16 @@ class KernelScheduler:
                     dreamer = get_dreamer_agent()
                     if dreamer and dreamer.is_available():
                         self._is_dreaming = True
-                        await asyncio.to_thread(dreamer.trigger_rem_sleep)
-                        from core.system.endocrine import get_endocrine_system
+                        try:
+                            await asyncio.to_thread(dreamer.trigger_rem_sleep)
+                            from core.system.endocrine import get_endocrine_system
 
-                        get_endocrine_system().spike_dopamine(0.1)
-                        self._dream_cooldown = 10
+                            get_endocrine_system().spike_dopamine(0.1)
+                            self._dream_cooldown = 10
+                        except Exception as e:
+                            logging.error(f"[KernelScheduler] Dreamer error: {e}")
+                        finally:
+                            self._is_dreaming = False
 
                     try:
                         await asyncio.wait_for(

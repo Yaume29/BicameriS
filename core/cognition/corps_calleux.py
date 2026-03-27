@@ -526,8 +526,12 @@ Si elle est nulle, dis-le. Si elle est profonde, explore-la."""
         return result
 
     def is_autonomous_loop_running(self) -> bool:
-        """Legacy compatibility - now controlled by KernelScheduler."""
-        return False
+        """Check if autonomous loop is active via Switchboard."""
+        try:
+            from core.system.switchboard import get_switchboard
+            return get_switchboard().is_active("autonomous_loop")
+        except Exception:
+            return False
 
     def set_think_interval(self, seconds: float):
         """Définit l'intervalle entre les pensées (en secondes)."""
