@@ -1,0 +1,93 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 600" width="100%" height="100%" style="background:#0b0f19; font-family:'Courier New', monospace;">
+  <defs>
+    <linearGradient id="neon-cyan" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#00f3ff"/>
+      <stop offset="100%" stop-color="#0066cc"/>
+    </linearGradient>
+    <linearGradient id="neon-red" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#ff0055"/>
+      <stop offset="100%" stop-color="#aa0000"/>
+    </linearGradient>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="6" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+
+  <pattern id="grid" width="30" height="30" patternUnits="userSpaceOnUse">
+    <circle cx="2" cy="2" r="1.5" fill="#1e2a4f" />
+  </pattern>
+  <rect width="100%" height="100%" fill="url(#grid)" />
+
+  <!-- Lab Section Header -->
+  <rect x="50" y="30" width="900" height="60" fill="#0d1425" rx="5" stroke="#1e2a4f" stroke-width="2" />
+  <text x="500" y="70" fill="#00f3ff" font-size="24" font-weight="bold" text-anchor="middle" letter-spacing="3" filter="url(#glow)">LABORATOIRE D'EXPÉRIMENTATIONS &amp; MODES</text>
+
+  <!-- Module 1: Auto-scaffolding -->
+  <g transform="translate(50, 120)">
+    <rect width="425" height="200" rx="10" fill="#0b0f19" stroke="#00f3ff" stroke-width="2" />
+    <text x="30" y="40" fill="#00f3ff" font-size="18" font-weight="bold" filter="url(#glow)">01_ Auto-Scaffolding</text>
+    <text x="30" y="70" fill="#a0aabf" font-size="14">Échafaudage de code automatique et itératif.</text>
+    <text x="30" y="90" fill="#a0aabf" font-size="14">Auto-correction par boucles de feedback.</text>
+    
+    <rect x="30" y="120" width="100" height="40" rx="5" fill="#00f3ff" fill-opacity="0.1" stroke="#00f3ff" />
+    <text x="80" y="145" fill="#00f3ff" font-size="12" text-anchor="middle">Write</text>
+    <line x1="130" y1="140" x2="160" y2="140" stroke="#00f3ff" stroke-width="2" stroke-dasharray="5,5" />
+
+    <rect x="160" y="120" width="100" height="40" rx="5" fill="#ff0055" fill-opacity="0.1" stroke="#ff0055" />
+    <text x="210" y="145" fill="#ff0055" font-size="12" text-anchor="middle">Eval</text>
+    <line x1="260" y1="140" x2="290" y2="140" stroke="#00f3ff" stroke-width="2" stroke-dasharray="5,5" />
+
+    <rect x="290" y="120" width="100" height="40" rx="5" fill="#00f3ff" fill-opacity="0.1" stroke="#00f3ff" />
+    <text x="340" y="145" fill="#00f3ff" font-size="12" text-anchor="middle">Execute</text>
+    
+    <!-- Loop arrow -->
+    <path d="M 340 160 Q 210 200 80 160" stroke="#00f3ff" stroke-width="1" fill="none" marker-end="url(#arrow)" />
+  </g>
+
+  <!-- Module 2: AST Sandbox -->
+  <g transform="translate(525, 120)">
+    <rect width="425" height="200" rx="10" fill="#0b0f19" stroke="#ff0055" stroke-width="2" />
+    <text x="30" y="40" fill="#ff0055" font-size="18" font-weight="bold" filter="url(#glow)">02_ AST Secure Sandbox</text>
+    <text x="30" y="70" fill="#a0aabf" font-size="14">Isolement et analyse syntaxique avant exécution.</text>
+    <text x="30" y="90" fill="#a0aabf" font-size="14">Vérification de sécurité par palladion.</text>
+
+    <!-- Node network for AST -->
+    <circle cx="212" cy="140" r="10" fill="#ff0055" filter="url(#glow)" />
+    <line x1="212" y1="140" x2="170" y2="175" stroke="#ff0055" stroke-width="2" />
+    <circle cx="170" cy="175" r="7" fill="#ff0055" />
+    <line x1="212" y1="140" x2="254" y2="175" stroke="#ff0055" stroke-width="2" />
+    <circle cx="254" cy="175" r="7" fill="#ff0055" />
+    <line x1="170" y1="175" x2="140" y2="190" stroke="#ff0055" stroke-width="1" />
+    <line x1="170" y1="175" x2="200" y2="190" stroke="#ff0055" stroke-width="1" />
+  </g>
+
+  <!-- Module 3: Cognitive Rollover -->
+  <g transform="translate(50, 360)">
+    <rect width="425" height="200" rx="10" fill="#0b0f19" stroke="#00f3ff" stroke-width="2" />
+    <text x="30" y="40" fill="#00f3ff" font-size="18" font-weight="bold" filter="url(#glow)">03_ Cognitive Rollover</text>
+    <text x="30" y="70" fill="#a0aabf" font-size="14">Rotation de contexte intelligente de la mémoire.</text>
+    
+    <!-- Rotating wheel representation -->
+    <circle cx="212" cy="140" r="40" fill="none" stroke="#00f3ff" stroke-width="2" stroke-dasharray="5,5" />
+    <circle cx="212" cy="100" r="5" fill="#00f3ff" />
+    <circle cx="252" cy="140" r="5" fill="#00f3ff" />
+    <circle cx="212" cy="180" r="5" fill="#00f3ff" />
+    <circle cx="172" cy="140" r="5" fill="#00f3ff" />
+    <text x="212" y="145" fill="#00f3ff" font-size="14" text-anchor="middle">LTM/STM</text>
+  </g>
+
+  <!-- Module 4: Paradoxical Sleep -->
+  <g transform="translate(525, 360)">
+    <rect width="425" height="200" rx="10" fill="#0b0f19" stroke="#ff0055" stroke-width="2" />
+    <text x="30" y="40" fill="#ff0055" font-size="18" font-weight="bold" filter="url(#glow)">04_ Paradoxical Sleep (REM)</text>
+    <text x="30" y="70" fill="#a0aabf" font-size="14">Consolidation synaptique &amp; élagage du bruit.</text>
+    
+    <!-- Wave graph for sleep -->
+    <path d="M 50 140 Q 100 80 150 140 T 250 140 T 350 140" fill="none" stroke="#ff0055" stroke-width="3" filter="url(#glow)" />
+    <path d="M 50 140 Q 100 110 150 140 T 250 140 T 350 140" fill="none" stroke="#ff0055" stroke-width="1" opacity="0.4" />
+  </g>
+</svg>
