@@ -60,6 +60,9 @@ class Hippocampus:
         self._embedding_model = None
         self._init_client()
 
+        import threading
+        threading.Thread(target=self._get_embedding_model, daemon=True, name="NLP_Prewarm").start()
+
     def _get_embedding_model(self):
         if self._embedding_model is None:
             try:

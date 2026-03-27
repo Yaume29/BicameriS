@@ -63,32 +63,21 @@ class HardwareEntropy:
         return None
 
     def get_gpu_stats(self) -> Dict[str, float]:
-        """Statistiques GPU (VRAM, temperature)"""
+        """Statistiques GPU fluides via le Gouverneur Thermique"""
         if not self.has_gpu:
             return {"vram_percent": 0, "temp": 0, "available": False}
 
         try:
-            import subprocess
-
-            result = subprocess.run(
-                [
-                    "nvidia-smi",
-                    "--query-gpu=memory.used,memory.total,temperature.gpu",
-                    "--format=csv,noheader,nounits",
-                ],
-                capture_output=True,
-                text=True,
-                timeout=5,
-            )
-            if result.returncode == 0:
-                used, total, temp = result.stdout.strip().split(",")
-                vram_percent = int(used) / int(total)
+            from core.hardware.thermal_governor import get_thermal_governor
+            tg = get_thermal_governor()
+            if tg:
+                status = tg.get_status_passive()
                 return {
-                    "vram_percent": vram_percent,
-                    "temp": int(temp),
+                    "vram_percent": status.get("entropic_impact", 0.0),
+                    "temp": status.get("gpu_temp", 0),
                     "available": True,
                 }
-        except (subprocess.TimeoutExpired, ValueError, Exception):
+        except Exception:
             pass
 
         return {"vram_percent": 0, "temp": 0, "available": False}

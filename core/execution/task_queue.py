@@ -95,20 +95,26 @@ class TaskQueue:
                 pass
 
     def _save_tasks(self):
-        """Sauvegarde les tâches"""
+        """Sauvegarde atomique avec auto-élagage (Max 100 tâches)"""
         if not self.persist_path:
             return
 
+        with self._lock:
+            if len(self._tasks) > 100:
+                completed_ids = [tid for tid, t in self._tasks.items() if t.status in [TaskStatus.COMPLETED.value, TaskStatus.FAILED.value, TaskStatus.CANCELLED.value]]
+                for tid in completed_ids[:-50]:
+                    del self._tasks[tid]
+
+            tasks_to_save = [t.to_dict() for t in self._tasks.values()]
+
         try:
-            with open(self.persist_path, "w", encoding="utf-8") as f:
-                json.dump(
-                    {"tasks": [t.to_dict() for t in self._tasks.values()]},
-                    f,
-                    indent=2,
-                    ensure_ascii=False,
-                )
-        except Exception:
-            pass
+            import os
+            temp_path = f"{self.persist_path}.tmp"
+            with open(temp_path, "w", encoding="utf-8") as f:
+                json.dump({"tasks": tasks_to_save}, f, indent=2, ensure_ascii=False)
+            os.replace(temp_path, self.persist_path)
+        except Exception as e:
+            logging.error(f"[TaskQueue] Erreur de persistance: {e}")
 
     def start(self):
         """Démarre les workers"""

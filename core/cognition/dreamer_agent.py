@@ -135,8 +135,10 @@ Concept B: {distant.get("content", "")[:200]}
             system_prompt = "Tu es le subconscient d'Aetheris. Tu génères des métaphores puissantes et des images oniriques."
             result = self.right_hemisphere.think(system_prompt, prompt, temperature=1.5)
 
+            dream_content = result if isinstance(result, str) else result.get("content", "")
+
             return {
-                "content": result.get("content", ""),
+                "content": dream_content,
                 "seed_id": seed.get("id"),
                 "distant_id": distant.get("id"),
                 "timestamp": datetime.now().isoformat(),
