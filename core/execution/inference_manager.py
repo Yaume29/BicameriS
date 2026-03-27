@@ -314,29 +314,43 @@ def worker_loop(ipc_address: str, model_path: str, config: Dict):
                 buffer = []
                 token_count = 0
                 last_flush = time.time()
+                stream_error = None
 
-                for chunk in worker.process_task_streaming(task):
-                    buffer.append(chunk.get("chunk", ""))
+                try:
+                    for chunk in worker.process_task_streaming(task):
+                        if "error" in chunk:
+                            socket.send_multipart([identity, empty_frame, orjson.dumps(chunk)])
+                            stream_error = True
+                            break
 
-                    elapsed_ms = (time.time() - last_flush) * 1000
-                    if elapsed_ms >= 50 or len(buffer) >= 20:
-                        chunk_text = "".join(buffer)
-                        socket.send_multipart([identity, empty_frame, orjson.dumps({
-                            "chunk": chunk_text,
-                            "is_final": False,
-                            "tokens": chunk.get("tokens", token_count)
-                        })])
-                        buffer = []
-                        token_count = chunk.get("tokens", 0)
-                        last_flush = time.time()
+                        buffer.append(chunk.get("chunk", ""))
 
-                final_text = "".join(buffer)
-                socket.send_multipart([identity, empty_frame, orjson.dumps({
-                    "chunk": final_text,
-                    "is_final": True,
-                    "tokens": token_count,
-                    "full_text": final_text
-                })])
+                        elapsed_ms = (time.time() - last_flush) * 1000
+                        if elapsed_ms >= 50 or len(buffer) >= 20:
+                            chunk_text = "".join(buffer)
+                            socket.send_multipart([identity, empty_frame, orjson.dumps({
+                                "chunk": chunk_text,
+                                "is_final": False,
+                                "tokens": chunk.get("tokens", token_count)
+                            })])
+                            buffer = []
+                            token_count = chunk.get("tokens", 0)
+                            last_flush = time.time()
+                except Exception as e:
+                    socket.send_multipart([identity, empty_frame, orjson.dumps({
+                        "error": f"Streaming exception: {str(e)}",
+                        "is_final": True
+                    })])
+                    stream_error = True
+
+                if not stream_error and buffer:
+                    final_text = "".join(buffer)
+                    socket.send_multipart([identity, empty_frame, orjson.dumps({
+                        "chunk": final_text,
+                        "is_final": True,
+                        "tokens": token_count,
+                        "full_text": final_text
+                    })])
             else:
                 result = worker.process_task(task)
                 reply = orjson.dumps(result)
@@ -464,18 +478,16 @@ class InferenceManager:
             poller = zmq.Poller()
             poller.register(sock, zmq.POLLIN)
 
+            sock.send(b"PING")
+
             elapsed = 0.0
             interval = 1.0
             while elapsed < timeout:
-                try:
-                    sock.send(b"PING")
-                    socks_dict = dict(poller.poll(int(interval * 1000)))
-                    if sock in socks_dict:
-                        reply = sock.recv()
-                        if reply == b"PONG":
-                            return True
-                except zmq.Again:
-                    pass
+                socks_dict = dict(poller.poll(int(interval * 1000)))
+                if sock in socks_dict:
+                    reply = sock.recv()
+                    if reply == b"PONG":
+                        return True
                 elapsed += interval
 
             logging.error(f"[Handshake] Timeout après {timeout}s")
