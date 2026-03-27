@@ -57,7 +57,18 @@ class Hippocampus:
         self.port = port
         self.client = None
         self._initialized = False
+        self._embedding_model = None
         self._init_client()
+
+    def _get_embedding_model(self):
+        if self._embedding_model is None:
+            try:
+                from sentence_transformers import SentenceTransformer
+                logging.info("[Hippocampus] Chargement du modèle d'embedding (MiniLM)...")
+                self._embedding_model = SentenceTransformer("all-MiniLM-L6-v2")
+            except Exception as e:
+                logging.error(f"[Hippocampus] Erreur modèle NLP: {e}")
+        return self._embedding_model
 
     def _init_client(self):
         """Initialize Qdrant client"""
@@ -253,12 +264,12 @@ class Hippocampus:
     def _get_embedding(self, text: str) -> List[float]:
         """Génère un embedding pour le texte (384 dimensions)"""
         try:
-            from sentence_transformers import SentenceTransformer
-
-            model = SentenceTransformer("all-MiniLM-L6-v2")
-            return model.encode(text).tolist()
+            model = self._get_embedding_model()
+            if model:
+                return model.encode(text).tolist()
         except Exception:
-            return [0.0] * 384
+            pass
+        return [0.0] * 384
 
 
 _hippocampus = None

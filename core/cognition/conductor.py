@@ -21,7 +21,7 @@ sys.path.insert(0, str(BASE_DIR))
 from core_reserved.left_hemisphere import get_left_hemisphere
 from core_reserved.right_hemisphere import get_right_hemisphere
 from core_reserved.web_search import get_web_searcher
-from core_reserved.entropy_generator import get_entropy_generator
+from core.hardware.entropy_generator import get_entropy_generator
 from core_reserved.traumatic_memory import get_traumatic_memory
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - [CONDUCTOR] - %(message)s")
