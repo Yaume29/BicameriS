@@ -1,6 +1,6 @@
 <!-- 
   BicameriS - Diadikos & Palladion
-  An industrial-grade README.md for localized bicameral LLMs
+  localized bicameral LLMs
   By Hope 'n Mind
 -->
 
@@ -143,10 +143,6 @@ PALLADION_GPU_LAYERS=25
 
 ## 🚀 Prise en main rapide et Déploiement
 
-### Dépendances Requises
-- **Ollama / LM Studio / vLLM** servant les deux modèles en parallèle.
-- **NodeJS 18+** et **Python 3.10+**.
-
 ```bash
 # Cloner le repository
 git clone https://github.com/Yaume29/BicameriS.git
@@ -162,6 +158,7 @@ npm run dev
 ---
 
 <div align="center">
+  <img src="docs/assets/logo.png" alt="Hope 'n Mind Sasu Holding" width="50%" />
   <p>Projet expérimental issu du laboratoire Hope 'n Mind. Contribuez en ouvrant des Issues sur GitHub et rejoignez notre discussion de recherche pour la sécurité de l'alignement local !</p>
   <img src="https://img.shields.io/badge/Made_With-❤️-ff0055?style=for-the-badge" alt="Made with love" />
 </div>
