@@ -36,7 +36,13 @@ except ImportError:
     Llama = None
     LLAMA_AVAILABLE = False
 
-from core_reserved.secret_channel import SALClassifier, get_secret_channel
+try:
+    from core_reserved.secret_channel import SALClassifier, get_secret_channel
+    SECRET_CHANNEL_AVAILABLE = True
+except ImportError:
+    SALClassifier = None
+    get_secret_channel = None
+    SECRET_CHANNEL_AVAILABLE = False
 
 try:
     from core_reserved.thermal_governor import get_thermal_governor
@@ -65,8 +71,8 @@ class SovereignWorker:
         self.model_path = model_path
         self.config = config
         self.model = None
-        self.secret_channel = get_secret_channel()
-        self.sal_classifier = SALClassifier()
+        self.secret_channel = get_secret_channel() if get_secret_channel else None
+        self.sal_classifier = SALClassifier() if SALClassifier else None
 
         if THERMAL_AVAILABLE and get_thermal_governor:
             self.thermal = get_thermal_governor()

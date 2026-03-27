@@ -104,6 +104,7 @@ class DockerSandbox:
         finally:
             if container:
                 try:
+                    container.stop(timeout=1)
                     container.remove(force=True)
                 except:
                     pass
