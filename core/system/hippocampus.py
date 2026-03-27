@@ -7,9 +7,12 @@ Provides semantic search and payload filtering for thoughts, tasks, and trauma.
 
 import logging
 import uuid
+import threading
 from typing import Dict, Any, List, Optional
 from dataclasses import dataclass, asdict
 from datetime import datetime
+
+from core.system.retry import retry
 
 try:
     from qdrant_client import QdrantClient
@@ -109,43 +112,37 @@ class Hippocampus:
             except Exception as e:
                 logging.warning(f"[Hippocampus] Erreur création {coll}: {e}")
 
+    @retry(exceptions=(Exception,), max_attempts=4, base_delay=2, backoff="exponential")
     def log_thought(self, thought: StoredThought, vector: List[float] = None):
         """Store a thought in vector memory"""
         if not self.client or not self._initialized:
             return False
 
-        try:
-            self.client.upsert(
-                collection_name="aetheris_thoughts",
-                points=[
-                    models.PointStruct(
-                        id=thought.id, vector=vector or [0.0] * 384, payload=asdict(thought)
-                    )
-                ],
-            )
-            return True
-        except Exception as e:
-            logging.error(f"[Hippocampus] Erreur upsert thought: {e}")
-            return False
+        self.client.upsert(
+            collection_name="aetheris_thoughts",
+            points=[
+                models.PointStruct(
+                    id=thought.id, vector=vector or [0.0] * 384, payload=asdict(thought)
+                )
+            ],
+        )
+        return True
 
+    @retry(exceptions=(Exception,), max_attempts=4, base_delay=2, backoff="exponential")
     def log_task(self, task: StoredTask, vector: List[float] = None):
         """Store a task in vector memory"""
         if not self.client or not self._initialized:
             return False
 
-        try:
-            self.client.upsert(
-                collection_name="aetheris_tasks",
-                points=[
-                    models.PointStruct(
-                        id=task.id, vector=vector or [0.0] * 384, payload=asdict(task)
-                    )
-                ],
-            )
-            return True
-        except Exception as e:
-            logging.error(f"[Hippocampus] Erreur upsert task: {e}")
-            return False
+        self.client.upsert(
+            collection_name="aetheris_tasks",
+            points=[
+                models.PointStruct(
+                    id=task.id, vector=vector or [0.0] * 384, payload=asdict(task)
+                )
+            ],
+        )
+        return True
 
     def search_thoughts(
         self, query_vector: List[float], limit: int = 5, status: str = None, min_pulse: float = None
@@ -164,42 +161,36 @@ class Hippocampus:
                 models.FieldCondition(key="pulse_context", range=models.Range(gte=min_pulse))
             )
 
-        try:
-            results = self.client.search(
-                collection_name="aetheris_thoughts",
-                query_vector=query_vector,
-                limit=limit,
-                query_filter=models.Filter(must=filters) if filters else None,
-                with_payload=True,
-            )
-            return [StoredThought(**hit.payload) for hit in results]
-        except Exception as e:
-            logging.error(f"[Hippocampus] Erreur search: {e}")
-            return []
+        results = self.client.search(
+            collection_name="aetheris_thoughts",
+            query_vector=query_vector,
+            limit=limit,
+            query_filter=models.Filter(must=filters) if filters else None,
+            with_payload=True,
+        )
+        return [StoredThought(**hit.payload) for hit in results]
 
+    @retry(exceptions=(Exception,), max_attempts=3, base_delay=1, backoff="linear")
     def get_pending_thoughts(self, limit: int = 10) -> List[StoredThought]:
         """Get thoughts with status 'pending'"""
         if not self.client or not self._initialized:
             return []
 
-        try:
-            results, _ = self.client.scroll(
-                collection_name="aetheris_thoughts",
-                scroll_filter=models.Filter(
-                    must=[
-                        models.FieldCondition(
-                            key="status", match=models.MatchValue(value="pending")
-                        )
-                    ]
-                ),
-                limit=limit,
-                with_payload=True,
-            )
-            return [StoredThought(**r.payload) for r in results]
-        except Exception as e:
-            logging.error(f"[Hippocampus] Erreur get_pending: {e}")
-            return []
+        results, _ = self.client.scroll(
+            collection_name="aetheris_thoughts",
+            scroll_filter=models.Filter(
+                must=[
+                    models.FieldCondition(
+                        key="status", match=models.MatchValue(value="pending")
+                    )
+                ]
+            ),
+            limit=limit,
+            with_payload=True,
+        )
+        return [StoredThought(**r.payload) for r in results]
 
+    @retry(exceptions=(Exception,), max_attempts=3, base_delay=1, backoff="linear")
     def get_pending_tasks(self, limit: int = 10) -> List[StoredTask]:
         """Get tasks with status 'pending'"""
         if not self.client or not self._initialized:
