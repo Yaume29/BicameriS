@@ -7,8 +7,10 @@ FastAPI with async delegation
 
 import asyncio
 from fastapi import APIRouter, HTTPException, Depends
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from typing import Optional
+import orjson
 
 from server.extensions import registry
 
@@ -43,6 +45,7 @@ class ExecuteRequest(BaseModel):
     prompt: str
     max_tokens: Optional[int] = 2048
     temperature: Optional[float] = 0.7
+    stream: bool = False
 
 
 # ==============================================================================
@@ -71,7 +74,26 @@ async def spawn_incarnation(req: SpawnRequest, inference=Depends(get_inference))
 
 @router.post("/execute")
 async def execute_inference(req: ExecuteRequest, inference=Depends(get_inference)):
-    """Execute inference - delegated to threadpool"""
+    """Execute inference - Sync mode or Streaming SSE"""
+    
+    if req.stream:
+        def chunk_generator():
+            try:
+                for chunk in inference.execute_stream(
+                    name=req.name,
+                    prompt=req.prompt,
+                    max_tokens=req.max_tokens,
+                    temperature=req.temperature,
+                ):
+                    yield f"data: {orjson.dumps(chunk).decode('utf-8')}\n\n"
+                
+                yield "data: [DONE]\n\n"
+            except Exception as e:
+                error_chunk = orjson.dumps({"error": str(e), "is_final": True}).decode('utf-8')
+                yield f"data: {error_chunk}\n\n"
+
+        return StreamingResponse(chunk_generator(), media_type="text/event-stream")
+    
     result = await asyncio.to_thread(
         inference.execute,
         req.name,

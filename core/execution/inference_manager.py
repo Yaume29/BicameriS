@@ -14,7 +14,7 @@ import time
 import logging
 import threading
 import multiprocessing as mp
-import pickle
+import orjson
 from pathlib import Path
 from typing import Dict, Any, Optional, List
 from dataclasses import dataclass
@@ -125,6 +125,7 @@ class SovereignWorker:
             self.model = None
 
     def process_task(self, task: Dict) -> Dict[str, Any]:
+        """Traitement synchrone - retourne le résultat complet"""
         if not self.model:
             return {"error": "Modèle non chargé"}
 
@@ -173,6 +174,59 @@ class SovereignWorker:
         except Exception as e:
             return {"error": f"Inference failed: {str(e)}"}
 
+    def process_task_streaming(self, task: Dict):
+        """Générateur pour le mode streaming - yield les chunks"""
+        if not self.model:
+            yield {"error": "Modèle non chargé", "is_final": True}
+            return
+
+        prompt = task.get("prompt", "")
+        system = task.get("system", "Tu es un assistant IA.")
+        temp = task.get("temperature", 0.7)
+        max_tokens = task.get("max_tokens", 2048)
+
+        if self.sal_classifier:
+            sal_result = self.sal_classifier.classify(prompt)
+            if sal_result.get("blocked"):
+                yield {"error": "SAL: Prompt bloqué", "sal": sal_result, "is_final": True}
+                return
+
+        try:
+            thermal_state = None
+            if self.thermal:
+                thermal_state = self.thermal.get_status_passive()
+
+            start_time = time.time()
+
+            messages = [
+                {"role": "system", "content": system},
+                {"role": "user", "content": prompt},
+            ]
+
+            stream = self.model.create_chat_completion(
+                messages=messages,
+                temperature=temp,
+                max_tokens=max_tokens,
+                stream=True,
+            )
+
+            token_count = 0
+            for chunk in stream:
+                content = chunk.get("choices", [{}])[0].get("delta", {}).get("content", "")
+                if content:
+                    token_count += 1
+                    yield {"chunk": content, "is_final": False, "tokens": token_count}
+
+            inference_time = (time.time() - start_time) * 1000
+            yield {
+                "is_final": True,
+                "tokens": token_count,
+                "inference_time_ms": round(inference_time, 2),
+                "thermal_snapshot": thermal_state,
+            }
+        except Exception as e:
+            yield {"error": f"Streaming failed: {str(e)}", "is_final": True}
+
 
 # =============================================================================
 # WORKER LOOP - BIND ROUTER (persistent, gère identity frames)
@@ -182,8 +236,8 @@ class SovereignWorker:
 def worker_loop(ipc_address: str, model_path: str, config: Dict):
     """
     Worker avec ROUTER socket.
-    Reçoit: [identity, message] multipart
-    Envoie: [identity, reply] multipart
+    Reçoit: [identity, empty, message] multipart (3 trames - REQ protocol)
+    Envoie: [identity, empty, reply] multipart
     """
     if not ZMQ_AVAILABLE:
         logging.error("[Worker] ZMQ not installed. Stop.")
@@ -204,12 +258,9 @@ def worker_loop(ipc_address: str, model_path: str, config: Dict):
     worker = None
     try:
         worker = SovereignWorker(model_path, config)
-        socket.send_multipart([b"__READY__", b"OK"])
+        logging.info("[Worker] Init done, awaiting PING from manager.")
     except Exception as e:
         logging.error(f"[Worker] Critical init failure: {e}")
-        socket.send_multipart(
-            [b"__READY__", pickle.dumps({"error": f"Init failed: {e}"})]
-        )
         return
 
     def sigterm_handler(signum, frame):
@@ -241,21 +292,55 @@ def worker_loop(ipc_address: str, model_path: str, config: Dict):
                 continue
 
             frames = socket.recv_multipart()
-            if len(frames) < 2:
+
+            if len(frames) != 3:
+                logging.warning(f"[Worker] Invalid frame count: {len(frames)}")
                 continue
 
             identity = frames[0]
-            msg_data = frames[1]
+            empty_frame = frames[1]
+            msg_data = frames[2]
+
+            if msg_data == b"PING":
+                socket.send_multipart([identity, empty_frame, b"PONG"])
+                continue
 
             try:
-                task = pickle.loads(msg_data)
+                task = orjson.loads(msg_data)
             except Exception:
                 task = {"prompt": msg_data.decode("utf-8", errors="replace")}
 
-            result = worker.process_task(task)
-            reply = pickle.dumps(result)
+            if task.get("stream", False):
+                buffer = []
+                token_count = 0
+                last_flush = time.time()
 
-            socket.send_multipart([identity, reply])
+                for chunk in worker.process_task_streaming(task):
+                    buffer.append(chunk.get("chunk", ""))
+
+                    elapsed_ms = (time.time() - last_flush) * 1000
+                    if elapsed_ms >= 50 or len(buffer) >= 20:
+                        chunk_text = "".join(buffer)
+                        socket.send_multipart([identity, empty_frame, orjson.dumps({
+                            "chunk": chunk_text,
+                            "is_final": False,
+                            "tokens": chunk.get("tokens", token_count)
+                        })])
+                        buffer = []
+                        token_count = chunk.get("tokens", 0)
+                        last_flush = time.time()
+
+                final_text = "".join(buffer)
+                socket.send_multipart([identity, empty_frame, orjson.dumps({
+                    "chunk": final_text,
+                    "is_final": True,
+                    "tokens": token_count,
+                    "full_text": final_text
+                })])
+            else:
+                result = worker.process_task(task)
+                reply = orjson.dumps(result)
+                socket.send_multipart([identity, empty_frame, reply])
 
         except zmq.Again:
             if os.name == "posix" and os.getppid() == 1:
@@ -364,34 +449,31 @@ class InferenceManager:
         return base_port + abs(hash(name)) % 1000
 
     def _handshake(self, ipc_address: str, timeout: float = 60.0) -> bool:
-        """Attend le signal READY du worker via socket REQ transitoire."""
+        """Le REQ initie le contact avec PING, attend PONG."""
         if not ZMQ_AVAILABLE:
             return False
 
         ctx = zmq.Context()
         sock = ctx.socket(zmq.REQ)
-        sock.setsockopt(zmq.RCVTIMEO, int(timeout * 1000))
-        sock.setsockopt(zmq.SNDTIMEO, 5000)
+        sock.setsockopt(zmq.RCVTIMEO, 2000)
+        sock.setsockopt(zmq.SNDTIMEO, 2000)
         sock.setsockopt(zmq.LINGER, 0)
 
         try:
             sock.connect(ipc_address)
-
             poller = zmq.Poller()
             poller.register(sock, zmq.POLLIN)
 
             elapsed = 0.0
-            interval = 0.5
+            interval = 1.0
             while elapsed < timeout:
                 try:
+                    sock.send(b"PING")
                     socks_dict = dict(poller.poll(int(interval * 1000)))
                     if sock in socks_dict:
-                        frames = sock.recv_multipart()
-                        if len(frames) >= 2 and frames[0] == b"__READY__":
-                            ok = frames[1] == b"OK"
-                            if not ok:
-                                logging.warning("[Handshake] Worker signaled error")
-                            return ok
+                        reply = sock.recv()
+                        if reply == b"PONG":
+                            return True
                 except zmq.Again:
                     pass
                 elapsed += interval
@@ -574,6 +656,122 @@ class InferenceManager:
 
         return self._execute_zmq(incarnation, task)
 
+    def execute_stream(
+        self,
+        name: str,
+        prompt: str,
+        system: str = "Tu es un assistant IA.",
+        max_tokens: int = 2048,
+        temperature: float = 0.7,
+    ):
+        """
+        Générateur pour streaming SSE.
+        Timeout glissant: TTFT (60s) → ITT (5s)
+        """
+        with self._global_lock:
+            incarnation = self._incarnations.get(name)
+
+        if not incarnation:
+            yield {"error": f"Incarnation '{name}' non trouvée", "is_final": True}
+            return
+
+        if not incarnation["alive"]:
+            yield {"error": f"Incarnation '{name}' est morte", "is_final": True}
+            return
+
+        if not incarnation["process"].is_alive():
+            incarnation["alive"] = False
+            yield {"error": f"Incarnation '{name}' processus mort", "is_final": True}
+            return
+
+        task = {
+            "prompt": prompt,
+            "system": system,
+            "max_tokens": max_tokens,
+            "temperature": temperature,
+            "stream": True,
+        }
+
+        if incarnation.get("mode") == "queue":
+            yield from self._execute_queue_stream(incarnation, task)
+            return
+
+        yield from self._execute_stream_zmq(incarnation, task)
+
+    def _execute_stream_zmq(self, incarnation: Dict, task: Dict):
+        """Streaming via socket DEALER éphémère avec TTFT/ITT timeouts."""
+        if not ZMQ_AVAILABLE:
+            yield {"error": "ZMQ non disponible", "is_final": True}
+            return
+
+        ipc_address = incarnation["ipc_address"]
+        ctx = zmq.Context()
+        sock = ctx.socket(zmq.DEALER)
+        sock.setsockopt(zmq.LINGER, 0)
+
+        try:
+            sock.connect(ipc_address)
+
+            sock.send_multipart([b"", orjson.dumps(task)])
+
+            poller = zmq.Poller()
+            poller.register(sock, zmq.POLLIN)
+
+            timeout_ms = 60000  # TTFT: 60s pour premier token
+
+            while True:
+                socks = dict(poller.poll(timeout_ms))
+
+                if sock in socks and socks[sock] == zmq.POLLIN:
+                    frames = sock.recv_multipart()
+                    if len(frames) < 2:
+                        continue
+
+                    msg_data = orjson.loads(frames[1])
+
+                    if "chunk" in msg_data:
+                        yield msg_data
+                        if msg_data.get("is_final"):
+                            break
+                        timeout_ms = 5000  # ITT: 5s après premier chunk
+                    else:
+                        yield {
+                            "chunk": msg_data.get("result", str(msg_data)),
+                            "is_final": True,
+                            "fallback_sync": True
+                        }
+                        break
+                else:
+                    yield {"error": f"Streaming Timeout (TTFT/ITT dépassé)", "is_final": True}
+                    break
+
+        except Exception as e:
+            yield {"error": f"Erreur streaming: {str(e)}", "is_final": True}
+        finally:
+            sock.close(linger=0)
+            ctx.term()
+
+    def _execute_queue_stream(self, incarnation: Dict, task: Dict):
+        """Fallback streaming via Queue."""
+        try:
+            incarnation["task_queue"].put(task)
+            while True:
+                result = incarnation["result_queue"].get(timeout=5)
+                if isinstance(result, dict):
+                    if "chunk" in result:
+                        yield result
+                        if result.get("is_final"):
+                            break
+                    else:
+                        yield {
+                            "chunk": result.get("result", str(result)),
+                            "is_final": True,
+                            "fallback_sync": True
+                        }
+                        break
+        except Exception:
+            yield {"error": "Timeout: Worker queue ne répond pas", "is_final": True}
+
     def _execute_zmq(self, incarnation: Dict, task: Dict) -> Dict[str, Any]:
         """Exécution via socket REQ transitoire."""
         if not ZMQ_AVAILABLE:
@@ -589,11 +787,11 @@ class InferenceManager:
         try:
             sock.connect(ipc_address)
 
-            msg = pickle.dumps(task)
+            msg = orjson.dumps(task)
             sock.send(msg)
 
             reply = sock.recv()
-            result = pickle.loads(reply)
+            result = orjson.loads(reply)
 
             return result
         except zmq.Again:

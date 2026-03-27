@@ -528,7 +528,7 @@ Après ton analyse, termine EXCLUSIVEMENT par ce bloc JSON pour le moteur :
             score = 0.0
             flaw = "Erreur d'évaluation"
             try:
-                match = re.search(r'\{.*"score".*\}', critic_response, re.DOTALL)
+                match = re.search(r'(\{.*?"score".*?\})', critic_response, re.DOTALL)
                 if match:
                     eval_data = json.loads(match.group(0))
                     score = float(eval_data.get("score", 0.0))
