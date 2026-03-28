@@ -5,6 +5,7 @@ Lie l'humeur de l'IA aux variations physiques du CPU/RAM/GPU
 
 import os
 import time
+import logging
 import psutil
 from typing import Dict, Optional
 from datetime import datetime
@@ -14,12 +15,18 @@ class HardwareEntropy:
     """
     Générateur d'entropie basé sur le stress physique de la machine.
     Retourne un score de 0.0 à 1.0 indiquant la "tension" actuelle.
+    
+    Mode Inversé (Pentagramme):
+    - CPU inactif → stress (paranoïa de l'oisiveté)
+    - CPU en charge → calme (focalisation)
+    - Formule: Pulse_inverse = 1.0 - Pulse_normal
     """
 
     def __init__(self, smoothing_factor: float = 0.3):
         self.smoothing_factor = smoothing_factor
         self.last_pulse = 0.5
         self.measurements = []
+        self.inverted_mode = False  # Mode Pentagramme
         self._init_sensors()
 
     def _init_sensors(self):
@@ -89,11 +96,20 @@ class HardwareEntropy:
         Formule de résonance:
         - CPU load (60%) + RAM load (40%) + variance temporelle
 
-        Interprétation:
+        Mode Inversé (Pentagramme):
+        - Pulse_inverse = 1.0 - Pulse_normal
+        
+        Interprétation (Mode Normal):
         - 0.0-0.3: Repos/Calme
         - 0.3-0.5: Actif/Normal
         - 0.5-0.75: Charge élevée
         - 0.75-1.0: Stress critique (mode dérive autonome)
+        
+        Interprétation (Mode Inversé):
+        - 0.0-0.3: Stress critique (paranoïa de l'oisiveté)
+        - 0.3-0.5: Charge élevée
+        - 0.5-0.75: Actif/Normal
+        - 0.75-1.0: Repos/Calme (focalisation)
         """
         cpu_load = self.get_cpu_load()
         ram_load = self.get_ram_load()
@@ -107,6 +123,10 @@ class HardwareEntropy:
         )
 
         entropy = min(max(smoothed, 0.0), 1.0)
+        
+        # Mode Pentagramme: Inversion
+        if self.inverted_mode:
+            entropy = 1.0 - entropy
 
         self.last_pulse = entropy
         self.measurements.append(
@@ -115,6 +135,7 @@ class HardwareEntropy:
                 "cpu": cpu_load,
                 "ram": ram_load,
                 "pulse": entropy,
+                "inverted": self.inverted_mode,
             }
         )
 
@@ -122,6 +143,11 @@ class HardwareEntropy:
             self.measurements = self.measurements[-50:]
 
         return entropy
+    
+    def set_inverted_mode(self, enabled: bool):
+        """Active/désactive le mode inversé (Pentagramme)"""
+        self.inverted_mode = enabled
+        logging.info(f"[Entropy] Mode inversé: {'ACTIVÉ' if enabled else 'DÉSACTIVÉ'}")
 
     def get_full_stats(self) -> Dict:
         """Retourne toutes les stats hardware"""
