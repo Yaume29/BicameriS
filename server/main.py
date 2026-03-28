@@ -195,7 +195,7 @@ templates = Jinja2Templates(directory=str(BASE_DIR / "web/templates"))
 
 # Import and include routes
 from server.routes import views, api_hardware, api_cognitive, api_inference, api_system
-from server.routes import api_inception, api_laboratoire, api_research, api_identity, api_launch, api_models, api_chat, api_dashboard, api_knowledge
+from server.routes import api_inception, api_laboratoire, api_research, api_identity, api_launch, api_models, api_chat, api_dashboard, api_knowledge, api_unified
 
 # Set templates for views
 views.set_templates(templates)
@@ -215,6 +215,7 @@ app.include_router(api_models.router, prefix="/api")
 app.include_router(api_chat.router, prefix="/api")
 app.include_router(api_dashboard.router, prefix="/api")
 app.include_router(api_knowledge.router, prefix="/api")
+app.include_router(api_unified.router, prefix="/api")
 
 
 # ============ WEBSOCKETS - PUSH MODE (PASSIVE) ============

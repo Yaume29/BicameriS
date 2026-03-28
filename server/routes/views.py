@@ -183,3 +183,11 @@ async def settings(request: Request):
     if _templates:
         return _templates.TemplateResponse("settings.html", make_context({"request": request}))
     return HTMLResponse("<h1>Settings</h1>")
+
+
+@router.get("/unified", response_class=HTMLResponse)
+async def unified(request: Request):
+    """Unified bicameral chat page"""
+    if _templates:
+        return _templates.TemplateResponse("unified.html", make_context({"request": request}))
+    return HTMLResponse("<h1>Chat Unifié</h1>")
