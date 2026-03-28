@@ -1,33 +1,100 @@
 #!/usr/bin/env python3
 """
-Aetheris Launcher - Unified Launcher
-====================================
-Hope 'n Mind - Cognitive Bicameral Kernel
+BicameriS Launcher - Text User Interface
+========================================
+Diadikos & Palladion - By Hope 'n Mind
 
-Usage:
-    python launcher.py                    # Default launch
-    python launcher.py --port 5000        # Custom port
-    python launcher.py --reload           # Dev mode with auto-reload
-    python launcher.py --config           # Interactive configuration
-    python launcher.py --models           # Configure models only
-    python launcher.py --info             # Show system info
+Interactive TUI for launching and configuring BicameriS.
 """
 
 import sys
 import os
 import json
-import argparse
+import time
+import re
 from pathlib import Path
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
 
 # Ensure project root is in path
 BASE_DIR = Path(__file__).parent.absolute()
 sys.path.insert(0, str(BASE_DIR))
 
-import uvicorn
-from core.hardware.profiler import get_profiler
-from core.hardware.model_scanner import get_scanner
 
+# ============================================
+# MODEL NAME RATIONALIZATION
+# ============================================
+
+def rationalize_model_name(filename: str) -> dict:
+    """
+    Converts technical filename to readable info.
+    Example: "Qwen_Qwen3-14B-16K_Q8_0.gguf" -> 
+        {name: "Qwen3", size: "14B", quant: "Q8_0", context: "16K", base: "Qwen"}
+    """
+    name = filename.replace('.gguf', '').replace('.GGUF', '')
+    
+    # Extract quantization (Q4_K_M, Q8_0, etc.)
+    quant = "Unknown"
+    quant_patterns = [
+        r'[Qq](\d+)[_\s]*[KkSs]?[_\s]*[MmLl]?',  # Q4_K_M, Q8_0, etc.
+        r'([fF]\d+)',  # f16, f32
+        r'(GPTQ|AWQ|EXL2|GGML)',  # Other formats
+    ]
+    for pat in quant_patterns:
+        match = re.search(pat, name)
+        if match:
+            quant = match.group(0)
+            name = name.replace(quant, '').strip('_- ')
+            break
+    
+    # Extract size (1B, 3B, 7B, 13B, 70B, etc.)
+    size = "?"
+    size_match = re.search(r'(\d+\.?\d*)[bB]', name)
+    if size_match:
+        size = f"{size_match.group(1)}B"
+    
+    # Extract context length (16K, 32K, 128K, etc.)
+    context = ""
+    ctx_match = re.search(r'(\d+)[kK]', name)
+    if ctx_match:
+        context = f"{ctx_match.group(1)}K"
+    
+    # Extract base model name (usually first part)
+    # Remove common prefixes/suffixes
+    name = re.sub(r'^[A-Za-z]+_', '', name)  # Remove provider prefix
+    name = re.sub(r'[-_]\d+[bB].*', '', name)  # Remove size and after
+    name = re.sub(r'[-_][Qq]\d+.*', '', name)  # Remove quant and after
+    name = re.sub(r'[-_]\d+[kK].*', '', name)  # Remove context and after
+    name = name.replace('_', ' ').replace('-', ' ').strip()
+    
+    # If name is empty or too short, use original
+    if len(name) < 2:
+        name = filename.split('_')[0] if '_' in filename else filename.split('-')[0]
+    
+    return {
+        "display_name": name,
+        "size": size,
+        "quant": quant,
+        "context": context,
+        "full_path": "",
+        "raw_name": filename
+    }
+
+
+def format_model_display(info: dict) -> str:
+    """Format model info for display"""
+    parts = [info["display_name"]]
+    if info["size"] != "?":
+        parts.append(info["size"])
+    if info["context"]:
+        parts.append(info["context"])
+    if info["quant"] != "Unknown":
+        parts.append(info["quant"])
+    return " | ".join(parts)
+
+
+# ============================================
+# CONFIGURATION
+# ============================================
 
 DEFAULT_CONFIG = {
     "server": {
@@ -49,7 +116,7 @@ DEFAULT_CONFIG = {
             "max_tokens": 2048
         },
         "right_hemisphere": {
-            "name": "Right Brain", 
+            "name": "Right Brain",
             "path": "",
             "n_ctx": 4096,
             "n_gpu_layers": -1,
@@ -59,35 +126,87 @@ DEFAULT_CONFIG = {
             "max_tokens": 512
         }
     },
-    "hardware": {
-        "thermal_monitoring": True,
-        "entropy_tracking": True,
-        "vr_guillotine": True,
-        "max_cpu_temp": 85,
-        "max_gpu_temp": 83,
-        "min_free_vram_gb": 2
-    },
-    "cognition": {
-        "autonomous_loop": False,
-        "autonomous_interval": 30,
-        "pulse_high": 0.75,
-        "pulse_low": 0.25,
-        "dreamer_interval": 300
-    },
-    "security": {
-        "sandbox_docker": True,
-        "trauma_filter": True,
-        "max_execution_time": 30,
-        "max_memory_mb": 512
-    },
-    "telemetry": {
-        "enabled": True,
-        "log_dir": "storage/logs"
+    "presets": {
+        "balanced": {
+            "left_temp": 0.7,
+            "right_temp": 1.2,
+            "left_ctx": 16384,
+            "right_ctx": 4096
+        },
+        "creative": {
+            "left_temp": 1.0,
+            "right_temp": 1.5,
+            "left_ctx": 8192,
+            "right_ctx": 8192
+        },
+        "analytical": {
+            "left_temp": 0.3,
+            "right_temp": 0.8,
+            "left_ctx": 32768,
+            "right_ctx": 4096
+        }
     }
 }
 
-CONFIG_FILE = BASE_DIR / "storage" / "config" / "runtime_config.json"
+CONFIG_FILE = BASE_DIR / "storage" / "config" / "launcher_config.json"
+PRESETS_FILE = BASE_DIR / "storage" / "config" / "presets.json"
 
+
+# ============================================
+# TUI HELPERS
+# ============================================
+
+def clear_screen():
+    """Clear terminal screen"""
+    os.system('cls' if os.name == 'nt' else 'clear')
+
+
+def print_header():
+    """Print BicameriS header"""
+    print()
+    print("  " + "=" * 60)
+    print("  |                                                          |")
+    print("  |     ######  ##  ######  ####  ###   ### ###### ## ######  |")
+    print("  |     ##  ## ## ##      ##  ## #### #### ##     ## ##      |")
+    print("  |     ###### ## ##      ###### ## ### ## ####   ## ######  |")
+    print("  |     ##  ## ## ##      ##  ## ##  #  ## ##     ##     ##  |")
+    print("  |     ###### ## ####### ##  ## ##     ## ###### ## ######  |")
+    print("  |                                                          |")
+    print("  |      Diadikos & Palladion - By Hope 'n Mind              |")
+    print("  " + "=" * 60)
+    print()
+
+
+def print_menu(options: list, title: str = "MENU"):
+    """Print a menu with options"""
+    print(f"  +{'-' * 42}+")
+    print(f"  |  {title:^40}  |")
+    print(f"  +{'-' * 42}+")
+    for i, (key, desc) in enumerate(options, 1):
+        print(f"  |  [{key}] {desc:<36}  |")
+    print(f"  +{'-' * 42}+")
+    print()
+
+
+def get_input(prompt: str = "Choix", default: str = "") -> str:
+    """Get user input with optional default"""
+    if default:
+        result = input(f"  {prompt} [{default}]: ").strip()
+        return result if result else default
+    return input(f"  {prompt}: ").strip()
+
+
+def print_status(items: list):
+    """Print status items"""
+    print(f"  +{'-' * 42}+")
+    for label, value in items:
+        print(f"  |  {label:<20} {value:>18}  |")
+    print(f"  +{'-' * 42}+")
+
+
+# ============================================
+# CONFIGURATION MANAGEMENT
+# ============================================
 
 class LauncherConfig:
     """Manage launcher configuration"""
@@ -102,20 +221,16 @@ class LauncherConfig:
             try:
                 with open(CONFIG_FILE, "r", encoding="utf-8") as f:
                     self.config = json.load(f)
-                print(f"[*] Configuration loaded from {CONFIG_FILE}")
             except json.JSONDecodeError:
-                print("[!] Corrupted config, using defaults")
                 self.config = DEFAULT_CONFIG.copy()
         else:
             self.config = DEFAULT_CONFIG.copy()
-            print("[*] Using default configuration")
     
     def save(self):
         """Save configuration to file"""
         CONFIG_FILE.parent.mkdir(parents=True, exist_ok=True)
         with open(CONFIG_FILE, "w", encoding="utf-8") as f:
             json.dump(self.config, f, indent=2, ensure_ascii=False)
-        print(f"[*] Configuration saved to {CONFIG_FILE}")
     
     def get(self, key_path: str, default: Any = None) -> Any:
         """Get config value by dot-notation key"""
@@ -141,288 +256,377 @@ class LauncherConfig:
         config[keys[-1]] = value
 
 
-def print_banner():
-    """Print startup banner"""
-    print("""
-+=====================================================================+
-|  AETHERIS v1.0.0.6a                                               |
-|  Bicameral Cognitive Kernel                                       |
-|  By Hope 'n Mind                                                  |
-+=====================================================================+
-    """)
+# ============================================
+# MODEL SCANNER
+# ============================================
 
+class ModelScanner:
+    """Recursive model scanner"""
+    
+    def __init__(self):
+        self.found_models: List[dict] = []
+        self.blacklist = {
+            "$Recycle.Bin", "System Volume Information", "Windows",
+            "AppData", "Program Files", "Program Files (x86)",
+            "ProgramData", "Recovery", "PerfLogs", ".git", "__pycache__"
+        }
+    
+    def scan(self, root_path: str, max_depth: int = 10) -> List[dict]:
+        """Scan recursively for GGUF files"""
+        self.found_models = []
+        root = Path(root_path)
+        
+        if not root.exists():
+            print(f"  [!] Chemin introuvable: {root_path}")
+            return []
+        
+        print(f"  [*] Scan de: {root_path}")
+        count = 0
+        
+        for dirpath, dirnames, filenames in os.walk(root):
+            # Skip blacklisted directories
+            dirnames[:] = [d for d in dirnames if d not in self.blacklist]
+            
+            # Limit depth
+            depth = dirpath.replace(str(root), '').count(os.sep)
+            if depth > max_depth:
+                dirnames.clear()
+                continue
+            
+            for filename in filenames:
+                if filename.lower().endswith('.gguf'):
+                    try:
+                        full_path = os.path.join(dirpath, filename)
+                        stats = os.stat(full_path)
+                        
+                        # Rationalize name
+                        info = rationalize_model_name(filename)
+                        info["full_path"] = full_path
+                        info["size_mb"] = round(stats.st_size / (1024**2), 1)
+                        info["size_gb"] = round(stats.st_size / (1024**3), 2)
+                        
+                        self.found_models.append(info)
+                        count += 1
+                        
+                        if count % 5 == 0:
+                            print(f"    ... {count} modèles trouvés", end='\r')
+                    except (OSError, PermissionError):
+                        continue
+        
+        # Sort by size
+        self.found_models.sort(key=lambda x: x["size_mb"])
+        
+        print(f"  [OK] {count} modèles trouvés (triés par taille)")
+        return self.found_models
+
+
+# ============================================
+# MAIN TUI FUNCTIONS
+# ============================================
 
 def show_system_info():
-    """Display system hardware information"""
-    print("\n" + "="*60)
-    print("SYSTEM INFORMATION")
-    print("="*60)
+    """Display system information"""
+    clear_screen()
+    print_header()
+    print("  [+] INFORMATIONS SYSTEME")
+    print("  " + "-" * 50)
     
     try:
-        profiler = get_profiler()
-        hw = profiler.get_hardware_overview()
+        import psutil
         
-        print(f"\nCPU:")
-        print(f"   Cores: {hw.get('cpu_cores', 'N/A')}")
-        print(f"   Threads: {hw.get('cpu_threads', 'N/A')}")
+        # CPU
+        cpu_count = psutil.cpu_count(logical=False)
+        cpu_threads = psutil.cpu_count(logical=True)
+        print(f"  CPU: {cpu_count} coeurs / {cpu_threads} threads")
         
-        ram_total = hw.get('ram_total_gb', 0)
-        ram_free = hw.get('ram_free_gb', 0)
-        print(f"   RAM: {ram_free:.1f} GB free / {ram_total:.1f} GB total")
+        # RAM
+        ram = psutil.virtual_memory()
+        print(f"  RAM: {ram.total / (1024**3):.1f} Go total | {ram.available / (1024**3):.1f} Go libre")
         
-        print(f"\nGPU:")
-        if hw.get('gpu_available'):
-            for i, gpu in enumerate(hw.get('gpus', [])):
-                print(f"   GPU {i}: {gpu.get('name', 'Unknown')}")
-                print(f"   VRAM: {gpu.get('vram_free_gb', 0):.1f} GB free / {gpu.get('vram_total_gb', 0):.1f} GB")
-        else:
-            print("   No GPU detected")
+        # GPU (if available)
+        try:
+            import GPUtil
+            gpus = GPUtil.getGPUs()
+            if gpus:
+                for gpu in gpus:
+                    print(f"  GPU: {gpu.name} | {gpu.memoryTotal} Mo VRAM | {gpu.memoryFree} Mo libre")
+            else:
+                print("  GPU: Aucune détectée")
+        except:
+            print("  GPU: Non détecté")
         
-        print(f"\nRECOMMENDED MODEL SIZES:")
-        vram = hw.get('vram_total_gb', 0)
-        if vram >= 16:
-            print("   [OK] 14B-32B models (full GPU)")
-        elif vram >= 10:
-            print("   [~] 7B-14B models (partial GPU)")
-        elif vram >= 6:
-            print("   [~] 3B-7B models (quantized)")
-        else:
-            print("   [!] CPU-only inference recommended")
-            
-    except Exception as e:
-        print(f"   [!] Could not get hardware info: {e}")
+        # Disk
+        disk = psutil.disk_usage('/')
+        print(f"  DISK: {disk.total / (1024**3):.0f} Go | {disk.free / (1024**3):.0f} Go libre")
+        
+    except ImportError:
+        print("  [!] psutil non installé - informations limitées")
     
-    print()
+    input("\n  Appuyez sur Entrée pour continuer...")
 
 
-def scan_models(scan_path: str = "") -> list:
-    """Scan for available GGUF models"""
-    print(f"\n[*] Scanning for models...")
+def scan_models(scanner: ModelScanner) -> List[dict]:
+    """Interactive model scanner"""
+    clear_screen()
+    print_header()
+    print("  [+] SCANNER DE MODELES")
+    print("  " + "-" * 50)
     
-    scanner = get_scanner()
-    
-    if not scan_path:
-        # Default scan paths
-        scan_paths = [
-            str(BASE_DIR / "models"),
-            str(BASE_DIR / ".."),
-            "C:\\Users\\Jaba\\AppData\\Local\\lm-studio\\models",
-            "C:\\Users\\Jaba\\.cache\\huggingface\\hub",
-        ]
-    else:
-        scan_paths = [scan_path]
-    
-    found = []
-    for path in scan_paths:
-        if os.path.exists(path):
-            print(f"   Scanning: {path}")
-            scanner.scan(path)
-            found.extend(scanner.found_models)
-    
-    if found:
-        print(f"   [OK] Found {len(found)} models")
-    else:
-        print(f"   [!] No models found")
-    
-    return found
-
-
-def configure_models(config: LauncherConfig):
-    """Interactive model configuration"""
-    print("\n" + "="*60)
-    print("MODEL CONFIGURATION")
-    print("="*60)
-    
-    # Scan for models
-    print("\nScanning for available models...")
-    scanner = get_scanner()
-    
-    # Try default paths
-    scan_paths = [
+    # Common scan paths
+    common_paths = [
         str(BASE_DIR / "models"),
-        "C:\\Users\\Jaba\\AppData\\Local\\lm-studio\\models",
+        "C:\\Users",
+        "D:\\",
+        str(Path.home() / ".cache" / "lm-studio" / "models"),
+        str(Path.home() / "AppData" / "Local" / "lm-studio" / "models"),
     ]
     
-    for path in scan_paths:
-        if os.path.exists(path):
-            scanner.scan(path)
+    print("  Chemins de scan disponibles:")
+    for i, path in enumerate(common_paths, 1):
+        exists = "[OK]" if os.path.exists(path) else "[!!]"
+        print(f"    [{i}] {exists} {path}")
+    
+    print()
+    choice = get_input("Choix du chemin (1-5 ou chemin personnalisé)", "1")
+    
+    try:
+        idx = int(choice) - 1
+        if 0 <= idx < len(common_paths):
+            scan_path = common_paths[idx]
+        else:
+            scan_path = choice
+    except ValueError:
+        scan_path = choice
+    
+    if not os.path.exists(scan_path):
+        print(f"  [!] Le chemin n'existe pas: {scan_path}")
+        input("\n  Appuyez sur Entrée pour continuer...")
+        return []
+    
+    print()
+    models = scanner.scan(scan_path)
+    
+    if models:
+        print()
+        print(f"  [{len(models)} MODELES TROUVES - Triés par taille]")
+        print("  " + "-" * 50)
+        
+        for i, model in enumerate(models[:20], 1):  # Show first 20
+            display = format_model_display(model)
+            print(f"    {i:>3}. {display:<40} {model['size_gb']:>6.1f} Go")
+        
+        if len(models) > 20:
+            print(f"    ... et {len(models) - 20} autres modèles")
+    
+    input("\n  Appuyez sur Entrée pour continuer...")
+    return models
+
+
+def select_model(scanner: ModelScanner, hemisphere: str, config: LauncherConfig) -> bool:
+    """Select a model for a hemisphere"""
+    clear_screen()
+    print_header()
+    print(f"  [+] SELECTION MODELE - {hemisphere.upper()}")
+    print("  " + "-" * 50)
     
     models = scanner.found_models
     
-    # Left hemisphere
-    print("\n[*] LEFT HEMISPHERE (Logic/Analysis)")
-    print(f"   Current: {config.get('models.left_hemisphere.name', 'Not set')}")
-    print(f"   Path: {config.get('models.left_hemisphere.path', 'Not set')}")
+    if not models:
+        print("  [!] Aucun modèle scanné. Scannez d'abord.")
+        input("\n  Appuyez sur Entrée pour continuer...")
+        return False
     
-    if models:
-        print("\n   Available models:")
-        for i, m in enumerate(models[:10], 1):
-            print(f"   {i}. {m.get('name', 'Unknown')} ({m.get('size_gb', 0):.1f} GB)")
-        
-        choice = input("\n   Select model number (or Enter to skip): ").strip()
-        if choice and choice.isdigit():
-            idx = int(choice) - 1
-            if 0 <= idx < len(models):
-                model = models[idx]
-                config.set("models.left_hemisphere.path", model.get("path", ""))
-                config.set("models.left_hemisphere.name", model.get("name", "Unknown"))
+    # Display models
+    print("  Modèles disponibles:")
+    for i, model in enumerate(models[:30], 1):
+        display = format_model_display(model)
+        print(f"    {i:>3}. {display:<40} {model['size_gb']:>6.1f} Go")
     
-    # Temperature for left
-    temp = input(f"   Temperature [0.7]: ").strip()
-    if temp and temp.replace('.', '').isdigit():
-        config.set("models.left_hemisphere.temperature", float(temp))
-    
-    # Right hemisphere  
-    print("\n[*] RIGHT HEMISPHERE (Intuition/Creativity)")
-    print(f"   Current: {config.get('models.right_hemisphere.name', 'Not set')}")
-    print(f"   Path: {config.get('models.right_hemisphere.path', 'Not set')}")
-    
-    if models:
-        choice = input("\n   Select model number (or Enter to skip): ").strip()
-        if choice and choice.isdigit():
-            idx = int(choice) - 1
-            if 0 <= idx < len(models):
-                model = models[idx]
-                config.set("models.right_hemisphere.path", model.get("path", ""))
-                config.set("models.right_hemisphere.name", model.get("name", "Unknown"))
-    
-    # Temperature for right
-    temp = input(f"   Temperature [1.2]: ").strip()
-    if temp and temp.replace('.', '').isdigit():
-        config.set("models.right_hemisphere.temperature", float(temp))
-    
-    config.save()
-    print("\n[OK] Model configuration saved!")
-
-
-def interactive_config(config: LauncherConfig):
-    """Full interactive configuration"""
-    print("\n" + "="*60)
-    print("INTERACTIVE CONFIGURATION")
-    print("="*60)
-    
-    # Server config
-    print("\nSERVER")
-    host = input(f"   Host [{config.get('server.host', '0.0.0.0')}]: ").strip()
-    if host:
-        config.set("server.host", host)
-    
-    port = input(f"   Port [{config.get('server.port', 8000)}]: ").strip()
-    if port and port.isdigit():
-        config.set("server.port", int(port))
-    
-    # Model configuration
-    configure_models(config)
-    
-    # Cognition
-    print("\nCOGNITION")
-    auto = input(f"   Autonomous loop [N/y]: ").strip().lower()
-    config.set("cognition.autonomous_loop", auto == 'y')
-    
-    # Security
-    print("\nSECURITY")
-    docker = input(f"   Use Docker sandbox [Y/n]: ").strip().lower()
-    config.set("security.sandbox_docker", docker != 'n')
-    
-    config.save()
-    print("\n[OK] Configuration saved!")
-
-
-def main():
-    parser = argparse.ArgumentParser(
-        description="Aetheris - Bicameral Cognitive Kernel",
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
-Examples:
-  python launcher.py                    # Start server (default)
-  python launcher.py --port 5000        # Custom port
-  python launcher.py --reload           # Dev mode with auto-reload
-  python launcher.py --config            # Interactive configuration
-  python launcher.py --models            # Configure models only
-  python launcher.py --info              # Show system info
-  python launcher.py --scan              # Scan for models
-        """
-    )
-    
-    # Server options
-    parser.add_argument("--host", default=None, help="Host to bind")
-    parser.add_argument("--port", type=int, default=None, help="Port")
-    parser.add_argument("--reload", action="store_true", help="Enable auto-reload (dev mode)")
-    parser.add_argument("--workers", type=int, default=None, help="Number of workers")
-    parser.add_argument("--log-level", default=None, help="Log level")
-    
-    # Config options
-    parser.add_argument("--config", action="store_true", help="Interactive configuration")
-    parser.add_argument("--models", action="store_true", help="Configure models only")
-    parser.add_argument("--info", action="store_true", help="Show system information")
-    parser.add_argument("--scan", action="store_true", help="Scan for models")
-    parser.add_argument("--defaults", action="store_true", help="Reset to defaults")
-    
-    args = parser.parse_args()
-    
-    print_banner()
-    
-    # Load configuration
-    config = LauncherConfig()
-    
-    # Handle commands
-    if args.defaults:
-        config.config = DEFAULT_CONFIG.copy()
-        config.save()
-        print("[OK] Reset to factory defaults")
-        return
-    
-    if args.info:
-        show_system_info()
-        return
-    
-    if args.scan:
-        scan_models()
-        return
-    
-    if args.config:
-        interactive_config(config)
-        return
-    
-    if args.models:
-        configure_models(config)
-        return
-    
-    # Get server config
-    host = args.host or config.get("server.host", "0.0.0.0")
-    port = args.port or config.get("server.port", 8000)
-    workers = args.workers or config.get("server.workers", 1)
-    reload = args.reload or config.get("server.reload", False)
-    log_level = args.log_level or config.get("server.log_level", "info")
-    
-    # Print startup info
-    print(f"\n[*] Starting Aetheris on http://{host}:{port}")
-    print(f"   Docs: http://{host}:{port}/docs")
-    
-    # Show model status
-    left_path = config.get("models.left_hemisphere.path", "")
-    right_path = config.get("models.right_hemisphere.path", "")
-    
-    if left_path or right_path:
-        print(f"\n[*] Models loaded:")
-        if left_path:
-            print(f"   Left:  {config.get('models.left_hemisphere.name', 'Unknown')}")
-        if right_path:
-            print(f"   Right: {config.get('models.right_hemisphere.name', 'Unknown')}")
-    else:
-        print(f"\n[!] No models configured - use --models to configure")
+    if len(models) > 30:
+        print(f"    ... et {len(models) - 30} autres")
     
     print()
+    choice = get_input("Numéro du modèle (ou 0 pour annuler)", "0")
     
-    # Start server
-    uvicorn.run(
-        "server.main:app",
-        host=host,
-        port=port,
-        reload=reload,
-        workers=workers,
-        log_level=log_level,
-    )
+    try:
+        idx = int(choice) - 1
+        if idx < 0:
+            return False
+        if idx >= len(models):
+            print("  [!] Numéro invalide")
+            input("\n  Appuyez sur Entrée pour continuer...")
+            return False
+        
+        selected = models[idx]
+        
+        # Save to config
+        config.set(f"models.{hemisphere}.path", selected["full_path"])
+        config.set(f"models.{hemisphere}.name", selected["display_name"])
+        config.save()
+        
+        print(f"  [OK] Modèle sélectionné: {format_model_display(selected)}")
+        input("\n  Appuyez sur Entrée pour continuer...")
+        return True
+        
+    except ValueError:
+        print("  [!] Entrée invalide")
+        input("\n  Appuyez sur Entrée pour continuer...")
+        return False
+
+
+def manage_presets(config: LauncherConfig):
+    """Manage configuration presets"""
+    clear_screen()
+    print_header()
+    print("  [+] PRESETS DE CONFIGURATION")
+    print("  " + "-" * 50)
+    
+    presets = config.get("presets", {})
+    
+    print("  Presets disponibles:")
+    for name, preset in presets.items():
+        print(f"    - {name}: Left={preset.get('left_temp', '?')}, Right={preset.get('right_temp', '?')}")
+    
+    print()
+    print("  [1] Utiliser un preset")
+    print("  [2] Créer un nouveau preset")
+    print("  [3] Retour")
+    
+    choice = get_input("Choix", "1")
+    
+    if choice == "1":
+        preset_name = get_input("Nom du preset", "balanced")
+        if preset_name in presets:
+            preset = presets[preset_name]
+            config.set("models.left_hemisphere.temperature", preset.get("left_temp", 0.7))
+            config.set("models.right_hemisphere.temperature", preset.get("right_temp", 1.2))
+            config.set("models.left_hemisphere.n_ctx", preset.get("left_ctx", 16384))
+            config.set("models.right_hemisphere.n_ctx", preset.get("right_ctx", 4096))
+            config.save()
+            print(f"  [OK] Preset '{preset_name}' appliqué")
+        else:
+            print(f"  [!] Preset '{preset_name}' introuvable")
+    
+    elif choice == "2":
+        name = get_input("Nom du nouveau preset")
+        left_temp = float(get_input("Température Gauche", "0.7"))
+        right_temp = float(get_input("Température Droite", "1.2"))
+        left_ctx = int(get_input("Contexte Gauche", "16384"))
+        right_ctx = int(get_input("Contexte Droite", "4096"))
+        
+        presets[name] = {
+            "left_temp": left_temp,
+            "right_temp": right_temp,
+            "left_ctx": left_ctx,
+            "right_ctx": right_ctx
+        }
+        config.set("presets", presets)
+        config.save()
+        print(f"  [OK] Preset '{name}' créé")
+    
+    input("\n  Appuyez sur Entrée pour continuer...")
+
+
+def start_server(config: LauncherConfig):
+    """Start the BicameriS server"""
+    clear_screen()
+    print_header()
+    print("  [+] DEMARRAGE DU SERVEUR")
+    print("  " + "-" * 50)
+    
+    host = config.get("server.host", "0.0.0.0")
+    port = config.get("server.port", 8000)
+    
+    # Show configured models
+    left_path = config.get("models.left_hemisphere.path", "")
+    right_path = config.get("models.right_hemisphere.path", "")
+    left_name = config.get("models.left_hemisphere.name", "Non configuré")
+    right_name = config.get("models.right_hemisphere.name", "Non configuré")
+    
+    print(f"  Hémisphère Gauche: {left_name or 'Non configuré'}")
+    print(f"  Hémisphère Droit:  {right_name or 'Non configuré'}")
+    print()
+    print(f"  Serveur: http://{host}:{port}")
+    print(f"  Docs:    http://{host}:{port}/docs")
+    print()
+    print("  Appuyez sur Ctrl+C pour arrêter")
+    print("  " + "-" * 50)
+    
+    # Start uvicorn
+    try:
+        import uvicorn
+        uvicorn.run(
+            "server.main:app",
+            host=host,
+            port=port,
+            reload=config.get("server.reload", False),
+            log_level=config.get("server.log_level", "info")
+        )
+    except KeyboardInterrupt:
+        print("\n  [!] Serveur arrêté")
+    except Exception as e:
+        print(f"\n  [!] Erreur: {e}")
+        input("\n  Appuyez sur Entrée pour continuer...")
+
+
+# ============================================
+# MAIN MENU
+# ============================================
+
+def main():
+    """Main TUI loop"""
+    config = LauncherConfig()
+    scanner = ModelScanner()
+    
+    while True:
+        clear_screen()
+        print_header()
+        
+        # Show current status
+        left_name = config.get("models.left_hemisphere.name", "Non configuré")
+        right_name = config.get("models.right_hemisphere.name", "Non configuré")
+        left_path = config.get("models.left_hemisphere.path", "")
+        right_path = config.get("models.right_hemisphere.path", "")
+        
+        print(f"  +-- Statut {'-' * 35}+")
+        print(f"  | Gauche: {left_name or 'Non configuré':<33} |")
+        print(f"  | Droit:  {right_name or 'Non configuré':<33} |")
+        print(f"  +{'-' * 45}+")
+        print()
+        
+        # Main menu
+        print("  +==========================================+")
+        print("  |              MENU PRINCIPAL                |")
+        print("  +==========================================+")
+        print("  |  [1] Demarrer BicameriS                    |")
+        print("  |  [2] Scanner les modeles                   |")
+        print("  |  [3] Selectionner modele Gauche (Logique)  |")
+        print("  |  [4] Selectionner modele Droit (Intuition) |")
+        print("  |  [5] Presets de configuration               |")
+        print("  |  [6] Informations systeme                   |")
+        print("  |  [q] Quitter                                |")
+        print("  +==========================================+")
+        
+        choice = get_input("Choix", "1")
+        
+        if choice == "1":
+            start_server(config)
+        elif choice == "2":
+            scan_models(scanner)
+        elif choice == "3":
+            select_model(scanner, "left_hemisphere", config)
+        elif choice == "4":
+            select_model(scanner, "right_hemisphere", config)
+        elif choice == "5":
+            manage_presets(config)
+        elif choice == "6":
+            show_system_info()
+        elif choice.lower() == "q":
+            print("\n  Au revoir!")
+            break
+        else:
+            print("  [!] Choix invalide")
+            time.sleep(1)
 
 
 if __name__ == "__main__":
