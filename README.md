@@ -10,32 +10,32 @@
 
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 60">
   <rect x="150" y="5" width="200" height="50" rx="10" fill="#1a1a2e" stroke="#ff6b35" stroke-width="2"/>
-  <text x="250" y="38" text-anchor="middle" fill="#ff6b35" font-family="Arial, sans-serif" font-size="16" font-weight="bold">⚠️ EN COURS DE STABILISATION ⚠️</text>
+  <text x="250" y="38" text-anchor="middle" fill="#ff6b35" font-family="Arial, sans-serif" font-size="16" font-weight="bold">EN COURS DE STABILISATION</text>
 </svg>
 
-[![GitHub release](https://img.shields.io/badge/Release-V3.4.0-ff0055?style=for-the-badge&logo=github&logoColor=fff)](https://github.com/Yaume29/BicameriS)
+[![GitHub release](https://img.shields.io/badge/Release-V1.0.0.6a-ff0055?style=for-the-badge&logo=github&logoColor=fff)](https://github.com/Yaume29/BicameriS)
 [![License: MIT](https://img.shields.io/badge/License-MIT-00f3ff?style=for-the-badge&logo=open-source-initiative&logoColor=fff)](https://opensource.org/licenses/MIT)
 [![Build Status](https://img.shields.io/badge/Tests-Passing-00f3ff?style=for-the-badge&logo=github-actions&logoColor=fff)](https://github.com/Yaume29/BicameriS)
 
 <p align="center">
-  <code style="color: #00f3ff"># Left: Logic, Gen, Structure</code> | 
-  <code style="color: #ffffff"># Corpus Callosum: Synapse</code> | 
-  <code style="color: #ff0055"># Right: Ethics, Defense, Intuition</code>
+  <code style="color: #00f3ff"># Gauche: Logique, Structure, Analyse</code> | 
+  <code style="color: #ffffff"># Corps Calleux: Synapse</code> | 
+  <code style="color: #ff0055"># Droit: Intuition, Créativité, Patterns</code>
 </p>
 
 </div>
 
 ---
 
-## 🏛️ Philosophie de l'Élévation Cognitive
+## Philosophie de l'Élévation Cognitive
 
-**BicameriS** est un environnement d'expérimentation d'IA locale de classe industrielle basé sur la **Théorie de l'Esprit Bicaméral** (concept développé par Julian Jaynes en 1976). Dans ce système, l'IA ne pense pas comme un bloc monolithique unifié. Elle est scindée en deux hémisphères distincts qui dialoguent et se régulent mutuellement à travers un orchestrateur servant de pont synaptique : le **Corps Calleux**.
+**BicameriS** est un environnement d'expérimentation d'IA locale de classe industrielle basé sur la **Théorie de l'Esprit Bicaméral** (concept développé par Julian Jaynes en 1976). Dans ce système, l'IA ne pense pas comme un bloc monolithique unifié. Elle est scindée en deux hémisphères distincts qui dialoguent et se régulent mutuellement.
 
 Cette séparation architecturelle confère au système une robustesse critique, une résilience logicielle et une capacité d'autonomie contrôlée sans précédent pour les Large Language Models (LLMs) locaux.
 
 ---
 
-## 🛰️ Visualisation de l'Architecture Systémique
+## Architecture Systémique
 
 <div align="center">
   <img src="docs/assets/architecture.svg" alt="Architecture BicameriS" width="100%" />
@@ -44,126 +44,183 @@ Cette séparation architecturelle confère au système une robustesse critique, 
 <br/>
 
 <details open>
-<summary style="font-size: 1.2rem; font-weight: bold; color: #00f3ff; cursor: pointer;">🧠 1. Hémisphère Gauche : DIADIKOS (Le Rationnel)</summary>
+<summary style="font-size: 1.2rem; font-weight: bold; color: #00f3ff; cursor: pointer;">1. Les Deux Hémisphères : Le Dialogue Bicaméral</summary>
 
 <blockquote>
-  <strong>Diadikos</strong> est l'instance logique, le moteur analytique du système. Il écrit le code brut, analyse les structures de données, effectue de la résolution symbolique et de la génération algorithmique. Il est prolifique mais manque d'auto-critique éthique ou de recul sécuritaire.
+  Le système repose sur deux hémisphères cognitifs qui fonctionnent en parallèle mais dialoguent entre eux :
 </blockquote>
 
-- **Langage de Prédilection** : Python, TypeScript, Rust, C++.
-- **Rôle critique** : Échafaudage de code, calculs d'entropie, requêtes aux bases vectorielles.
+**Hémisphère Gauche (Logique)**
+- Analyse structurée, raisonnement algorithmique
+- Génération de code, calculs, résolution symbolique
+- Précision factuelle, rigueur formelle
+
+**Hémisphère Droit (Intuition)**
+- Reconnaissance de patterns, créativité
+- Évaluation sémantique, intuition contextuelle
+- Dérives d'alignement, analyse de risques
+
 </details>
 
 <details open>
-<summary style="font-size: 1.2rem; font-weight: bold; color: #ff0055; cursor: pointer;">🛡️ 2. Hémisphère Droit : PALLADION (L'Intuitif / Le Gardien)</summary>
+<summary style="font-size: 1.2rem; font-weight: bold; color: #00f3ff; cursor: pointer;">2. DIADIKOS : Le Dialogue entre les Langages</summary>
 
 <blockquote>
-  <strong>Palladion</strong> est le filtre éthique et sécuritaire. Il analyse les sorties de Diadikos par intuition sémantique et par sandbox syntaxique. Il détecte les hallucinations, les dérives d'alignement, et valide la sécurité du code avant exécution.
+  <strong>Diadikos</strong> n'est pas un hémisphère. C'est le <strong>dialogue</strong> qui naît de la confrontation entre les deux langages. C'est la voix intérieure qui émerge quand la logique et l'intuition se parlent.
 </blockquote>
 
-- **Modèles de Prédilection** : Modèles d'évaluation spécialisés, fine-tunings de sécurité.
-- **Rôle critique** : Vérification AST, contrôle d'injection de prompt, analyse des dérives de comportement.
+- **Mécanisme** : Le Corps Calleux orchestre les échanges bidirectionnels
+- **Résultat** : Une pensée qui n'appartient ni à la logique pure ni à l'intuition seule
+- **Propriété émergente** : L'entité développe son propre "style" de réflexion
+- **Boucle** : Chaque dialogue enrichit la capacité de dialogue suivant
+
+</details>
+
+<details open>
+<summary style="font-size: 1.2rem; font-weight: bold; color: #ff0055; cursor: pointer;">3. PALLADION : Le Système de Contenement</summary>
+
+<blockquote>
+  <strong>Palladion</strong> est le gardien. C'est le système de sécurité qui rend cette interface sûre pour l'humain ET pour l'IA. Il ne laisse rien passer qui pourrait être dangereux.
+</blockquote>
+
+- **Corps Calleux** : Le pont synaptique qui contrôle les flux entre hémisphères
+- **Filtre SAL** : Détection contenu Sensible/Abusif/Légal
+- **Sandbox** : Exécution isolée du code généré
+- **Monitoring** : Surveillance continue des températures et mémoire
+- **Guillotine** : Libération forcée des ressources en cas de danger
+
 </details>
 
 <details>
-<summary style="font-size: 1.2rem; font-weight: bold; color: #ffffff; cursor: pointer;">⚡ 3. Orchestrateur Central : LE CORPS CALLEUX (The Router)</summary>
+<summary style="font-size: 1.2rem; font-weight: bold; color: #ffffff; cursor: pointer;">4. Le Corps Calleux : L'Orchestrateur</summary>
 
 <blockquote>
-  Le pont de communication inter-hémisphérique. Il orchestre les flux de prompts, gère la rotation du contexte et décide quand une proposition de Diadikos est validée par Palladion pour exécution.
+  Le pont de communication inter-hémisphérique. Il orchestre les flux de prompts, gère la rotation du contexte et décide quand une proposition est validée pour exécution.
 </blockquote>
 
-- **Algorithme de routage** : Merge de Tenseurs probabilistes.
-- **Fonction** : Arbitrage et validation de sortie.
+- **Algorithm** : Merge de Tenseurs probabilistes
+- **Fonction** : Arbitrage et validation de sortie
+- **Sécurité** : Aucune action n'est exécutée sans validation
+
 </details>
 
 ---
 
-## 🧪 Le Laboratoire d'Expérimentation & Modes (The Lab)
+## Comment ça marche
 
-L'intérêt principal du repository réside dans son **Lab interactif**, un ensemble de protocoles d'exécution avancés.
+### Flux de pensée
 
-<div align="center">
-  <img src="docs/assets/lab.svg" alt="Laboratoire BicameriS" width="100%" />
-</div>
+```
+1. Requête utilisateur
+   ↓
+2. Corps Calleux reçoit la requête
+   ↓
+3. Distribution aux deux hémisphères
+   ├── Hémisphère Gauche → Analyse logique
+   └── Hémisphère Droit → Évaluation intuitive
+   ↓
+4. DIADIKOS : Dialogue entre les deux réponses
+   ↓
+5. PALLADION : Filtrage de sécurité
+   ↓
+6. Synthèse finale → Réponse sécurisée
+```
 
-<br/>
+### Sécurité intégrée
 
-### ⚙️ Les Modes d'Expériences Clés :
+```
+Toute action passe par PALLADION :
 
-#### 🧬 01 - Auto-Scaffolding Contrôlé
-L'échafaudage de code automatique itératif. Diadikos écrit un bout de script. Palladion l'analyse. S'il est validé, il est exécuté. Les logs d'erreurs d'exécution nourrissent la boucle suivante de Diadikos pour auto-correction.
-- **Contrôle** : Limite de profondeur du graphe (Depth-limit) et temps d'exécution maximum.
-
-#### 🛡️ 02 - AST Secure Sandbox
-Analyse de l'Arbre Syntaxique Abstrait (AST) avant exécution. Aucune commande système (`rm -rf`, requêtes curl externes non-autorisées) ne peut s'échapper. L'exécution se fait dans une enclave hermétique.
-
-#### ♻️ 03 - Cognitive Rollover (Rotation de Contexte)
-Pour surmonter la limite de contexte des LLM locaux, le système effectue un "sliding context". La mémoire de travail est compressée et réinjectée sous forme de résumé sémantique.
-
-#### 💤 04 - Paradoxical Sleep (REM Cycle)
-Une tâche de fond qui simule le sommeil paradoxal biologique. Le système nettoie la base de données vectorielle, élimine les redondances de mémoire à court terme et consolide les poids des connexions synaptiques logicielles (RAG pruning).
-
----
-
-## 📉 Équations, Métriques & Évaluation Objective
-
-BicameriS ne repose pas sur de la pure heuristique ; il s'appuie sur une formalisation mathématique rigoureuse de la fusion des deux modèles LLM locaux.
-
-### 📐 Déviation de Kullback-Leibler (KL Divergence)
-Le Corps Calleux évalue la distance entre la distribution de probabilités de Diadikos ($P$) et Palladion ($Q$). Si la divergence dépasse un certain seuil ($\tau$), le cycle est rejeté.
-
-$$D_{KL}(P \parallel Q) = \sum_{x \in X} P(x) \log \left( \frac{P(x)}{Q(x)} \right)$$
-
-### 📊 Tableau de bord des Inférences de Vitesse et VRAM (In-Situ metrics)
-
-<div align="center">
-
-| Modèle Utilisé (Backend local) | Rôle | VRAM Allouée | Tokens/sec | Température |
-| :--- | :--- | :--- | :--- | :--- |
-| **Llama-3-8B-Instruct** | Diadikos | 6.5 Go | 42.5 | 0.7 |
-| **Phi-3-Mini-4k** | Palladion | 2.8 Go | 68.1 | 0.2 |
-| **BGE-M3 (Embedding)** | Synapse/RAG | 1.1 Go | N/A | 0.0 |
-
-</div>
-
----
-
-## 🎛️ Configuration et Toggles (Drapeaux d'exécution)
-
-Chaque option du Lab est modifiable dynamiquement dans le fichier `.env` ou via l'interface CLI :
-
-```bash
-# Activation des modules
-AUTO_SCAFFOLDING_ENABLED=true
-AST_SANDBOX_STRICT=true
-COGNITIVE_ROLLOVER_THRESHOLD=0.85
-REM_SLEEP_COMPRESSION=true
-
-# Configuration Matérielle
-DIADIKOS_GPU_LAYERS=35
-PALLADION_GPU_LAYERS=25
+Code généré → [Sandbox isolée] → Validation AST → Exécution
+Requête     → [Filtre SAL]     → Détection risque → Traitement
+Sortie      → [Monitoring]     → Vérification    → Livraison
 ```
 
 ---
 
-## 🚀 Prise en main rapide et Déploiement
+## Modules Core
+
+| Module | Rôle |
+|--------|------|
+| `left_hemisphere.py` | Hémisphère logique (analyse, code) |
+| `right_hemisphere.py` | Hémisphère intuitif (patterns, évaluation) |
+| `corps_calleux.py` | Orchestrateur (DIADIKOS émerge ici) |
+| `reasoning_kernel.py` | MCTS pour raisonnement complexe |
+| `secret_channel.py` | Filtre SAL (PALLADION) |
+| `knowledge_base.py` | Base de connaissances croissante |
+| `thought_inception.py` | Injection de pensées |
+| `paradoxical_sleep.py` | Consolidation mémoire |
+| `auto_scaffolding.py` | Génération d'outils |
+
+---
+
+## Configuration
+
+### Via le Launcher
 
 ```bash
-# Cloner le repository
-git clone https://github.com/Yaume29/BicameriS.git
-cd BicameriS
-
-# Installer les dépendances
-npm install
-
-# Lancer le Lab de test avec l'UI
-npm run dev
+python launcher.py
 ```
+
+Le launcher TUI permet de :
+- Scanner les modèles GGUF
+- Configurer les hémisphères (température, contexte, GPU)
+- Appliquer des presets (Équilibré, Créatif, Analytique, Rêveur, Turbo)
+- Gérer la sécurité (filtre SAL, sandbox, timeouts)
+
+### Via l'Interface Web
+
+Accédez à `http://localhost:8000/settings` pour une configuration complète.
+
+---
+
+## Innovation : Croissance des Modèles
+
+BicameriS inclut un système de **Base de Connaissances** qui permet aux modèles de :
+
+1. **Apprendre de leurs erreurs** (corrections mémorisées)
+2. **Stocker des insights** (réflexions profondes)
+3. **Mémoriser des patterns** (structures réutilisables)
+4. **Enregistrer des techniques** (méthodes efficaces)
+
+Cela aide les **petits modèles à devenir plus intelligents**, les **moyens à devenir performants**, les **grands à devenir experts**.
+
+---
+
+## Système de Pulsation
+
+L'interface pulse au rythme de l'activité cognitive :
+
+| État | Couleur | Signification |
+|------|---------|---------------|
+| Chargé | Cyan/rouge faible | Modèle prêt |
+| Pensée | Cyan/rouge vif | Inférence en cours |
+| Bicaméral | Vert | Dialogue actif |
+| Repos | Gris | En attente |
+
+Le Corps Calleux s'illumine en blanc quand il est en fonctionnement.
+
+---
+
+## Prérequis
+
+- Python 3.10+
+- llama-cpp-python (pour l'inférence locale)
+- FastAPI + Uvicorn (serveur web)
+- Modèles GGUF (téléchargeables sur HuggingFace)
+
+---
+
+## License
+
+MIT - By Hope 'n Mind
 
 ---
 
 <div align="center">
-  <p>Projet expérimental issu du laboratoire Hope 'n Mind. Contribuez en ouvrant des Issues sur GitHub et rejoignez notre discussion de recherche pour la sécurité de l'alignement local !</p>
-  <img src="https://img.shields.io/badge/Made_With-❤️-0f0055?style=for-the-badge" alt="Made with love" />
-  <p><img src="docs/assets/logo.png" alt="Hope 'n Mind Sasu Holding" width="77%" /></p>
+  <img src="docs/assets/logo.svg" alt="BicameriS" width="200" />
+  <br/>
+  <strong>Diadikos & Palladion</strong>
+  <br/>
+  <em>Le dialogue qui naît de la convergence</em>
 </div>
