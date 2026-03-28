@@ -11,8 +11,9 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.middleware.cors import CORSMiddleware
 import logging
+from pathlib import Path
 
-logging.basicConfig(level=logging.INFO)
+BASE_DIR = Path(__file__).parent.parent.absolute()
 
 from server.extensions import registry
 
@@ -70,15 +71,15 @@ async def lifespan(app: FastAPI):
         registry.corps_calleux = CorpsCalleux()
         
         try:
-            from core_reserved.left_hemisphere import get_left_hemisphere
-            from core_reserved.right_hemisphere import get_right_hemisphere
+            from core.cognition.left_hemisphere import get_left_hemisphere
+            from core.cognition.right_hemisphere import get_right_hemisphere
             left = get_left_hemisphere()
             right = get_right_hemisphere()
             if left and right:
                 registry.corps_calleux.set_hemispheres(left, right)
                 logging.info("[Diadikos] ✅ Hémisphères connectés au Corps Calleux")
         except ImportError:
-            logging.warning("[Diadikos] ⚠️ core_reserved non disponible - Corps Calleux en mode dégradé")
+            logging.warning("[Diadikos] ⚠️ Modules hemispheres non disponibles - Corps Calleux en mode dégradé")
         
         logging.info("[Diadikos] ✅ Corps Calleux chargé")
     except Exception as e:
@@ -161,26 +162,40 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# CORS
+# CORS - Allow all localhost origins for development
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://localhost:8080"],
+    allow_origins=["http://localhost:3000", "http://localhost:8080", "http://localhost:8000", "http://127.0.0.1:8000", "http://0.0.0.0:8000"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Mount static files
-try:
-    app.mount("/static", StaticFiles(directory="web/static"), name="static")
-except:
-    pass
+# Static files - using APIRouter for proper url_for support
+from fastapi import APIRouter
+from fastapi.responses import FileResponse
+from pathlib import Path
+
+static_dir = BASE_DIR / "web" / "static"
+
+static_router = APIRouter()
+
+@static_router.get("/static/{file_path:path}", name="static")
+async def serve_static(file_path: str):
+    """Static file endpoint"""
+    file_path_obj = static_dir / file_path
+    if file_path_obj.exists() and file_path_obj.is_file():
+        return FileResponse(str(file_path_obj))
+    return FileResponse(str(static_dir / "index.html"), status_code=404)
+
+app.include_router(static_router)
 
 # Templates
-templates = Jinja2Templates(directory="web/templates")
+templates = Jinja2Templates(directory=str(BASE_DIR / "web/templates"))
 
 # Import and include routes
 from server.routes import views, api_hardware, api_cognitive, api_inference, api_system
+from server.routes import api_inception, api_laboratoire, api_research, api_identity, api_launch, api_models
 
 # Set templates for views
 views.set_templates(templates)
@@ -191,6 +206,12 @@ app.include_router(api_hardware.router)
 app.include_router(api_cognitive.router)
 app.include_router(api_inference.router)
 app.include_router(api_system.router)
+app.include_router(api_inception.router, prefix="/api")
+app.include_router(api_laboratoire.router, prefix="/api")
+app.include_router(api_research.router, prefix="/api")
+app.include_router(api_identity.router, prefix="/api")
+app.include_router(api_launch.router, prefix="/api")
+app.include_router(api_models.router, prefix="/api")
 
 
 # ============ WEBSOCKETS - PUSH MODE (PASSIVE) ============

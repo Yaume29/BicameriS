@@ -46,5 +46,17 @@
     "acknowledged": false,
     "injected_to_left": true,
     "injected_to_right": true
+  },
+  {
+    "id": "thought_1774711661.14869",
+    "content": "test",
+    "timestamp": "2026-03-28T16:27:41.148711",
+    "influence_level": 50.0,
+    "integration_type": "reflection",
+    "target": "BOTH",
+    "injected": false,
+    "acknowledged": false,
+    "injected_to_left": false,
+    "injected_to_right": false
   }
 ]

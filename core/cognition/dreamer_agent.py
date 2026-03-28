@@ -35,7 +35,7 @@ class DreamerAgent:
             logger.warning(f"[Dreamer] Hippocampus unavailable: {e}")
 
         try:
-            from core_reserved.right_hemisphere import get_right_hemisphere
+            from core.cognition.right_hemisphere import get_right_hemisphere
 
             self.right_hemisphere = get_right_hemisphere()
         except Exception as e:

@@ -63,6 +63,7 @@ Thumbs.db
 *.log
 *.db
 *.sqlite
+Version1/
 ZONE_RESERVEE/sandbox/
 ZONE_AETHERIS/memory/
 ZONE_AETHERIS/logs/
@@ -74,6 +75,9 @@ nul
 run.py
 ZONE_AETHERIS/ZONE_AETHERIS/
 .aetheris_map.json
+
+# Debug
+debug.md
 
 # Keep config files (don't ignore)
 # ZONE_AETHERIS/config/ is tracked

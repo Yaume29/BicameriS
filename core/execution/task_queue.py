@@ -1,10 +1,10 @@
 """
 Async Task Queue for Aetheris
-==============================
+=============================
 Simple async task system to prevent Flask from blocking.
 
 Usage:
-    from core_reserved.task_queue import get_task_queue, queue_task
+    from core.execution.task_queue import get_task_queue, queue_task
 
     # Queue a heavy task
     task_id = queue_task('heavy_computation', {'param': value})
@@ -218,25 +218,25 @@ class TaskQueue:
     def _handler_memory_compress(self, params: Dict, task: Task) -> Any:
         """Handler pour compression mémoire (Graceful Degradation)"""
         try:
-            from core_reserved.paradoxical_sleep import get_paradoxical_sleep
+            from core.system.paradoxical_sleep import get_paradoxical_sleep
             ps = get_paradoxical_sleep()
             return ps.compress_memory()
         except ImportError:
-            logging.warning("[TaskQueue] ⚠️ paradoxical_sleep non disponible (ZONE_RESERVEE)")
-            return {"error": "MODULE ABSENT : paradoxical_sleep n'est pas disponible (ZONE_RESERVEE)."}
+            logging.warning("[TaskQueue] ⚠️ paradoxical_sleep non disponible")
+            return {"error": "MODULE ABSENT : paradoxical_sleep n'est pas disponible."}
         except Exception as e:
             return {"error": f"Erreur compression mémoire: {str(e)}"}
 
     def _handler_web_search(self, params: Dict, task: Task) -> Any:
         """Handler pour recherche web (Graceful Degradation)"""
         try:
-            from core_reserved.web_search import get_web_searcher
+            from core.system.web_search import get_web_searcher
             ws = get_web_searcher()
             query = params.get("query", "")
             return {"results": ws.search(query)}
         except ImportError:
-            logging.warning("[TaskQueue] ⚠️ web_search non disponible (ZONE_RESERVEE)")
-            return {"error": "MODULE ABSENT : web_search n'est pas disponible (ZONE_RESERVEE)."}
+            logging.warning("[TaskQueue] ⚠️ web_search non disponible")
+            return {"error": "MODULE ABSENT : web_search n'est pas disponible."}
         except Exception as e:
             return {"error": f"Erreur recherche web: {str(e)}"}
 

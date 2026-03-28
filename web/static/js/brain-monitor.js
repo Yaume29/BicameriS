@@ -1,5 +1,5 @@
 // Brain Monitor Opératif - Diadikos-Palladion
-// Real-time neural state visualization with SocketIO
+// Real-time neural state visualization with WebSocket + Polling
 
 class BrainMonitor {
     constructor() {
@@ -19,7 +19,7 @@ class BrainMonitor {
 
     init() {
         this.createWidget();
-        this.connectSocketIO();
+        this.connectWebSocket();
         this.startPollingFallback();
     }
 
@@ -185,36 +185,34 @@ class BrainMonitor {
         document.head.appendChild(styles);
     }
 
-    connectSocketIO() {
-        if (typeof io === 'undefined') {
-            console.log('[BrainMonitor] SocketIO not available, using polling');
-            return;
-        }
+    connectWebSocket() {
+        const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const wsUrl = `${wsProtocol}//${window.location.host}/ws/neural`;
         
         try {
-            this.socket = io('/', {
-                transports: ['websocket', 'polling'],
-                reconnection: true,
-                reconnectionAttempts: 5,
-                reconnectionDelay: 1000
-            });
+            this.socket = new WebSocket(wsUrl);
             
-            this.socket.on('connect', () => {
-                console.log('[BrainMonitor] SocketIO connected');
+            this.socket.onopen = () => {
+                console.log('[BrainMonitor] WebSocket connected');
                 this.stopPollingFallback();
-            });
+            };
             
-            this.socket.on('disconnect', () => {
-                console.log('[BrainMonitor] SocketIO disconnected, falling back to polling');
+            this.socket.onclose = () => {
+                console.log('[BrainMonitor] WebSocket disconnected, using polling');
                 this.startPollingFallback();
-            });
+            };
             
-            this.socket.on('neural_update', (data) => {
-                this.updateMonitor(data);
-            });
+            this.socket.onmessage = (event) => {
+                try {
+                    const data = JSON.parse(event.data);
+                    this.updateMonitor(data);
+                } catch (e) {
+                    console.log('[BrainMonitor] Parse error:', e);
+                }
+            };
             
         } catch (e) {
-            console.log('[BrainMonitor] SocketIO error:', e);
+            console.log('[BrainMonitor] WebSocket error:', e);
         }
     }
 

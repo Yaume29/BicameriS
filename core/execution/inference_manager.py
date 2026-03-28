@@ -39,7 +39,7 @@ except ImportError:
     LLAMA_AVAILABLE = False
 
 try:
-    from core_reserved.secret_channel import SALClassifier, get_secret_channel
+    from core.execution.secret_channel import SALClassifier, get_secret_channel
 
     SECRET_CHANNEL_AVAILABLE = True
 except ImportError:

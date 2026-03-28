@@ -22,7 +22,7 @@ from collections import deque
 BASE_DIR = Path(__file__).parent.parent.parent.absolute()
 
 try:
-    from core_reserved.reasoning_kernel import ReasoningKernel, get_reasoning_kernel
+    from core.cognition.reasoning_kernel import ReasoningKernel, get_reasoning_kernel
 except ImportError:
     ReasoningKernel = None
     get_reasoning_kernel = None

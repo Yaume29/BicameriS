@@ -18,7 +18,9 @@
   <text x="400" y="90" fill="url(#bicam-grad)" font-size="52" font-weight="900" text-anchor="middle" letter-spacing="10" filter="url(#glow)">BICAMERIS</text>
   
   <!-- Sub-Header -->
-  <text x="400" y="135" fill="#ffffff" font-size="18" text-anchor="middle" font-weight="bold" letter-spacing="4">DIADIKOS &amp; PALLADION</text>
+  <text x="320" y="135" fill="#00f3ff" font-size="18" text-anchor="end" font-weight="bold" letter-spacing="4">DIADIKOS</text>
+  <text x="400" y="135" fill="#ffffff" font-size="18" text-anchor="middle" font-weight="bold" letter-spacing="2">&amp;</text>
+  <text x="480" y="135" fill="#ff0055" font-size="18" text-anchor="start" font-weight="bold" letter-spacing="4">PALLADION</text>
   
   <!-- Micro Text / Author -->
   <text x="400" y="165" fill="#00f3ff" font-size="12" text-anchor="middle" letter-spacing="2">BY HOPE 'N MIND</text>

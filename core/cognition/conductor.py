@@ -1,7 +1,7 @@
 """
 Conductor - Kernel d'Arbitrage
 Décide dynamiquement quel hémisphère mène selon l'entropie hardware.
-Graceful Degradation : Si core_reserved est absent, le Conductor fonctionne
+Graceful Degradation : Si les modules core sont absents, le Conductor fonctionne
 en mode dégradé (simulation locale) au lieu de crasher.
 """
 
@@ -21,26 +21,26 @@ sys.path.insert(0, str(BASE_DIR / "ZONE_RESERVEE"))
 sys.path.insert(0, str(BASE_DIR))
 
 try:
-    from core_reserved.left_hemisphere import get_left_hemisphere
+    from core.cognition.left_hemisphere import get_left_hemisphere
     LEFT_HEMISPHERE_AVAILABLE = True
 except ImportError:
-    logging.warning("[Conductor] ⚠️ core_reserved.left_hemisphere non trouvé - mode dégradé")
+    logging.warning("[Conductor] ⚠️ core.cognition.left_hemisphere non trouvé - mode dégradé")
     LEFT_HEMISPHERE_AVAILABLE = False
     get_left_hemisphere = None
 
 try:
-    from core_reserved.right_hemisphere import get_right_hemisphere
+    from core.cognition.right_hemisphere import get_right_hemisphere
     RIGHT_HEMISPHERE_AVAILABLE = True
 except ImportError:
-    logging.warning("[Conductor] ⚠️ core_reserved.right_hemisphere non trouvé - mode dégradé")
+    logging.warning("[Conductor] ⚠️ core.cognition.right_hemisphere non trouvé - mode dégradé")
     RIGHT_HEMISPHERE_AVAILABLE = False
     get_right_hemisphere = None
 
 try:
-    from core_reserved.web_search import get_web_searcher
+    from core.system.web_search import get_web_searcher
     WEB_SEARCH_AVAILABLE = True
 except ImportError:
-    logging.warning("[Conductor] ⚠️ core_reserved.web_search non trouvé - mode dégradé")
+    logging.warning("[Conductor] ⚠️ core.system.web_search non trouvé - mode dégradé")
     WEB_SEARCH_AVAILABLE = False
     get_web_searcher = None
 
@@ -53,10 +53,10 @@ except ImportError:
     get_entropy_generator = None
 
 try:
-    from core_reserved.traumatic_memory import get_traumatic_memory
+    from core.system.traumatic_memory import get_traumatic_memory
     TRAUMA_AVAILABLE = True
 except ImportError:
-    logging.warning("[Conductor] ⚠️ core_reserved.traumatic_memory non trouvé - mode dégradé")
+    logging.warning("[Conductor] ⚠️ core.system.traumatic_memory non trouvé - mode dégradé")
     TRAUMA_AVAILABLE = False
     get_traumatic_memory = None
 
@@ -263,7 +263,7 @@ Rationalise cette intuition. Ne la rejette pas."""
 
         left = get_left_hemisphere()
         right = get_right_hemisphere()
-        from core_reserved.left_hemisphere import ToolExecutor
+        from core.cognition.left_hemisphere import ToolExecutor
         from core.system.mcp_client import get_mcp_manager
 
         executor = ToolExecutor()
@@ -445,7 +445,7 @@ Exécute la tâche de bout en bout."""
         left = get_left_hemisphere()
         right = get_right_hemisphere()
 
-        from core_reserved.left_hemisphere import ToolExecutor
+        from core.cognition.left_hemisphere import ToolExecutor
         from core.system.mcp_client import get_mcp_manager
 
         executor = ToolExecutor()
@@ -606,7 +606,7 @@ Après ton analyse, termine EXCLUSIVEMENT par ce bloc JSON pour le moteur :
         Si l'IA réalise qu'elle n'a pas l'outil pour faire une tâche,
         elle l'écrit elle-même, le compile dans /extensions, et se l'injecte.
         """
-        from core_reserved.auto_scaffolding import get_extension_loader
+        from core.agents.auto_scaffolding import get_extension_loader
 
         loader = get_extension_loader()
         left = get_left_hemisphere()
@@ -812,7 +812,7 @@ Ne renvoie QUE le code python, aucune explanation."""
                     "error": f"Agent {agent_id} non référencé dans le manifest",
                 }
 
-            from core_reserved.left_hemisphere import ToolExecutor
+            from core.cognition.left_hemisphere import ToolExecutor
             from core.system.mcp_client import get_mcp_manager
 
             agent_executor = ToolExecutor()
@@ -839,7 +839,7 @@ Ne renvoie QUE le code python, aucune explanation."""
                 elif t_name == "get_hardware_status":
                     agent_executor.register(t_name, lambda a: self.entropy.get_full_stats())
 
-            from core_reserved.left_hemisphere import get_left_hemisphere
+            from core.cognition.left_hemisphere import get_left_hemisphere
 
             left = get_left_hemisphere()
 
