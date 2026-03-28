@@ -372,13 +372,18 @@ def scan_models(scanner: ModelScanner) -> List[dict]:
     print("  [+] SCANNER DE MODELES")
     print("  " + "-" * 50)
     
-    # Common scan paths
+    # Common scan paths (using username dynamically)
+    username = os.environ.get("USERNAME", "user")
     common_paths = [
         str(BASE_DIR / "models"),
-        "C:\\Users",
-        "D:\\",
-        str(Path.home() / ".cache" / "lm-studio" / "models"),
-        str(Path.home() / "AppData" / "Local" / "lm-studio" / "models"),
+        f"C:\\Users\\{username}\\LMStudio\\models",
+        f"C:\\Users\\{username}\\.lmstudio\\models",
+        f"C:\\Users\\{username}\\AppData\\Local\\.lmstudio\\models",
+        f"C:\\Users\\{username}\\.cache\\lm-studio\\models",
+        f"C:\\Users\\{username}\\.cache\\huggingface\\hub",
+        "D:\\LMStudio\\models",
+        "D:\\LLM\\models",
+        "D:\\models",
     ]
     
     print("  Chemins de scan disponibles:")
