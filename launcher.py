@@ -372,41 +372,41 @@ def scan_models(scanner: ModelScanner) -> List[dict]:
     print("  [+] SCANNER DE MODELES")
     print("  " + "-" * 50)
     
-    # Common scan paths (using username dynamically)
-    username = os.environ.get("USERNAME", "user")
-    common_paths = [
-        str(BASE_DIR / "models"),
-        f"C:\\Users\\{username}\\LMStudio\\models",
-        f"C:\\Users\\{username}\\.lmstudio\\models",
-        f"C:\\Users\\{username}\\AppData\\Local\\.lmstudio\\models",
-        f"C:\\Users\\{username}\\.cache\\lm-studio\\models",
-        f"C:\\Users\\{username}\\.cache\\huggingface\\hub",
-        "D:\\LMStudio\\models",
-        "D:\\LLM\\models",
-        "D:\\models",
-    ]
-    
-    print("  Chemins de scan disponibles:")
-    for i, path in enumerate(common_paths, 1):
-        exists = "[OK]" if os.path.exists(path) else "[!!]"
-        print(f"    [{i}] {exists} {path}")
-    
+    print("  [1] Scanner les chemins habituels")
+    print("  [2] Choisir un dossier")
     print()
-    choice = get_input("Choix du chemin (1-5 ou chemin personnalisé)", "1")
     
-    try:
-        idx = int(choice) - 1
-        if 0 <= idx < len(common_paths):
-            scan_path = common_paths[idx]
-        else:
-            scan_path = choice
-    except ValueError:
-        scan_path = choice
+    choice = get_input("Choix", "1")
     
-    if not os.path.exists(scan_path):
-        print(f"  [!] Le chemin n'existe pas: {scan_path}")
-        input("\n  Appuyez sur Entrée pour continuer...")
-        return []
+    if choice == "2":
+        # User chooses a path
+        path = get_input("Chemin du dossier")
+        if not os.path.exists(path):
+            print(f"  [!] Le chemin n'existe pas: {path}")
+            input("\n  Appuyez sur Entrée pour continuer...")
+            return []
+        scan_path = path
+    else:
+        # Scan common paths
+        username = os.environ.get("USERNAME", "user")
+        common_paths = [
+            str(BASE_DIR / "models"),
+            f"C:\\Users\\{username}\\.lmstudio\\models",
+            f"C:\\Users\\{username}\\AppData\\Local\\.lmstudio\\models",
+        ]
+        
+        # Find first existing path
+        scan_path = None
+        for path in common_paths:
+            if os.path.exists(path):
+                scan_path = path
+                break
+        
+        if not scan_path:
+            print("  [!] Aucun chemin habituel trouvé")
+            print("      Utilisez l'option 2 pour choisir un dossier")
+            input("\n  Appuyez sur Entrée pour continuer...")
+            return []
     
     print()
     models = scanner.scan(scan_path)
