@@ -175,3 +175,11 @@ async def research(request: Request):
     if _templates:
         return _templates.TemplateResponse("research_panel.html", make_context({"request": request}))
     return HTMLResponse("<h1>Research</h1>")
+
+
+@router.get("/settings", response_class=HTMLResponse)
+async def settings(request: Request):
+    """Settings page"""
+    if _templates:
+        return _templates.TemplateResponse("settings.html", make_context({"request": request}))
+    return HTMLResponse("<h1>Settings</h1>")
