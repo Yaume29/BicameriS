@@ -70,6 +70,48 @@ function initFolderHandlers() {
             }
         });
     }
+    
+    // Browse button - folder picker
+    const browseBtn = document.getElementById('btn-browse');
+    const folderInput = document.getElementById('folder-input');
+    if (browseBtn && folderInput) {
+        browseBtn.addEventListener('click', function() {
+            folderInput.click();
+        });
+        
+        folderInput.addEventListener('change', function(e) {
+            if (e.target.files.length > 0) {
+                // Get folder path from first file
+                const fullPath = e.target.files[0].webkitRelativePath;
+                const folderPath = fullPath.substring(0, fullPath.lastIndexOf('/'));
+                
+                // For folder selection, we need the root folder
+                // The browser doesn't give us absolute path, so we use file input
+                const file = e.target.files[0];
+                if (file.webkitRelativePath) {
+                    // Try to get parent folder
+                    const parts = file.webkitRelativePath.split('/');
+                    if (parts.length > 1) {
+                        // We have the relative path, use it
+                        const rootFolder = parts[0];
+                        document.getElementById('scan-path').value = rootFolder;
+                    }
+                }
+                
+                // Alternative: try to use FileSystem API if available
+                if (e.target.files[0].webkitGetAsEntry) {
+                    try {
+                        const entry = e.target.files[0].webkitGetAsEntry();
+                        if (entry && entry.fullPath) {
+                            document.getElementById('scan-path').value = entry.fullPath;
+                        }
+                    } catch (err) {
+                        // Fallback
+                    }
+                }
+            }
+        });
+    }
 
     // Scan button - use text input
     const scanBtn = document.getElementById('btn-scan');

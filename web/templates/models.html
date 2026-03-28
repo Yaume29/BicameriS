@@ -103,12 +103,14 @@
                 <!-- Scanner Section -->
                 <div class="scanner-box">
                     <h4>🔍 Rechercher des modèles GGUF</h4>
-                    <p>Entrez le chemin du dossier puis validez</p>
+                    <p>Sélectionnez un dossier ou entrez un chemin</p>
                     <div class="scanner-row">
                         <input type="text" id="scan-path" placeholder="C:\Users\Jaba\.lmstudio\models" style="flex:1; padding:12px; background:#0a0a0f; border:2px solid #333; color:#fff; border-radius:6px; font-family:monospace;">
-                        <button type="button" id="btn-scan" class="btn-primary" style="padding:12px 30px;">OK</button>
+                        <button type="button" id="btn-browse" class="btn-secondary" style="padding:12px 20px;" title="Parcourir...">📁</button>
+                        <button type="button" id="btn-scan" class="btn-primary" style="padding:12px 30px;">Scanner</button>
                     </div>
-                    <button type="button" id="btn-scan-usual" class="btn-secondary" style="width:100%; margin-top:10px; padding:12px;">Scanner automatiquement</button>
+                    <input type="file" id="folder-input" webkitdirectory directory style="display:none;">
+                    <button type="button" id="btn-scan-usual" class="btn-secondary" style="width:100%; margin-top:10px; padding:12px;">Scanner automatiquement les chemins habituels</button>
                     <div id="scan-status" class="scan-status"></div>
                     <div id="scan-progress" class="scan-progress">
                         <div class="progress-bar"><div class="progress-fill"></div></div>

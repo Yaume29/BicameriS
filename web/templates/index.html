@@ -3,117 +3,724 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BICAMERIS</title>
+    <title>BICAMERIS - Diadikos & Palladion</title>
     <link rel="stylesheet" href="/static/css/style.css">
-    {% if session.get('is_initiator') %}
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.4/socket.io.min.js"></script>
-    <script src="/static/js/brain-monitor.js" defer></script>
-    {% endif %}
+    <style>
+        /* === BRAIN SIDEBAR === */
+        .brain-sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 260px;
+            height: 100vh;
+            background: linear-gradient(180deg, #0a0a0f 0%, #0d1117 100%);
+            border-right: 1px solid #1a1a2e;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 10px;
+            z-index: 100;
+        }
+        
+        .logo-container {
+            width: 100%;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .logo-container img {
+            width: 90%;
+            height: auto;
+            filter: drop-shadow(0 0 10px rgba(0, 243, 255, 0.3));
+        }
+        
+        /* Interactive Brain SVG */
+        .brain-container {
+            width: 200px;
+            height: 200px;
+            position: relative;
+            margin: 10px 0;
+        }
+        
+        .brain-container svg {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .brain-hemisphere {
+            transition: all 0.8s ease;
+        }
+        
+        .brain-left {
+            fill: rgba(0, 243, 255, 0.1);
+            stroke: #00f3ff;
+            stroke-width: 2;
+        }
+        
+        .brain-right {
+            fill: rgba(255, 0, 85, 0.1);
+            stroke: #ff0055;
+            stroke-width: 2;
+        }
+        
+        .brain-left.active {
+            fill: rgba(0, 243, 255, 0.4);
+            filter: drop-shadow(0 0 15px #00f3ff);
+            animation: pulse-left 2s infinite;
+        }
+        
+        .brain-right.active {
+            fill: rgba(255, 0, 85, 0.4);
+            filter: drop-shadow(0 0 15px #ff0055);
+            animation: pulse-right 2s infinite;
+        }
+        
+        .brain-left.thinking {
+            fill: rgba(0, 243, 255, 0.6);
+            filter: drop-shadow(0 0 20px #00f3ff);
+            animation: pulse-left 0.8s infinite;
+        }
+        
+        .brain-right.thinking {
+            fill: rgba(255, 0, 85, 0.6);
+            filter: drop-shadow(0 0 20px #ff0055);
+            animation: pulse-right 0.8s infinite;
+        }
+        
+        .corpus-callosum {
+            stroke: #ffffff;
+            stroke-width: 2;
+            fill: none;
+            opacity: 0.3;
+            transition: all 0.5s ease;
+        }
+        
+        .corpus-callosum.active {
+            stroke: #00ff95;
+            opacity: 1;
+            filter: drop-shadow(0 0 8px #00ff95);
+            animation: bridge-flow 1.5s infinite;
+        }
+        
+        @keyframes pulse-left {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 1; }
+        }
+        
+        @keyframes pulse-right {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 1; }
+        }
+        
+        @keyframes bridge-flow {
+            0% { stroke-dashoffset: 20; }
+            100% { stroke-dashoffset: 0; }
+        }
+        
+        /* Status indicators */
+        .brain-status {
+            text-align: center;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .brain-status .status-line {
+            font-size: 10px;
+            color: #666;
+            margin: 3px 0;
+        }
+        
+        .brain-status .status-main {
+            font-size: 12px;
+            padding: 4px 12px;
+            border: 1px solid #333;
+            border-radius: 4px;
+            color: #888;
+            display: inline-block;
+            margin-top: 5px;
+        }
+        
+        .brain-status .status-main.active {
+            border-color: #00ff95;
+            color: #00ff95;
+        }
+        
+        .brain-status .status-main.fused {
+            border-color: #00e5ff;
+            color: #00e5ff;
+        }
+        
+        /* Navigation */
+        .brain-nav {
+            width: 100%;
+            margin-top: 15px;
+        }
+        
+        .brain-nav a {
+            display: block;
+            padding: 8px 15px;
+            color: #888;
+            text-decoration: none;
+            border-radius: 6px;
+            margin: 3px 0;
+            font-size: 13px;
+            transition: all 0.3s ease;
+        }
+        
+        .brain-nav a:hover {
+            background: rgba(0, 243, 255, 0.1);
+            color: #00f3ff;
+        }
+        
+        .brain-nav a.active {
+            background: rgba(0, 243, 255, 0.15);
+            color: #00f3ff;
+            border-left: 3px solid #00f3ff;
+        }
+        
+        .brain-nav a.palladion {
+            color: #ff0055;
+        }
+        
+        .brain-nav a.palladion:hover {
+            background: rgba(255, 0, 85, 0.1);
+        }
+        
+        /* Metrics */
+        .sidebar-metrics {
+            width: 100%;
+            margin-top: auto;
+            padding: 15px;
+            border-top: 1px solid #1a1a2e;
+        }
+        
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            margin: 5px 0;
+            color: #666;
+        }
+        
+        .metric-row .value {
+            color: #00f3ff;
+        }
+        
+        /* Glow effect for active border */
+        .brain-sidebar.active-glow {
+            border-right: 1px solid #00ff95;
+            box-shadow: 5px 0 20px rgba(0, 255, 149, 0.1);
+        }
+        
+        /* === MAIN CONTENT === */
+        .main-content {
+            margin-left: 260px;
+            padding: 30px;
+            min-height: 100vh;
+            background: #0a0a0f;
+        }
+        
+        /* Didactic steps */
+        .welcome-section {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .welcome-title {
+            font-size: 2rem;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+        
+        .welcome-subtitle {
+            color: #666;
+            font-size: 1rem;
+        }
+        
+        .steps-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        .step-card {
+            background: #111118;
+            border: 1px solid #1a1a2e;
+            border-radius: 12px;
+            padding: 25px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .step-card:hover {
+            border-color: #00f3ff;
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.1);
+        }
+        
+        .step-number {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(0, 243, 255, 0.1);
+            border: 2px solid #00f3ff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: #00f3ff;
+            margin: 0 auto 15px;
+        }
+        
+        .step-card h3 {
+            color: #fff;
+            margin-bottom: 10px;
+        }
+        
+        .step-card p {
+            color: #888;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+        
+        .step-btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: rgba(0, 243, 255, 0.1);
+            border: 1px solid #00f3ff;
+            color: #00f3ff;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+        
+        .step-btn:hover {
+            background: rgba(0, 243, 255, 0.2);
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.3);
+        }
+        
+        .step-btn.secondary {
+            background: rgba(255, 0, 85, 0.1);
+            border-color: #ff0055;
+            color: #ff0055;
+        }
+        
+        .step-btn.secondary:hover {
+            background: rgba(255, 0, 85, 0.2);
+            box-shadow: 0 0 15px rgba(255, 0, 85, 0.3);
+        }
+        
+        .step-btn.completed {
+            background: rgba(0, 255, 149, 0.1);
+            border-color: #00ff95;
+            color: #00ff95;
+        }
+        
+        /* Quick start section */
+        .quickstart-section {
+            background: #111118;
+            border: 1px solid #1a1a2e;
+            border-radius: 12px;
+            padding: 25px;
+            margin-top: 30px;
+        }
+        
+        .quickstart-section h3 {
+            color: #fff;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .quickstart-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        
+        .quickstart-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .quickstart-item:hover {
+            background: rgba(0, 243, 255, 0.05);
+        }
+        
+        .quickstart-item .icon {
+            font-size: 1.5rem;
+        }
+        
+        .quickstart-item .text {
+            color: #ccc;
+            font-size: 0.9rem;
+        }
+        
+        .quickstart-item .desc {
+            color: #666;
+            font-size: 0.75rem;
+        }
+        
+        /* Animated border for active elements */
+        @keyframes border-glow {
+            0%, 100% { border-color: #1a1a2e; }
+            50% { border-color: #00f3ff; }
+        }
+        
+        .border-pulse {
+            animation: border-glow 2s infinite;
+        }
+        
+        /* Brain activity indicator */
+        .activity-indicator {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            gap: 10px;
+            z-index: 1000;
+        }
+        
+        .activity-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #333;
+        }
+        
+        .activity-dot.active {
+            background: #00ff95;
+            box-shadow: 0 0 10px #00ff95;
+            animation: dot-pulse 1s infinite;
+        }
+        
+        @keyframes dot-pulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+    </style>
 </head>
 <body>
-    <div class="sidebar">
-        <div class="logo">
-            <div class="brain-status-container">
-                <svg viewBox="0 0 100 100" class="brain-svg">
-                    <!-- Hémisphère Gauche -->
-                    <path id="brain-left" class="brain-part status-red" d="M50,10 C30,10 10,30 10,50 C10,70 30,90 50,90 L50,10 Z" />
-                    <!-- Hémisphère Droit -->
-                    <path id="brain-right" class="brain-part status-red" d="M50,10 C70,10 90,30 90,50 C90,70 70,90 50,90 L50,10 Z" />
-                </svg>
-            </div>
-            <h1>BICAMERIS</h1>
-            <p>L'Esprit Auto-Généré</p>
+    <!-- Brain Sidebar -->
+    <div class="brain-sidebar" id="brainSidebar">
+        <!-- Logo SVG -->
+        <div class="logo-container">
+            <img src="/static/img/logo.svg" alt="BICAMERIS" onerror="this.style.display='none'">
         </div>
         
-        <nav>
-            <a href="/" class="nav-item active">🏠 Accueil</a>
-            <a href="/chat" class="nav-item">💬 Chat</a>
-            {% if session.get('is_initiator') %}
-            <a href="/dashboard" class="nav-item">📊 Dashboard</a>
-            <a href="/inception" class="nav-item">🌀 Inception</a>
-            <a href="/laboratoire" class="nav-item">🧬 Laboratoire</a>
-            <a href="/tasks" class="nav-item">📋 Tâches & Flux</a>
-            <a href="/think" class="nav-item">🧠 Pensées</a>
-            <a href="/models" class="nav-item">⚙️ Modèles</a>
-            <a href="/files" class="nav-item">📁 Fichiers</a>
-            <a href="/research" class="nav-item" style="color: #ff3e3e;">🔬 Recherche</a>
-            <a href="/launcher" class="nav-item" style="margin-top: 20px; color: #00ff00; border-top: 1px solid #333; padding-top: 10px;">🚀 Relancer</a>
-            {% endif %}
+        <!-- Interactive Brain SVG -->
+        <div class="brain-container">
+            <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <filter id="glow-brain">
+                        <feGaussianBlur stdDeviation="3" result="blur"/>
+                        <feMerge>
+                            <feMergeNode in="blur"/>
+                            <feMergeNode in="SourceGraphic"/>
+                        </feMerge>
+                    </filter>
+                </defs>
+                
+                <!-- Outer ring -->
+                <circle cx="100" cy="100" r="95" fill="none" stroke="#1a1a2e" stroke-width="1"/>
+                <circle cx="100" cy="100" r="85" fill="none" stroke="#111" stroke-width="0.5" stroke-dasharray="2,10"/>
+                
+                <!-- Left Hemisphere (Diadikos) -->
+                <path id="brain-left" class="brain-hemisphere brain-left" 
+                      d="M90,40 C60,35 30,50 25,100 C20,150 50,175 90,175 L90,40 Z"/>
+                
+                <!-- Right Hemisphere (Palladion) -->
+                <path id="brain-right" class="brain-hemisphere brain-right"
+                      d="M110,40 C140,35 170,50 175,100 C180,150 150,175 110,175 L110,40 Z"/>
+                
+                <!-- Corpus Callosum (bridge) -->
+                <path id="corpus-callosum" class="corpus-callosum" stroke-dasharray="5,5"
+                      d="M90,80 Q100,70 110,80 M90,100 Q100,90 110,100 M90,120 Q100,110 110,120"/>
+                
+                <!-- Labels -->
+                <text x="60" y="105" fill="#00f3ff" font-size="10" text-anchor="middle" opacity="0.6">DIA</text>
+                <text x="140" y="105" fill="#ff0055" font-size="10" text-anchor="middle" opacity="0.6">PAL</text>
+            </svg>
+        </div>
+        
+        <!-- Brain Status -->
+        <div class="brain-status">
+            <div class="status-line" id="brain-meta">KERNEL_ACTIVE</div>
+            <div class="status-line" id="brain-sub">AWAITING</div>
+            <div class="status-main" id="brain-main">STANDBY</div>
+        </div>
+        
+        <!-- Navigation -->
+        <nav class="brain-nav">
+            <a href="/" class="active">🏠 Accueil</a>
+            <a href="/chat">💬 Chat</a>
+            <a href="/models">⚙️ Modèles</a>
+            <a href="/dashboard">📊 Dashboard</a>
+            <a href="/inception">🌀 Inception</a>
+            <a href="/laboratoire">🧬 Laboratoire</a>
+            <a href="/think">🧠 Pensées</a>
+            <a href="/tasks">📋 Tâches</a>
+            <a href="/files">📁 Fichiers</a>
+            <a href="/research" class="palladion">🔬 Recherche</a>
+            <a href="/launcher" class="palladion" style="margin-top:15px; border-top:1px solid #1a1a2e; padding-top:15px;">🚀 Relancer</a>
         </nav>
         
-        {% if session.get('is_initiator') %}
-        <div class="status-box">
-            <h3>État du Système</h3>
-            <div class="metrics">
-                <div class="metric">
-                    <span class="metric-label">Modèle</span>
-                    <span class="metric-value">{{ model_info.display_name or 'Aucun' }}</span>
-                </div>
-                <div class="metric">
-                    <span class="metric-label">Total Flux</span>
-                    <span class="metric-value">{{ stats.total }}</span>
-                </div>
-                <div class="metric">
-                    <span class="metric-label">Tâches</span>
-                    <span class="metric-value">{{ task_stats.total }}</span>
-                </div>
-                <div class="metric">
-                    <span class="metric-label">Pensées induites</span>
-                    <span class="metric-value">{{ inception_stats.pending }}</span>
-                </div>
+        <!-- Metrics -->
+        <div class="sidebar-metrics">
+            <div class="metric-row">
+                <span>Modèle</span>
+                <span class="value" id="model-status">Non configuré</span>
+            </div>
+            <div class="metric-row">
+                <span>Pulse</span>
+                <span class="value" id="pulse-value">0.00</span>
+            </div>
+            <div class="metric-row">
+                <span>Cycles</span>
+                <span class="value" id="cycles-value">0</span>
             </div>
         </div>
-        {% endif %}
     </div>
     
-    <div class="main-content">
-        <div class="welcome-card">
-            <h2>Bienvenue dans BICAMERIS</h2>
-            <p>Interface de contrôle pour l'esprit auto-généré</p>
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+        <!-- Welcome Section -->
+        <div class="welcome-section">
+            <h1 class="welcome-title">Bienvenue dans BICAMERIS</h1>
+            <p class="welcome-subtitle">Système Cognitif Bicaméral - Diadikos & Palladion</p>
+        </div>
+        
+        <!-- Steps Container -->
+        <div class="steps-container">
+            <!-- Step 1 -->
+            <div class="step-card" id="step1">
+                <div class="step-number">1</div>
+                <h3>Configurer les Modèles</h3>
+                <p>Sélectionnez vos modèles GGUF pour chaque hémisphère. Le scanner recherche automatiquement les fichiers.</p>
+                <a href="/models" class="step-btn" id="step1-btn">⚙️ Sélectionner les Modèles</a>
+            </div>
             
-            <div class="quick-links">
-                <a href="/chat" class="quick-btn primary">💬 Commencer à discuter</a>
-                {% if session.get('is_initiator') %}
-                <a href="/dashboard" class="quick-btn">📊 Voir le dashboard</a>
-                {% endif %}
+            <!-- Step 2 -->
+            <div class="step-card" id="step2">
+                <div class="step-number">2</div>
+                <h3>Paramétrer le Système</h3>
+                <p>Ajustez la température, le contexte, et les paramètres GPU pour optimiser les performances.</p>
+                <a href="/models" class="step-btn secondary" id="step2-btn">🔧 Régler les Paramètres</a>
+            </div>
+            
+            <!-- Step 3 -->
+            <div class="step-card" id="step3">
+                <div class="step-number">3</div>
+                <h3>Lancer & Dialoguer</h3>
+                <p>Démarrez une session de chat avec Aetheris, l'entité née de la fusion de vos modèles.</p>
+                <a href="/chat" class="step-btn secondary" id="step3-btn">💬 Commencer à Dialoguer</a>
             </div>
         </div>
         
-        {% if session.get('is_initiator') %}
-        <div class="info-grid">
-            <div class="info-card">
-                <h3>💬 Chat</h3>
-                <p>Dialoguer avec Aetheris, injecter des pensées via Thought Inception</p>
-            </div>
-            <div class="info-card">
-                <h3>📊 Dashboard</h3>
-                <p>Métriques, contrôles de température, configuration</p>
-            </div>
-            <div class="info-card">
-                <h3>📋 Tâches & Flux</h3>
-                <p>Suivre les activités, filtrer par type, gérer les tâches</p>
-            </div>
-            <div class="info-card">
-                <h3>📁 Fichiers</h3>
-                <p>Journal, seed prompt, configuration</p>
+        <!-- Quick Start Section -->
+        <div class="quickstart-section">
+            <h3>⚡ Accès Rapide</h3>
+            <div class="quickstart-grid">
+                <a href="/models" class="quickstart-item">
+                    <span class="icon">🔍</span>
+                    <div>
+                        <div class="text">Scanner les Modèles</div>
+                        <div class="desc">Trouver les fichiers GGUF disponibles</div>
+                    </div>
+                </a>
+                <a href="/chat" class="quickstart-item">
+                    <span class="icon">💭</span>
+                    <div>
+                        <div class="text">Chat Direct</div>
+                        <div class="desc">Discuter avec Aetheris</div>
+                    </div>
+                </a>
+                <a href="/laboratoire" class="quickstart-item">
+                    <span class="icon">🧬</span>
+                    <div>
+                        <div class="text">Laboratoire</div>
+                        <div class="desc">Expérimenter les fonctionnalités avancées</div>
+                    </div>
+                </a>
+                <a href="/dashboard" class="quickstart-item">
+                    <span class="icon">📈</span>
+                    <div>
+                        <div class="text">Dashboard</div>
+                        <div class="desc">Surveiller l'activité du système</div>
+                    </div>
+                </a>
             </div>
         </div>
-        {% endif %}
     </div>
     
-    <button class="mobile-menu-btn" onclick="toggleMobileMenu()">☰</button>
+    <!-- Activity Indicator -->
+    <div class="activity-indicator">
+        <div class="activity-dot" id="dot-1"></div>
+        <div class="activity-dot" id="dot-2"></div>
+        <div class="activity-dot" id="dot-3"></div>
+    </div>
     
     <script>
-    function toggleMobileMenu() {
-        const sidebar = document.querySelector('.sidebar');
-        sidebar.classList.toggle('mobile-open');
+    // Brain state management
+    const brainState = {
+        left: 'empty',  // empty, loaded, thinking
+        right: 'empty',
+        bridge: false,
+        pulse: 0,
+        cycles: 0
+    };
+    
+    // DOM elements
+    const brainLeft = document.getElementById('brain-left');
+    const brainRight = document.getElementById('brain-right');
+    const corpus = document.getElementById('corpus-callosum');
+    const sidebar = document.getElementById('brainSidebar');
+    const mainContent = document.getElementById('mainContent');
+    const statusMain = document.getElementById('brain-main');
+    const statusMeta = document.getElementById('brain-meta');
+    const statusSub = document.getElementById('brain-sub');
+    const modelStatus = document.getElementById('model-status');
+    const pulseValue = document.getElementById('pulse-value');
+    const cyclesValue = document.getElementById('cycles-value');
+    
+    // Step indicators
+    const step1 = document.getElementById('step1');
+    const step2 = document.getElementById('step2');
+    const step3 = document.getElementById('step3');
+    
+    // Update brain visualization
+    function updateBrain(data) {
+        // Left hemisphere
+        brainLeft.className = 'brain-hemisphere brain-left';
+        if (data.left === 'loaded') brainLeft.classList.add('active');
+        if (data.left === 'thinking') brainLeft.classList.add('thinking');
+        
+        // Right hemisphere
+        brainRight.className = 'brain-hemisphere brain-right';
+        if (data.right === 'loaded') brainRight.classList.add('active');
+        if (data.right === 'thinking') brainRight.classList.add('thinking');
+        
+        // Corpus callosum
+        corpus.className = 'corpus-callosum';
+        if (data.bridge) corpus.classList.add('active');
+        
+        // Sidebar glow
+        if (data.bridge) {
+            sidebar.classList.add('active-glow');
+        } else {
+            sidebar.classList.remove('active-glow');
+        }
+        
+        // Status
+        if (data.bridge) {
+            statusMain.className = 'status-main fused';
+            statusMain.textContent = 'BICAMERAL';
+        } else if (data.left === 'loaded' || data.right === 'loaded') {
+            statusMain.className = 'status-main active';
+            statusMain.textContent = 'ACTIVE';
+        } else {
+            statusMain.className = 'status-main';
+            statusMain.textContent = 'STANDBY';
+        }
+        
+        // Meta info
+        if (data.status_text) statusMeta.textContent = data.status_text;
+        if (data.sub_text) statusSub.textContent = data.sub_text;
+        
+        // Update step cards based on state
+        updateSteps(data);
     }
     
-    document.querySelectorAll('.sidebar nav a').forEach(link => {
-        link.addEventListener('click', () => {
-            document.querySelector('.sidebar').classList.remove('mobile-open');
+    // Update step indicators
+    function updateSteps(data) {
+        if (data.left === 'loaded' || data.right === 'loaded') {
+            step1.style.borderColor = '#00ff95';
+            step1.querySelector('.step-number').style.borderColor = '#00ff95';
+            step1.querySelector('.step-number').style.color = '#00ff95';
+        }
+        
+        if (data.bridge) {
+            step2.style.borderColor = '#00ff95';
+            step2.querySelector('.step-number').style.borderColor = '#00ff95';
+            step2.querySelector('.step-number').style.color = '#00ff95';
+        }
+    }
+    
+    // Poll for status
+    async function pollStatus() {
+        try {
+            const resp = await fetch('/api/models/status');
+            const data = await resp.json();
+            
+            const state = {
+                left: data.left?.loaded ? 'loaded' : 'empty',
+                right: data.right?.loaded ? 'loaded' : 'empty',
+                bridge: data.is_split_mode || false,
+                status_text: data.is_split_mode ? 'BICAMERAL_MODE' : 'SYSTEM_READY',
+                sub_text: data.is_split_mode ? 'DUAL_HEMISPHERE' : 'READY'
+            };
+            
+            if (data.is_split_mode) {
+                state.left = 'loaded';
+                state.right = 'loaded';
+            }
+            
+            updateBrain(state);
+            
+            // Update model status
+            if (data.left?.loaded) {
+                modelStatus.textContent = data.left.model_name || 'Chargé';
+                modelStatus.style.color = '#00ff95';
+            }
+            
+            // Update steps
+            if (data.left?.loaded || data.right?.loaded) {
+                document.getElementById('step1-btn').textContent = '✅ Modèles Configurés';
+                document.getElementById('step1-btn').classList.add('completed');
+            }
+            
+        } catch (e) {
+            // Silent fail
+        }
+    }
+    
+    // Simulate brain activity on interaction
+    function simulateThinking() {
+        updateBrain({
+            left: 'thinking',
+            right: 'thinking',
+            bridge: true,
+            status_text: 'THINKING',
+            sub_text: 'Processing...'
         });
+        
+        // Activity dots
+        document.querySelectorAll('.activity-dot').forEach(d => d.classList.add('active'));
+        
+        // Reset after 2 seconds
+        setTimeout(() => {
+            pollStatus();
+            document.querySelectorAll('.activity-dot').forEach(d => d.classList.remove('active'));
+        }, 2000);
+    }
+    
+    // Click handler for main content to trigger thinking animation
+    mainContent.addEventListener('click', (e) => {
+        if (e.target.closest('a')) return;
+        simulateThinking();
     });
+    
+    // Start polling
+    setInterval(pollStatus, 3000);
+    pollStatus();
     </script>
 </body>
 </html>
