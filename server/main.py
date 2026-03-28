@@ -59,7 +59,7 @@ async def lifespan(app: FastAPI):
     try:
         from core.execution.inference_manager import InferenceManager
 
-        registry.inference_manager = InferenceManager
+        registry.inference_manager = InferenceManager()
     except Exception as e:
         logging.error(f"💀 ÉCHEC CRITIQUE - InferenceManager: {e}")
         raise RuntimeError("Moteur d'inférence indisponible. Arrêt du système.")

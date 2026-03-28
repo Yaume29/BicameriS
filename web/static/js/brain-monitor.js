@@ -270,9 +270,11 @@ class BrainMonitor {
         hL.classList.remove('thinking-pulse');
         hR.classList.remove('thinking-pulse');
 
-        // 1. Gestion des Hémisphères
-        hL.className = 'hemisphere ' + (data.left === 'loaded' ? 'state-loaded' : (data.left === 'fused' ? 'state-fused' : 'state-empty'));
-        hR.className = 'hemisphere ' + (data.right === 'loaded' ? 'state-loaded' : (data.right === 'fused' ? 'state-fused' : 'state-empty'));
+        // 1. Gestion des Hémisphères (use setAttribute for SVG elements)
+        const leftClass = 'hemisphere ' + (data.left === 'loaded' ? 'state-loaded' : (data.left === 'fused' ? 'state-fused' : 'state-empty'));
+        const rightClass = 'hemisphere ' + (data.right === 'loaded' ? 'state-loaded' : (data.right === 'fused' ? 'state-fused' : 'state-empty'));
+        hL.setAttribute('class', leftClass);
+        hR.setAttribute('class', rightClass);
 
         // 2. Gestion de la pensée (Pulsation indépendante)
         if (data.thinking === 'left') hL.classList.add('thinking-pulse');
@@ -290,15 +292,15 @@ class BrainMonitor {
             }
         });
 
-        // 4. Gestion des Agents
+        // 4. Gestion des Agents (use setAttribute for SVG elements)
         const agents = data.agents || [];
         const critic = document.getElementById('agent-critic');
         const research = document.getElementById('agent-research');
         const coder = document.getElementById('agent-coder');
         
-        if (critic) critic.className = 'agent-node' + (agents.includes('critic') ? ' agent-active' : '');
-        if (research) research.className = 'agent-node' + (agents.includes('research') ? ' agent-active' : '');
-        if (coder) coder.className = 'agent-node' + (agents.includes('coder') ? ' agent-active' : '');
+        if (critic) critic.setAttribute('class', 'agent-node' + (agents.includes('critic') ? ' agent-active' : ''));
+        if (research) research.setAttribute('class', 'agent-node' + (agents.includes('research') ? ' agent-active' : ''));
+        if (coder) coder.setAttribute('class', 'agent-node' + (agents.includes('coder') ? ' agent-active' : ''));
 
         // 5. Labels UI
         if (statusMain) {

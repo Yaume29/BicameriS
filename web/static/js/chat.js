@@ -166,7 +166,7 @@ document.getElementById('clear-chat').addEventListener('click', function() {
 let inceptionAcknowledged = false;
 
 function checkInceptionStatus() {
-    fetch('/api/inception_status')
+    fetch('/api/inception/status')
         .then(r => r.json())
         .then(data => {
             if (data.acknowledged) {
@@ -180,7 +180,7 @@ function checkInceptionStatus() {
 document.getElementById('acknowledge-btn').addEventListener('click', function() {
     const checkbox = document.getElementById('acknowledge-check');
     if (checkbox.checked) {
-        fetch('/api/inception_ack', {method: 'POST'})
+        fetch('/api/inception/ack', {method: 'POST'})
             .then(r => r.json())
             .then(() => {
                 inceptionAcknowledged = true;
@@ -197,13 +197,13 @@ document.getElementById('inception-btn').addEventListener('click', function() {
     const level = document.getElementById('inception-level').value;
     const type = document.getElementById('inception-type').value;
     
-    fetch('/api/inception', {
+    fetch('/api/inception/launch', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({
             content: content,
-            influence: level,
-            type: type
+            weight: level,
+            category: type
         })
     })
     .then(r => r.json())

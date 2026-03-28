@@ -153,3 +153,60 @@ async def run_crucible(req: CrucibleRequest, conductor=Depends(get_conductor)):
         return result
     except Exception as e:
         return {"status": "ERROR", "error": f"Le Creuset a explosé : {str(e)}"}
+
+
+@router.get("/stats")
+async def get_stats(corps_calleux=Depends(get_corps_calleux)):
+    """Get cognitive system stats"""
+    try:
+        cycles = 0
+        if hasattr(corps_calleux, 'history'):
+            cycles = len(corps_calleux.history)
+        
+        return {
+            "thinker": {
+                "is_thinking": False,
+                "cycles": cycles
+            },
+            "corps_calleux": {
+                "connected": corps_calleux.left is not None and corps_calleux.right is not None if corps_calleux else False,
+                "cycles": cycles
+            }
+        }
+    except Exception as e:
+        return {"error": str(e)}
+
+
+@router.post("/think/start")
+async def start_thinking(corps_calleux=Depends(get_corps_calleux)):
+    """Start autonomous thinking loop"""
+    try:
+        if hasattr(corps_calleux, 'start_autonomous'):
+            corps_calleux.start_autonomous()
+        return {"status": "ok", "message": "Boucle de pensée démarrée"}
+    except Exception as e:
+        return {"status": "error", "error": str(e)}
+
+
+@router.post("/think/stop")
+async def stop_thinking(corps_calleux=Depends(get_corps_calleux)):
+    """Stop autonomous thinking loop"""
+    try:
+        if hasattr(corps_calleux, 'stop_autonomous'):
+            corps_calleux.stop_autonomous()
+        return {"status": "ok", "message": "Boucle de pensée arrêtée"}
+    except Exception as e:
+        return {"status": "error", "error": str(e)}
+
+
+@router.post("/think/set_interval")
+async def set_think_interval(request: Request, corps_calleux=Depends(get_corps_calleux)):
+    """Set thinking interval"""
+    try:
+        data = await request.json()
+        interval = data.get("interval", 5)
+        if hasattr(corps_calleux, 'think_interval'):
+            corps_calleux.think_interval = interval
+        return {"status": "ok", "interval": interval}
+    except Exception as e:
+        return {"status": "error", "error": str(e)}

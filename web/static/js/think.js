@@ -39,7 +39,7 @@ function loadThoughts() {
         .catch(err => console.error('Erreur chargement pensées:', err));
         
     // Update stats (separate to not block thoughts load)
-    fetch('/api/stats')
+    fetch('/api/cognitive/stats')
         .then(r => {
             if (!r.ok) throw new Error('HTTP ' + r.status);
             return r.json();
@@ -56,7 +56,7 @@ function loadThoughts() {
 // Start thinking
 document.getElementById('start-think').addEventListener('click', function() {
     this.disabled = true;
-    fetch('/api/think/start', {method: 'POST'})
+    fetch('/api/cognitive/think/start', {method: 'POST'})
         .then(r => {
             if (!r.ok) throw new Error('HTTP ' + r.status);
             return r.json();
@@ -71,7 +71,7 @@ document.getElementById('start-think').addEventListener('click', function() {
 // Stop thinking
 document.getElementById('stop-think').addEventListener('click', function() {
     this.disabled = true;
-    fetch('/api/think/stop', {method: 'POST'})
+    fetch('/api/cognitive/think/stop', {method: 'POST'})
         .then(r => {
             if (!r.ok) throw new Error('HTTP ' + r.status);
             return r.json();
@@ -89,7 +89,7 @@ document.getElementById('interval').addEventListener('input', function(e) {
 });
 
 document.getElementById('interval').addEventListener('change', function(e) {
-    fetch('/api/think/set_interval', {
+    fetch('/api/cognitive/think/set_interval', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({interval: parseInt(e.target.value)})
@@ -102,10 +102,10 @@ document.getElementById('trigger-think').addEventListener('click', function() {
     this.disabled = true;
     this.textContent = 'Réfléchit...';
     
-    fetch('/api/think', {
+    fetch('/api/cognitive/think', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({context: ''})
+        body: JSON.stringify({prompt: '', context: ''})
     })
     .then(r => {
         if (!r.ok) throw new Error('HTTP ' + r.status);

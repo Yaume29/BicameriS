@@ -370,7 +370,7 @@ const SystemSettings = {
     
     async loadThermalStatus() {
         try {
-            const res = await fetch('/api/thermal/status');
+            const res = await fetch('/api/hardware/thermal/status');
             const data = await res.json();
             
             document.getElementById('thermal-cpu').textContent = (data.current_temp || '--') + '°C';

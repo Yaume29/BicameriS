@@ -58,5 +58,29 @@
     "acknowledged": false,
     "injected_to_left": false,
     "injected_to_right": false
+  },
+  {
+    "id": "thought_1774735299.435149",
+    "content": "je pense, donc je suis.",
+    "timestamp": "2026-03-28T23:01:39.435154",
+    "influence_level": 50.0,
+    "integration_type": "logic",
+    "target": "LEFT",
+    "injected": false,
+    "acknowledged": false,
+    "injected_to_left": false,
+    "injected_to_right": false
+  },
+  {
+    "id": "thought_1774735472.846226",
+    "content": "",
+    "timestamp": "2026-03-28T23:04:32.846255",
+    "influence_level": 50.0,
+    "integration_type": "reflection",
+    "target": "BOTH",
+    "injected": false,
+    "acknowledged": false,
+    "injected_to_left": false,
+    "injected_to_right": false
   }
 ]
