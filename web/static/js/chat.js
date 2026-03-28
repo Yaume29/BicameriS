@@ -104,13 +104,12 @@ function sendMessage() {
     
     const loadingMsg = addMessage('assistant', '<em class="typing">Réfléchit...</em>');
     
-    fetch('/api/chat', {
+    fetch('/api/chat/send', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({
             message: message,
-            temperature: parseFloat(temperature),
-            max_tokens: 2048
+            temperature: parseFloat(temperature)
         })
     })
     .then(r => {
@@ -120,8 +119,8 @@ function sendMessage() {
     .then(data => {
         loadingMsg.remove();
         
-        if (data.answer) {
-            addMessage('assistant', parseMarkdown(data.answer));
+        if (data.response) {
+            addMessage('assistant', parseMarkdown(data.response));
         } else if (data.error) {
             addMessage('assistant', parseMarkdown('Erreur: ' + data.error));
         }
@@ -156,7 +155,7 @@ document.getElementById('chat-input').addEventListener('keypress', function(e) {
 });
 
 document.getElementById('clear-chat').addEventListener('click', function() {
-    fetch('/api/clear_chat', {method: 'POST'})
+    fetch('/api/chat/clear', {method: 'POST'})
         .then(r => r.json())
         .then(() => {
             document.getElementById('chat-messages').innerHTML = '';

@@ -71,17 +71,17 @@ async def lifespan(app: FastAPI):
         registry.corps_calleux = CorpsCalleux()
         
         try:
-            from core.cognition.left_hemisphere import get_left_hemisphere
-            from core.cognition.right_hemisphere import get_right_hemisphere
+            # Get hemispheres from API module (they're loaded when user selects models)
+            from server.routes.api_models import get_left_hemisphere, get_right_hemisphere
             left = get_left_hemisphere()
             right = get_right_hemisphere()
             if left and right:
                 registry.corps_calleux.set_hemispheres(left, right)
                 logging.info("[Diadikos] ✅ Hémisphères connectés au Corps Calleux")
+            else:
+                logging.info("[Diadikos] ℹ️ Hémisphères non chargés - configurez les modèles via /models")
         except ImportError:
-            logging.warning("[Diadikos] ⚠️ Modules hemispheres non disponibles - Corps Calleux en mode dégradé")
-        
-        logging.info("[Diadikos] ✅ Corps Calleux chargé")
+            logging.info("[Diadikos] ℹ️ Corps Calleux créé (hémisphères à configurer via /models)")
     except Exception as e:
         logging.warning(f"⚠️ Corps Calleux non disponible: {e}")
 
@@ -195,7 +195,7 @@ templates = Jinja2Templates(directory=str(BASE_DIR / "web/templates"))
 
 # Import and include routes
 from server.routes import views, api_hardware, api_cognitive, api_inference, api_system
-from server.routes import api_inception, api_laboratoire, api_research, api_identity, api_launch, api_models
+from server.routes import api_inception, api_laboratoire, api_research, api_identity, api_launch, api_models, api_chat
 
 # Set templates for views
 views.set_templates(templates)
@@ -212,6 +212,7 @@ app.include_router(api_research.router, prefix="/api")
 app.include_router(api_identity.router, prefix="/api")
 app.include_router(api_launch.router, prefix="/api")
 app.include_router(api_models.router, prefix="/api")
+app.include_router(api_chat.router, prefix="/api")
 
 
 # ============ WEBSOCKETS - PUSH MODE (PASSIVE) ============

@@ -22,6 +22,8 @@ class Registry:
     supervisor: Optional[object] = None
     switchboard: Optional[object] = None
     scheduler: Optional[object] = None
+    left_hemisphere: Optional[object] = None
+    right_hemisphere: Optional[object] = None
 
 
 # Global instance
@@ -46,4 +48,15 @@ def get_corps_calleux():
         from core.cognition.corps_calleux import CorpsCalleux
 
         registry.corps_calleux = CorpsCalleux()
+        
+        # Try to connect hemispheres if loaded
+        try:
+            from server.routes.api_models import get_left_hemisphere, get_right_hemisphere
+            left = get_left_hemisphere()
+            right = get_right_hemisphere()
+            if left and right:
+                registry.corps_calleux.set_hemispheres(left, right)
+        except:
+            pass
+            
     return registry.corps_calleux
