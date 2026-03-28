@@ -8,6 +8,11 @@
 
 <img src="docs/assets/logo.svg" alt="BicameriS Logo" width="100%" />
 
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 60">
+  <rect x="150" y="5" width="200" height="50" rx="10" fill="#1a1a2e" stroke="#ff6b35" stroke-width="2"/>
+  <text x="250" y="38" text-anchor="middle" fill="#ff6b35" font-family="Arial, sans-serif" font-size="16" font-weight="bold">⚠️ EN COURS DE STABILISATION ⚠️</text>
+</svg>
+
 [![GitHub release](https://img.shields.io/badge/Release-V3.4.0-ff0055?style=for-the-badge&logo=github&logoColor=fff)](https://github.com/Yaume29/BicameriS)
 [![License: MIT](https://img.shields.io/badge/License-MIT-00f3ff?style=for-the-badge&logo=open-source-initiative&logoColor=fff)](https://opensource.org/licenses/MIT)
 [![Build Status](https://img.shields.io/badge/Tests-Passing-00f3ff?style=for-the-badge&logo=github-actions&logoColor=fff)](https://github.com/Yaume29/BicameriS)
