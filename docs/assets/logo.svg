@@ -23,7 +23,7 @@
   <text x="480" y="135" fill="#ff0055" font-size="18" text-anchor="start" font-weight="bold" letter-spacing="4">PALLADION</text>
   
   <!-- Micro Text / Author -->
-  <text x="400" y="165" fill="#ffffff"font-size="12" text-anchor="middle" letter-spacing="2">BY HOPE 'N MIND</text>
+  <text x="400" y="165" fill="#ffffff" font-size="12" text-anchor="middle" letter-spacing="2">BY HOPE 'N MIND</text>
   
   <!-- Split UI Line -->
   <line x1="100" y1="180" x2="350" y2="180" stroke="#ff0055" stroke-width="2" />
