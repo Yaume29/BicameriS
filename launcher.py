@@ -12,6 +12,7 @@ import os
 import json
 import time
 import re
+import copy
 from pathlib import Path
 from typing import Optional, Dict, Any, List
 
@@ -136,7 +137,7 @@ class Config:
             except:
                 self.data = DEFAULT_CONFIG.copy()
         else:
-            self.data = json.deepcopy(DEFAULT_CONFIG)
+            self.data = copy.deepcopy(DEFAULT_CONFIG)
     
     def save(self):
         CONFIG_FILE.parent.mkdir(parents=True, exist_ok=True)
