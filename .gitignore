@@ -79,5 +79,8 @@ ZONE_AETHERIS/ZONE_AETHERIS/
 # Debug
 debug.md
 
+# Development Reports (local only)
+RAPPORT_*.md
+
 # Keep config files (don't ignore)
 # ZONE_AETHERIS/config/ is tracked
