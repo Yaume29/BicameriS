@@ -73,43 +73,9 @@ function initFolderHandlers() {
     
     // Browse button - folder picker
     const browseBtn = document.getElementById('btn-browse');
-    const folderInput = document.getElementById('folder-input');
-    if (browseBtn && folderInput) {
+    if (browseBtn) {
         browseBtn.addEventListener('click', function() {
-            folderInput.click();
-        });
-        
-        folderInput.addEventListener('change', function(e) {
-            if (e.target.files.length > 0) {
-                // Get folder path from first file
-                const fullPath = e.target.files[0].webkitRelativePath;
-                const folderPath = fullPath.substring(0, fullPath.lastIndexOf('/'));
-                
-                // For folder selection, we need the root folder
-                // The browser doesn't give us absolute path, so we use file input
-                const file = e.target.files[0];
-                if (file.webkitRelativePath) {
-                    // Try to get parent folder
-                    const parts = file.webkitRelativePath.split('/');
-                    if (parts.length > 1) {
-                        // We have the relative path, use it
-                        const rootFolder = parts[0];
-                        document.getElementById('scan-path').value = rootFolder;
-                    }
-                }
-                
-                // Alternative: try to use FileSystem API if available
-                if (e.target.files[0].webkitGetAsEntry) {
-                    try {
-                        const entry = e.target.files[0].webkitGetAsEntry();
-                        if (entry && entry.fullPath) {
-                            document.getElementById('scan-path').value = entry.fullPath;
-                        }
-                    } catch (err) {
-                        // Fallback
-                    }
-                }
-            }
+            openFolderBrowser();
         });
     }
 
@@ -692,3 +658,75 @@ document.querySelectorAll('.sub-tab-btn').forEach(btn => {
         }
     });
 });
+
+// ============ FOLDER BROWSER ============
+
+let currentFolderPath = '';
+let folderHistory = [];
+
+function openFolderBrowser() {
+    const modal = document.getElementById('folder-browser-modal');
+    modal.style.display = 'flex';
+    loadFolders('');
+}
+
+function closeFolderBrowser() {
+    const modal = document.getElementById('folder-browser-modal');
+    modal.style.display = 'none';
+}
+
+function selectCurrentFolder() {
+    if (currentFolderPath) {
+        document.getElementById('scan-path').value = currentFolderPath;
+        closeFolderBrowser();
+    }
+}
+
+async function loadFolders(path) {
+    const folderList = document.getElementById('folder-list');
+    const currentPath = document.getElementById('folder-current-path');
+    
+    folderList.innerHTML = '<div class="loading">Chargement...</div>';
+    currentPath.textContent = path || 'Racine';
+    
+    try {
+        const response = await fetch(`/api/models/dirs?path=${encodeURIComponent(path)}`);
+        const data = await response.json();
+        
+        if (data.error) {
+            folderList.innerHTML = `<div class="loading" style="color: #ff4444;">${data.error}</div>`;
+            return;
+        }
+        
+        currentFolderPath = data.current || '';
+        currentPath.textContent = currentFolderPath || 'Racine';
+        
+        let html = '';
+        
+        // Parent directory
+        if (data.parent) {
+            html += `<div class="folder-item parent" onclick="loadFolders('${data.parent.replace(/\\/g, '\\\\')}')">
+                <span class="icon">📁</span>
+                <span>..</span>
+            </div>`;
+        }
+        
+        // Folders
+        for (const item of data.items) {
+            const escapedPath = item.path.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+            html += `<div class="folder-item" onclick="loadFolders('${escapedPath}')">
+                <span class="icon">📁</span>
+                <span>${item.name}</span>
+            </div>`;
+        }
+        
+        if (data.items.length === 0 && !data.parent) {
+            html = '<div class="loading">Aucun sous-dossier</div>';
+        }
+        
+        folderList.innerHTML = html;
+        
+    } catch (err) {
+        folderList.innerHTML = `<div class="loading" style="color: #ff4444;">Erreur: ${err.message}</div>`;
+    }
+}

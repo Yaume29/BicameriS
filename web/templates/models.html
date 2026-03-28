@@ -109,13 +109,126 @@
                         <button type="button" id="btn-browse" class="btn-secondary" style="padding:12px 20px;" title="Parcourir...">📁</button>
                         <button type="button" id="btn-scan" class="btn-primary" style="padding:12px 30px;">Scanner</button>
                     </div>
-                    <input type="file" id="folder-input" webkitdirectory directory style="display:none;">
                     <button type="button" id="btn-scan-usual" class="btn-secondary" style="width:100%; margin-top:10px; padding:12px;">Scanner automatiquement les chemins habituels</button>
                     <div id="scan-status" class="scan-status"></div>
                     <div id="scan-progress" class="scan-progress">
                         <div class="progress-bar"><div class="progress-fill"></div></div>
                     </div>
                 </div>
+                
+                <!-- Folder Browser Modal -->
+                <div id="folder-browser-modal" class="modal" style="display:none;">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h4>📁 Parcourir les dossiers</h4>
+                            <button class="modal-close" onclick="closeFolderBrowser()">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <div id="folder-current-path" class="current-path">Chargement...</div>
+                            <div id="folder-list" class="folder-list">
+                                <div class="loading">Chargement...</div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn-secondary" onclick="closeFolderBrowser()">Annuler</button>
+                            <button class="btn-primary" onclick="selectCurrentFolder()">Sélectionner ce dossier</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <style>
+                    .modal {
+                        position: fixed;
+                        top: 0;
+                        left: 0;
+                        width: 100%;
+                        height: 100%;
+                        background: rgba(0,0,0,0.8);
+                        z-index: 10000;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                    }
+                    .modal-content {
+                        background: #111118;
+                        border: 1px solid #333;
+                        border-radius: 12px;
+                        width: 500px;
+                        max-height: 80vh;
+                        display: flex;
+                        flex-direction: column;
+                    }
+                    .modal-header {
+                        padding: 15px 20px;
+                        border-bottom: 1px solid #333;
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                    }
+                    .modal-header h4 {
+                        margin: 0;
+                        color: #00f3ff;
+                    }
+                    .modal-close {
+                        background: none;
+                        border: none;
+                        color: #666;
+                        font-size: 1.5rem;
+                        cursor: pointer;
+                    }
+                    .modal-close:hover {
+                        color: #ff0055;
+                    }
+                    .modal-body {
+                        padding: 20px;
+                        overflow-y: auto;
+                        flex: 1;
+                    }
+                    .modal-footer {
+                        padding: 15px 20px;
+                        border-top: 1px solid #333;
+                        display: flex;
+                        justify-content: flex-end;
+                        gap: 10px;
+                    }
+                    .current-path {
+                        padding: 10px;
+                        background: #0a0a0f;
+                        border: 1px solid #333;
+                        border-radius: 6px;
+                        margin-bottom: 15px;
+                        font-family: monospace;
+                        color: #00f3ff;
+                        font-size: 0.9rem;
+                    }
+                    .folder-list {
+                        max-height: 300px;
+                        overflow-y: auto;
+                    }
+                    .folder-item {
+                        padding: 8px 12px;
+                        cursor: pointer;
+                        border-radius: 4px;
+                        display: flex;
+                        align-items: center;
+                        gap: 10px;
+                        color: #ccc;
+                    }
+                    .folder-item:hover {
+                        background: rgba(0,243,255,0.1);
+                    }
+                    .folder-item.parent {
+                        color: #888;
+                    }
+                    .folder-item .icon {
+                        color: #ffaa00;
+                    }
+                    .loading {
+                        color: #666;
+                        text-align: center;
+                        padding: 20px;
+                    }
+                </style>
                 
                     <!-- Sub-tabs: Local / LM Studio / API / Matériel -->
                     <div class="sub-tabs-container">

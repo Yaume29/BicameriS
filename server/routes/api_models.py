@@ -62,6 +62,65 @@ async def models_default_path():
     return {"path": str(Path.home())}
 
 
+@router.get("/models/dirs")
+async def models_list_dirs(path: str = ""):
+    """List directories for folder navigation"""
+    try:
+        if not path:
+            # Return root drives on Windows
+            import string
+            drives = []
+            for letter in string.ascii_uppercase:
+                drive = f"{letter}:\\"
+                if os.path.exists(drive):
+                    drives.append({
+                        "name": f"{letter}:",
+                        "path": drive,
+                        "is_dir": True
+                    })
+            return {"current": "", "parent": None, "items": drives}
+        
+        # Validate and normalize path
+        path = os.path.normpath(path)
+        if not os.path.exists(path):
+            return {"error": f"Chemin introuvable: {path}"}
+        
+        if not os.path.isdir(path):
+            path = os.path.dirname(path)
+        
+        # List directories
+        items = []
+        try:
+            for entry in os.scandir(path):
+                if entry.is_dir():
+                    # Skip hidden and system dirs
+                    if not entry.name.startswith('.') and entry.name not in {
+                        "$Recycle.Bin", "System Volume Information", "Windows",
+                        "Program Files", "Program Files (x86)", "ProgramData"
+                    }:
+                        items.append({
+                            "name": entry.name,
+                            "path": entry.path,
+                            "is_dir": True
+                        })
+        except PermissionError:
+            return {"error": "Permission refusée"}
+        
+        items.sort(key=lambda x: x["name"].lower())
+        
+        # Get parent directory
+        parent = os.path.dirname(path) if path != os.path.dirname(path) else None
+        
+        return {
+            "current": path,
+            "parent": parent,
+            "items": items
+        }
+        
+    except Exception as e:
+        return {"error": str(e)}
+
+
 @router.post("/models/scan")
 async def models_scan(request: Request):
     """Start model scan"""
