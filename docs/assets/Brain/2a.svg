@@ -1,0 +1,117 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 900" style="background:transparent">
+  <defs>
+    <!-- Left Hemisphere Gradients -->
+    <linearGradient id="leftGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00ffff" stop-opacity="0.9"/>
+      <stop offset="50%" stop-color="#0088aa" stop-opacity="0.7"/>
+      <stop offset="100%" stop-color="#0066cc" stop-opacity="0.5"/>
+    </linearGradient>
+    
+    <!-- Right Hemisphere Gradients -->
+    <radialGradient id="rightGrad">
+      <stop offset="0%" stop-color="#ff44ff" stop-opacity="0.8"/>
+      <stop offset="70%" stop-color="#aa44cc" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#6600aa" stop-opacity="0.4"/>
+    </radialGradient>
+    
+    <!-- Corpus Callosum Glow -->
+    <filter id="glowGold">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="4"/>
+      <feMerge>
+        <feMergeNode in="offsetblur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+    
+    <!-- General Glow Effects -->
+    <filter id="softGlow">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    
+    <filter id="intenseGlow">
+      <feGaussianBlur stdDeviation="5" result="glow"/>
+      <feMerge>
+        <feMergeNode in="glow"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Main Brain Structure -->
+  <g id="brain-container">
+    <!-- Left Hemisphere - Organic Silicon Texture -->
+    <g id="left-hemisphere">
+      <path d="M280,320 C240,280 220,340 230,380 C240,420 280,440 310,430 C340,420 350,380 340,350 C330,320 310,310 280,320 Z" 
+            fill="url(#leftGrad)" stroke="#00ccff" stroke-width="1.5" filter="url(#softGlow)"/>
+      <path d="M310,330 C300,340 305,360 315,365 C325,370 335,360 330,345 C325,330 315,325 310,330 Z" 
+            fill="#00aaff" stroke="#88ffff" stroke-width="1" opacity="0.7"/>
+      <circle cx="295" cy="360" r="8" fill="#00ffff" filter="url(#intenseGlow)"/>
+      <circle cx="315" cy="375" r="5" fill="#88ffff"/>
+      <path d="M270,380 L285,385 L280,395 L265,390 Z" fill="#00ccaa" opacity="0.6"/>
+    </g>
+    
+    <!-- Right Hemisphere - Neural Organic Web -->
+    <g id="right-hemisphere">
+      <path d="M520,320 C560,280 580,340 570,380 C560,420 520,440 490,430 C460,420 450,380 460,350 C470,320 490,310 520,320 Z" 
+            fill="url(#rightGrad)" stroke="#ff88ff" stroke-width="1.5" filter="url(#softGlow)"/>
+      <path d="M490,330 C500,340 495,360 485,365 C475,370 465,360 470,345 C475,330 485,325 490,330 Z" 
+            fill="#ff66cc" stroke="#ffaaff" stroke-width="1" opacity="0.7"/>
+      <circle cx="505" cy="360" r="7" fill="#ff66ff" filter="url(#intenseGlow)"/>
+      <circle cx="485" cy="375" r="5" fill="#ffaaff"/>
+      <path d="M535,380 L520,385 L525,395 L540,390 Z" fill="#cc88ff" opacity="0.6"/>
+      <!-- Organic Neural Threads -->
+      <path d="M475,345 L465,355 L470,370 L480,365 Z" fill="none" stroke="#ff99ff" stroke-width="1.5" stroke-dasharray="4 2"/>
+      <path d="M515,340 L525,350 L520,365 L510,360 Z" fill="none" stroke="#ff99ff" stroke-width="1.5" stroke-dasharray="4 2"/>
+    </g>
+    
+    <!-- Corpus Callosum - Etheric Bridge -->
+    <g id="corpus-callosum">
+      <ellipse cx="400" cy="380" rx="45" ry="20" fill="none" stroke="#ffaa44" stroke-width="2.5" filter="url(#glowGold)" stroke-dasharray="6 4"/>
+      <path d="M360,375 L440,375" stroke="#ffcc66" stroke-width="3" stroke-linecap="round" filter="url(#glowGold)" opacity="0.9"/>
+      <path d="M370,385 L430,385" stroke="#ffaa44" stroke-width="2" stroke-linecap="round" opacity="0.7"/>
+      <circle cx="400" cy="380" r="8" fill="#ffdd88" filter="url(#intenseGlow)">
+        <animate attributeName="r" values="8;12;8" dur="3s" repeatCount="indefinite"/>
+      </circle>
+      <path d="M385,368 L400,378 L415,368" stroke="#ffcc88" stroke-width="1.5" fill="none" opacity="0.6"/>
+    </g>
+    
+    <!-- Additional Neural Connections (CSS accessible) -->
+    <g id="neural-network">
+      <path d="M330,380 L360,378" stroke="#44ffff" stroke-width="1.2" opacity="0.5" stroke-dasharray="3 2"/>
+      <path d="M470,380 L440,378" stroke="#ff66cc" stroke-width="1.2" opacity="0.5" stroke-dasharray="3 2"/>
+      <path d="M400,400 L400,430" stroke="#ffaa66" stroke-width="1.5" opacity="0.6"/>
+    </g>
+  </g>
+  
+  <!-- Typography Section -->
+  <g id="typography" font-family="'Share Tech Mono', 'Courier New', monospace" text-rendering="geometricPrecision">
+    <!-- Main Title: BicameriS with colored segments -->
+    <text x="400" y="620" text-anchor="middle" font-size="42" font-weight="bold" letter-spacing="2" filter="url(#intenseGlow)">
+      <tspan fill="#00ffff">Bic</tspan>
+      <tspan fill="#ffffff">ame</tspan>
+      <tspan fill="#cc3333">riS</tspan>
+    </text>
+    
+    <!-- Subtitle: Diadikos Palladion -->
+    <text x="400" y="680" text-anchor="middle" font-size="20" font-weight="500" letter-spacing="3" filter="url(#softGlow)">
+      <tspan fill="#cc3333">Diadikos</tspan>
+      <tspan fill="#00ffff" font-size="22">  Palladion</tspan>
+    </text>
+    
+    <!-- Signature at bottom right -->
+    <text x="760" y="860" text-anchor="end" font-size="12" fill="#ffaa66" filter="url(#softGlow)" font-style="italic" opacity="0.8">
+      By Hope 'n Mind
+    </text>
+  </g>
+  
+  <!-- Decorative cyber-organic elements -->
+  <g id="ambient-effects" opacity="0.3">
+    <circle cx="250" cy="450" r="35" fill="none" stroke="#00ccaa" stroke-width="1" stroke-dasharray="2 6"/>
+    <circle cx="550" cy="450" r="35" fill="none" stroke="#ff88aa" stroke-width="1" stroke-dasharray="2 6"/>
+    <path d="M400,520 L400,560" stroke="#ffaa55" stroke-width="1.2" stroke-dasharray="5 3"/>
+  </g>
+</svg>

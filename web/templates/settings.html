@@ -636,6 +636,32 @@
                 </div>
             </div>
             
+            <!-- Section: Agents -->
+            <div class="settings-section">
+                <div class="settings-section-header">
+                    <span class="text-synapse">🤖</span>
+                    <span class="settings-section-title">Agents</span>
+                </div>
+                <div class="settings-section-body">
+                    <div class="warning-banner">
+                        <div class="warning-banner-icon">ℹ️</div>
+                        <div class="warning-banner-content">
+                            <h4>Système Multi-Agent</h4>
+                            <p>Activez/désactivez les agents selon vos besoins. Pattern inspiré de AGiXT, AutoGPT, Cline.</p>
+                        </div>
+                    </div>
+                    
+                    <div id="agents-list">
+                        <!-- Agents loaded dynamically -->
+                        <div class="loading">Chargement des agents...</div>
+                    </div>
+                    
+                    <button class="btn btn-secondary" onclick="initAgents()" style="width: 100%; margin-top: 15px;">
+                        🔄 Initialiser les Agents
+                    </button>
+                </div>
+            </div>
+            
             <!-- Section: Hardware -->
             <div class="settings-section">
                 <div class="settings-section-header">
