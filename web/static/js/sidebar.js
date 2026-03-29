@@ -1,106 +1,95 @@
 /**
  * BICAMERIS - Sidebar Controller
- * Collapsible sidebar with animation
- * 
- * No external dependencies. 100% local.
+ * Handles sidebar collapse/expand with localStorage persistence
  */
+(function() {
+  'use strict';
 
-class SidebarController {
-    constructor() {
-        this.layout = document.querySelector('.app-layout');
-        this.sidebar = document.querySelector('.app-sidebar');
-        this.collapseArrow = document.querySelector('.collapse-arrow');
-        this.collapsedToggle = document.querySelector('.collapsed-toggle');
-        
-        this.isCollapsed = false;
-        this.storageKey = 'bicameris_sidebar_collapsed';
-        
-        this.init();
-    }
-    
-    init() {
-        // Restore state from localStorage
-        const saved = localStorage.getItem(this.storageKey);
-        if (saved === 'true') {
-            this.collapse();
-        }
-        
-        // Setup toggle buttons
-        if (this.collapseArrow) {
-            this.collapseArrow.addEventListener('click', () => this.toggle());
-        }
-        
-        if (this.collapsedToggle) {
-            this.collapsedToggle.addEventListener('click', () => this.expand());
-        }
-        
-        // Keyboard shortcut (Ctrl+B)
-        document.addEventListener('keydown', (e) => {
-            if (e.ctrlKey && e.key === 'b') {
-                e.preventDefault();
-                this.toggle();
-            }
-        });
-        
-        console.log('[SidebarController] Initialized');
-    }
-    
-    toggle() {
-        if (this.isCollapsed) {
-            this.expand();
-        } else {
-            this.collapse();
-        }
-    }
-    
-    collapse() {
-        this.isCollapsed = true;
-        this.layout.classList.add('sidebar-collapsed');
-        localStorage.setItem(this.storageKey, 'true');
-        
-        // Update arrow icon
-        if (this.collapseArrow) {
-            this.collapseArrow.textContent = '→';
-        }
-        
-        // Dispatch event
-        document.dispatchEvent(new CustomEvent('sidebarCollapse', {
-            detail: { collapsed: true }
-        }));
-        
-        console.log('[SidebarController] Collapsed');
-    }
-    
-    expand() {
-        this.isCollapsed = false;
-        this.layout.classList.remove('sidebar-collapsed');
-        localStorage.setItem(this.storageKey, 'false');
-        
-        // Update arrow icon
-        if (this.collapseArrow) {
-            this.collapseArrow.textContent = '←';
-        }
-        
-        // Dispatch event
-        document.dispatchEvent(new CustomEvent('sidebarCollapse', {
-            detail: { collapsed: false }
-        }));
-        
-        console.log('[SidebarController] Expanded');
-    }
-    
-    isSidebarCollapsed() {
-        return this.isCollapsed;
-    }
-}
+  const STORAGE_KEY = 'bicameris_sidebar_collapsed';
+  const SIDEBAR_COLLAPSED_CLASS = 'collapsed';
 
-// Initialize on DOM ready
-let sidebarController = null;
+  let sidebar = null;
+  let collapseBtn = null;
+  let isCollapsed = false;
 
-document.addEventListener('DOMContentLoaded', () => {
-    sidebarController = new SidebarController();
-    window.sidebarController = sidebarController;
-});
+  function init() {
+    sidebar = document.querySelector('.sidebar');
+    collapseBtn = document.querySelector('.collapse-btn');
 
-// Export for use in other modules
-window.SidebarController = SidebarController;
+    if (!sidebar || !collapseBtn) {
+      console.warn('[Sidebar] Elements not found');
+      return;
+    }
+
+    // Restore state from localStorage
+    const savedState = localStorage.getItem(STORAGE_KEY);
+    isCollapsed = savedState === 'true';
+
+    if (isCollapsed) {
+      sidebar.classList.add(SIDEBAR_COLLAPSED_CLASS);
+      updateButtonText();
+    }
+
+    // Bind events
+    collapseBtn.addEventListener('click', toggle);
+
+    // Keyboard shortcut: Ctrl+B
+    document.addEventListener('keydown', function(e) {
+      if (e.ctrlKey && e.key === 'b') {
+        e.preventDefault();
+        toggle();
+      }
+    });
+
+    // Dispatch ready event
+    document.dispatchEvent(new CustomEvent('sidebar:ready', {
+      detail: { collapsed: isCollapsed }
+    }));
+  }
+
+  function toggle() {
+    isCollapsed = !isCollapsed;
+    sidebar.classList.toggle(SIDEBAR_COLLAPSED_CLASS, isCollapsed);
+    localStorage.setItem(STORAGE_KEY, isCollapsed);
+    updateButtonText();
+
+    // Dispatch event for other components
+    document.dispatchEvent(new CustomEvent('sidebar:toggle', {
+      detail: { collapsed: isCollapsed }
+    }));
+  }
+
+  function updateButtonText() {
+    if (!collapseBtn) return;
+    collapseBtn.textContent = isCollapsed ? '\u2194' : '\u2190';
+    collapseBtn.title = isCollapsed ? 'Expand sidebar (Ctrl+B)' : 'Collapse sidebar (Ctrl+B)';
+  }
+
+  function getCollapsed() {
+    return isCollapsed;
+  }
+
+  function collapse() {
+    if (!isCollapsed) toggle();
+  }
+
+  function expand() {
+    if (isCollapsed) toggle();
+  }
+
+  // Public API
+  window.BicamerisSidebar = {
+    init: init,
+    toggle: toggle,
+    collapse: collapse,
+    expand: expand,
+    isCollapsed: getCollapsed
+  };
+
+  // Auto-init on DOM ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
