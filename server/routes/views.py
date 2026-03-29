@@ -91,9 +91,9 @@ def make_context(extra=None):
 
 @router.get("/", response_class=HTMLResponse)
 async def root(request: Request):
-    """Home page - SPA (Single Page Application)"""
+    """Home page - SPA (Single Page Application) v3"""
     if _templates:
-        return _templates.TemplateResponse("index_spa.html", make_context({"request": request}))
+        return _templates.TemplateResponse("index_v3.html", make_context({"request": request}))
     return HTMLResponse("<h1>Diadikos & Palladion v1.0.0.6a</h1>")
 
 

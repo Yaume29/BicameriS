@@ -225,6 +225,36 @@
                 </div>
             </div>
             
+            <!-- Section: Entity Identity -->
+            <div class="settings-section">
+                <div class="settings-section-header">
+                    <span class="text-synapse">🎭</span>
+                    <span class="settings-section-title">Entity Identity</span>
+                </div>
+                <div class="settings-section-body">
+                    <div class="form-group">
+                        <label class="form-label">Entity Name</label>
+                        <input type="text" class="form-input" id="entity-name" placeholder="Aetheris">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Description</label>
+                        <textarea class="form-input form-textarea" id="entity-description" placeholder="A bicameral cognitive entity" rows="2"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Tone</label>
+                        <input type="text" class="form-input" id="entity-tone" placeholder="thoughtful and direct">
+                    </div>
+                    
+                    <div class="btn-group" style="display: flex; gap: 10px; margin-top: 15px;">
+                        <button class="btn btn-primary" onclick="saveIdentity()" style="flex: 1;">Save Identity</button>
+                        <button class="btn btn-secondary" onclick="letEntityChooseName()" title="Let the entity choose its own name">Entity Chooses</button>
+                        <button class="btn btn-secondary" onclick="resetIdentity()">Reset</button>
+                    </div>
+                </div>
+            </div>
+            
             <!-- Section: Cognition Avancée -->
             <div class="settings-section">
                 <div class="settings-section-header">
@@ -1186,8 +1216,118 @@
     
     function resetAllSettings() {
         applyPreset('balanced');
-        showNotification('Paramètres réinitialisés', 'success');
+        showNotification('Settings reset', 'success');
     }
+    
+    // ============================================
+    // ENTITY IDENTITY
+    // ============================================
+    
+    async function loadIdentity() {
+        try {
+            const resp = await fetch('/api/identity');
+            const data = await resp.json();
+            
+            if (data.name) {
+                document.getElementById('entity-name').value = data.name;
+            }
+            if (data.description) {
+                document.getElementById('entity-description').value = data.description;
+            }
+            if (data.personality && data.personality.tone) {
+                document.getElementById('entity-tone').value = data.personality.tone;
+            }
+        } catch (e) {
+            console.error('Failed to load identity:', e);
+        }
+    }
+    
+    async function saveIdentity() {
+        try {
+            const name = document.getElementById('entity-name').value.trim();
+            const description = document.getElementById('entity-description').value.trim();
+            const tone = document.getElementById('entity-tone').value.trim();
+            
+            if (!name) {
+                showNotification('Name is required', 'error');
+                return;
+            }
+            
+            const resp = await fetch('/api/identity/save', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    name: name,
+                    description: description,
+                    personality: {
+                        tone: tone || 'thoughtful and direct',
+                        style: 'analytical yet creative',
+                        traits: ['curious', 'honest', 'helpful']
+                    }
+                })
+            });
+            
+            const data = await resp.json();
+            if (data.status === 'ok') {
+                showNotification(`Identity saved: ${name}`, 'success');
+            } else {
+                showNotification('Error saving identity', 'error');
+            }
+        } catch (e) {
+            showNotification('Error: ' + e.message, 'error');
+        }
+    }
+    
+    async function resetIdentity() {
+        try {
+            const resp = await fetch('/api/identity/reset', {method: 'POST'});
+            const data = await resp.json();
+            
+            if (data.status === 'ok') {
+                loadIdentity();
+                showNotification('Identity reset to defaults', 'success');
+            }
+        } catch (e) {
+            showNotification('Error: ' + e.message, 'error');
+        }
+    }
+    
+    async function letEntityChooseName() {
+        try {
+            showNotification('Asking entity to choose a name...', 'info');
+            
+            const resp = await fetch('/api/chat/send', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    message: "What name would you like to be called? Choose something that resonates with who you are. Respond with ONLY the name, nothing else."
+                })
+            });
+            
+            const data = await resp.json();
+            if (data.response) {
+                // Extract just the name (clean up response)
+                let name = data.response.trim()
+                    .replace(/^["']|["']$/g, '')  // Remove quotes
+                    .split('\n')[0]  // Take first line
+                    .split('.')[0]  // Take before period
+                    .trim();
+                
+                if (name && name.length > 0 && name.length < 50) {
+                    document.getElementById('entity-name').value = name;
+                    await saveIdentity();
+                    showNotification(`Entity chose: ${name}`, 'success');
+                } else {
+                    showNotification('Could not extract a valid name', 'error');
+                }
+            }
+        } catch (e) {
+            showNotification('Error: ' + e.message, 'error');
+        }
+    }
+    
+    // Load identity on page load
+    document.addEventListener('DOMContentLoaded', loadIdentity);
     
     // ============================================
     // KNOWLEDGE EXPORT/IMPORT
