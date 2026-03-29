@@ -370,17 +370,17 @@ class UnifiedEngine:
             context = self._build_context(session)
             
             system_prompt = (
-                "Tu es le Codeur, l'hémisphère logique de BicameriS. "
-                "Tu génères du code et des solutions structurées. "
-                "Tu dialogues avec le Reviewer pour améliorer tes solutions. "
-                "Réponds de manière claire et technique."
+                "You are the Coder, BicameriS's logical hemisphere. "
+                "Generate code and structured solutions. "
+                "Dialogue with the Reviewer to improve your solutions. "
+                "Respond clearly and technically."
             )
             
-            response = self.codeur.think(system_prompt, f"{context}\n\nDemande: {user_message}")
+            response = self.codeur.think(system_prompt, f"{context}\n\nRequest: {user_message}")
             return response
         else:
             # Fallback si pas de modèle
-            return f"[Codeur] Je propose une solution pour: {user_message[:100]}..."
+            return f"[Coder] I propose a solution for: {user_message[:100]}..."
     
     async def _reviewer_think(
         self, 
@@ -393,10 +393,10 @@ class UnifiedEngine:
         """
         if self.reviewer and hasattr(self.reviewer, 'think'):
             system_prompt = (
-                "Tu es le Reviewer, l'hémisphère intuitif de BicameriS. "
-                "Tu critiques les solutions du Codeur, détectes les bugs, "
-                "suggeres des améliorations. Tu es constructif mais exigeant. "
-                "Tu vois les patterns que le Codeur rate."
+                "You are the Reviewer, BicameriS's intuitive hemisphere. "
+                "You critique the Coder's solutions, detect bugs, "
+                "suggest improvements. You are constructive but demanding. "
+                "You see patterns the Coder misses."
             )
             
             prompt = (

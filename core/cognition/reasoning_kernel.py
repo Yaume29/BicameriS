@@ -162,9 +162,9 @@ class ReasoningKernel:
         # Use logic hemisphere for structured analysis
         if self.logic_hemi and self.logic_hemi.is_loaded:
             try:
-                prompt = f"Analyse le problème suivant et propose 3 actions possibles (une par ligne):\n{problem[:500]}"
+                prompt = f"Analyze this problem and propose 3 possible actions (one per line):\n{problem[:500]}"
                 response = self.logic_hemi.think(
-                    "Tu es un analyste logique. Propose des actions concrètes.",
+                    "You are a logical analyst. Propose concrete actions.",
                     prompt
                 )
                 # Parse actions from response
@@ -178,9 +178,9 @@ class ReasoningKernel:
         # Use intuition hemisphere for creative alternatives
         if self.intuition_hemi and self.intuition_hemi.is_loaded:
             try:
-                prompt = f"Intuition sur le problème: {problem[:500]}. Propose 2 alternatives créatives (une par ligne)."
+                prompt = f"Intuition on the problem: {problem[:500]}. Propose 2 creative alternatives (one per line)."
                 response = self.intuition_hemi.think(
-                    "Tu es intuitif et créatif. Propose des alternatives inattendues.",
+                    "You are intuitive and creative. Propose unexpected alternatives.",
                     prompt
                 )
                 for line in response.split('\n'):

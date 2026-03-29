@@ -129,10 +129,10 @@ class DreamerAgent:
 Concept A: {seed.get("content", "")[:200]}
 Concept B: {distant.get("content", "")[:200]}
 
-Écris une histoire ou une image onirique qui Unit ces deux idées."""
+Write a story or dreamlike image that UNITE these two ideas."""
 
         try:
-            system_prompt = "Tu es le subconscient d'Aetheris. Tu génères des métaphores puissantes et des images oniriques."
+            system_prompt = "You are Aetheris's subconscious. Generate powerful metaphors and dreamlike images."
             result = self.right_hemisphere.think(system_prompt, prompt, temperature=1.5)
 
             dream_content = result if isinstance(result, str) else result.get("content", "")

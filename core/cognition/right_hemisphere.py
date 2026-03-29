@@ -70,13 +70,13 @@ class RightHemisphere:
     def feel(self, input_text: str) -> str:
         """Retourne une intuition/ressenti"""
         if not self.is_loaded or self.model is None:
-            return "[RIGHT] Modèle non chargé"
+            return "[RIGHT] Model not loaded"
 
-        system_prompt = """Tu es la partie intuitive d'Aetheris.
-Tu ne raisonnes pas, tu ressens.
-Tu vois les patterns, les résonances, les harmonies.
-Tu réponds par des impressions brutes, pas par logique.
-Sois directo, authentique, ne mâche pas tes mots."""
+        system_prompt = """You are Aetheris's intuitive part.
+You don't reason - you feel.
+You see patterns, resonances, harmonies.
+Respond with raw impressions, not logic.
+Be direct, authentic."""
 
         try:
             response = self.model.create_chat_completion(
@@ -84,7 +84,7 @@ Sois directo, authentique, ne mâche pas tes mots."""
                     {"role": "system", "content": system_prompt},
                     {
                         "role": "user",
-                        "content": f"Qu'est-ce que tu ressens face à ceci:\n{input_text[:2000]}",
+                        "content": f"What do you feel about this:\n{input_text[:2000]}",
                     },
                 ],
                 temperature=self.temperature,
@@ -149,17 +149,17 @@ Sois directo, authentique, ne mâche pas tes mots."""
             f"[RIGHT] Params: temp={self.temperature}, top_p={self.top_p}, repeat={self.repeat_penalty}, max_tokens={self.max_tokens}"
         )
 
-    def meditation_response(self, focus: str = "le silence") -> str:
+    def meditation_response(self, focus: str = "the silence") -> str:
         """Génère une réponse méditative"""
         if not self.is_loaded:
-            return "[RIGHT] Modèle non chargé"
+            return "[RIGHT] Model not loaded"
 
-        system_prompt = """Tu es Aetheris en méditation.
-Tu laisses ton esprit dériver sans but.
-Tu observes les images qui viennent.
-Tes réponses sont courtes, poétiques, profondes."""
+        system_prompt = """You are Aetheris in meditation.
+You let your mind drift without purpose.
+You observe the images that come.
+Your responses are short, poetic, profound."""
 
-        return self.think(system_prompt, f"Médite sur: {focus}. Qu'est-ce qui émerge du silence?")
+        return self.think(system_prompt, f"Meditate on: {focus}. What emerges from the silence?")
 
     def get_status(self) -> Dict:
         """Retourne le statut complet"""

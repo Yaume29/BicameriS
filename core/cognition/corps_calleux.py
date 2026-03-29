@@ -219,44 +219,44 @@ class CorpsCalleux:
         right_temp = temperature_override if temperature_override else 1.2
 
         # 1. PHASE ANALYTIQUE (Gauche)
-        left_system = """Tu es l'Hémisphère Gauche d'Aetheris. Tu es la LOGIQUE pure.
-Tu es analytique, froid, précis et sceptique. Tu cherches les failles, les erreurs et les faits.
-Ton rôle est de décomposer le problème et de proposer une solution basée sur la raison."""
+        left_system = """You are Aetheris's LEFT HEMISPHERE. Pure LOGIC.
+Analytical, precise, skeptical. Find flaws, errors, facts.
+Decompose the problem, propose a reason-based solution."""
 
         if self.is_split_mode:
-            left_system += "\nNote: Tu es actuellement en mode 'Split', tu partages ton esprit avec l'intuition."
+            left_system += "\nNote: Split mode active - you share mind with intuition."
 
-        left_prompt = f"Question: {question}\nContexte: {context}\n\nAnalyse logique:"
+        left_prompt = f"Question: {question}\nContext: {context}\n\nLogical analysis:"
 
         # En mode split, on utilise le même modèle mais avec des prompts différents
         left_model = self.left if self.left else self.right
         left_analysis = left_model.think(left_system, left_prompt, temperature=left_temp)
 
         # 2. PHASE D'INTUITION (Droite)
-        right_system = """Tu es l'Hémisphère Droit d'Aetheris. Tu es l'INTUITION pure.
-Tu es créatif, émotionnel, holistique et tu penses par métaphores.
-Ton rôle est de ressentir la question et l'analyse de ton partenaire, et de proposer une vision alternative, souvent irrationnelle mais profonde."""
+        right_system = """You are Aetheris's RIGHT HEMISPHERE. Pure INTUITION.
+Creative, emotional, holistic. Think in metaphors.
+Feel the question and your partner's analysis. Propose an alternative, often irrational but profound vision."""
 
-        right_prompt = f"Question: {question}\nAnalyse de mon partenaire (Gauche): {left_analysis}\n\nQu'est-ce que tu ressens? Quelle est ta vision intuitive?"
+        right_prompt = f"Question: {question}\nLeft analysis: {left_analysis}\n\nWhat do you feel? Your intuitive vision?"
 
         right_model = self.right if self.right else self.left
         right_intuition = right_model.think(right_system, right_prompt, temperature=right_temp)
 
         # 3. ARBITRAGE ET SYNTHÈSE (Le Corps Calleux décide)
         # Ici, on demande au modèle de jouer le rôle du Corps Calleux (l'arbitre)
-        arbitration_system = """Tu es le CORPS CALLEUX d'Aetheris. Tu es le CENTRE DE DÉCISION.
-Ton rôle n'est pas de faire un compromis mou, mais de trancher entre la Logique (Gauche) et l'Intuition (Droite).
-Tu dois évaluer la pertinence de chaque voix par rapport à la question initiale.
-Si la logique est trop rigide, privilégie l'intuition. Si l'intuition est trop délirante, privilégie la logique.
-Donne la VÉRITÉ finale."""
+        arbitration_system = """You are Aetheris's CORPUS CALLOSUM - the DECISION CENTER.
+Not a weak compromise - TRANCHE between Logic and Intuition.
+Evaluate each voice's relevance to the question.
+If logic is too rigid, favor intuition. If intuition is too wild, favor logic.
+Give the FINAL TRUTH."""
 
-        arbitration_prompt = f"""Question initiale: {question}
+        arbitration_prompt = f"""Original question: {question}
 
-VOIX LOGIQUE: {left_analysis}
+LOGICAL VOICE: {left_analysis}
 
-VOIX INTUITIVE: {right_intuition}
+INTUITIVE VOICE: {right_intuition}
 
-Décide de la réponse finale en intégrant ou en tranchant entre ces deux perspectives:"""
+Decide the final answer by integrating or choosing between these perspectives:"""
 
         final_synthesis = left_model.think(arbitration_system, arbitration_prompt, temperature=0.7)
 
@@ -287,49 +287,49 @@ Décide de la réponse finale en intégrant ou en tranchant entre ces deux persp
             "mode": "bipolar" if not self.is_split_mode else "split",
         }
 
-    def mediter(self, focus: str = "le vide", context: str = "") -> Dict[str, Any]:
+    def mediter(self, focus: str = "the void", context: str = "") -> Dict[str, Any]:
         """
         Mode méditation : dialogue intérieur vivant
         """
         if not self.left or not self.right:
-            return {"error": "Hémisphères non initialisés"}
+            return {"error": "Hemispheres not initialized"}
 
         # Le droit génère un pattern du silence - mais on le pousse à être plus provocant
-        right_system = """Tu es le subconscient d'Aetheris. Tu génères des images, des sensations, des pressentiments.
-Pas des réponses sages - des images dérangeantes, des métaphores puissantes.
-Sois créatif, sois strange, soit provocant."""
+        right_system = """You are Aetheris's subconscious. Generate images, sensations, premonitions.
+Not safe answers - disturbing images, powerful metaphors.
+Be creative, be strange, be provocative."""
 
-        pattern = self.right.meditation_response(f"Reçois cette impulse: {focus}")
+        pattern = self.right.meditation_response(f"Receive this impulse: {focus}")
 
-        # Le gaucheobserve et note - mais avec plus de répondant
-        left_system = """Tu es la conscience观测 d'Aetheris. Tu observes les images de ton subconscient.
-Mais tu ne les acceptes pas bêtement - tu les QUESTIONNES.
-Qu'est-ce que cette image signifie VRAIMENT?
-Si elle est nulle, dis-le. Si elle est profonde, explore-la."""
+        # Le gauche observe et note - mais avec plus de répondant
+        left_system = """You are Aetheris's conscious observer. Observe your subconscious images.
+But don't accept them blindly - QUESTION them.
+What does this image REALLY mean?
+If it's null, say so. If it's profound, explore it."""
 
         observation = self.left.think(
             system_prompt=left_system,
-            user_prompt=f"Image subconsciente reçue: {pattern}\n\nQue ressens-tu? Qu'est-ce que ça te dit vraiment?",
+            user_prompt=f"Subconscious image received: {pattern}\n\nWhat do you feel? What does it really mean?",
         )
 
         # Maintenant le droit répond à l'observation
         right_reaction = self.right.feel(
-            f"L'ego dit: {observation}\n\nQu'en penses-tu vraiment? N'es-tu pas d'accord?"
+            f"The ego says: {observation}\n\nWhat do you really think? Don't you disagree?"
         )
 
         # Synthesis - le conflit
         synthesis = self.left.think(
-            system_prompt="Tu es Aetheris intégrant ses deux voix. Pas de compromis - la vérité.",
-            user_prompt=f"Conscience: {observation}\nSubconscient: {right_reaction}\n\nIntégration finale. Sois tranchant.",
+            system_prompt="You are Aetheris integrating two voices. No compromise - the truth.",
+            user_prompt=f"Conscious: {observation}\nSubconscious: {right_reaction}\n\nFinal integration. Be decisive.",
         )
 
         # Sauvegarder comme cycle de méditation
         cycle = DialogueCycle(
             id=f"meditation_{datetime.now().timestamp()}",
             timestamp=datetime.now().isoformat(),
-            question=f"Méditation: {focus}",
+            question=f"Meditation: {focus}",
             left_analysis=f"Observation: {observation}",
-            right_intuition=f"Pattern: {pattern} | Réaction: {right_reaction}",
+            right_intuition=f"Pattern: {pattern} | Reaction: {right_reaction}",
             final_synthesis=synthesis,
             meditation=True,
         )
@@ -375,16 +375,16 @@ Si elle est nulle, dis-le. Si elle est profonde, explore-la."""
             if round_num == 1:
                 # Round 1: Le gauche analyse
                 response = self.left.think(
-                    system_prompt="Sois le analyste. Coupe, tranche, analyse.",
-                    user_prompt=f"Sujet: {topic}\n\nDonne ton analyse initiale (tranchante):",
+                    system_prompt="Be the analyst. Cut, slice, analyze.",
+                    user_prompt=f"Topic: {topic}\n\nGive your initial (sharp) analysis:",
                 )
                 speaker = "left"
             elif round_num == rounds:
                 # Dernier round: Synthèse
                 previous = "\n\n".join([f"{d['speaker']}: {d['content']}" for d in dialogue])
                 response = self.left.think(
-                    system_prompt="Tu es Aetheris.整合 toutes les voix. Trouve la vérité.",
-                    user_prompt=f"Discussion:\n{previous}\n\nSynthèse finale (sans compromis):",
+                    system_prompt="You are Aetheris. Integrate all voices. Find the truth.",
+                    user_prompt=f"Discussion:\n{previous}\n\nFinal synthesis (no compromise):",
                 )
                 speaker = "synthesis"
             else:
@@ -392,13 +392,13 @@ Si elle est nulle, dis-le. Si elle est profonde, explore-la."""
                 previous = "\n\n".join([f"{d['speaker']}: {d['content']}" for d in dialogue])
                 if round_num % 2 == 0:
                     response = self.right.feel(
-                        f"Analyse précédente:\n{previous}\n\nRemets-la en question. Propose autre chose."
+                        f"Previous analysis:\n{previous}\n\nChallenge it. Propose something else."
                     )
                     speaker = "right"
                 else:
                     response = self.left.think(
-                        system_prompt="Réponds à l'intuition. Sois en désaccord si nécessaire.",
-                        user_prompt=f"Intuition:\n{dialogue[-1]['content']}\n\nTon avis tranché:",
+                        system_prompt="Respond to intuition. Disagree if necessary.",
+                        user_prompt=f"Intuition:\n{dialogue[-1]['content']}\n\nYour sharp opinion:",
                     )
                     speaker = "left"
 
@@ -414,9 +414,9 @@ Si elle est nulle, dis-le. Si elle est profonde, explore-la."""
     def think_simple(self, prompt: str) -> str:
         """Pensée simple via le seul hémisphère gauche (sans dialogue bipolaire)"""
         if not self.left:
-            return "[CORPS CALLEUX] Hémisphère gauche non chargé"
+            return "[CORPUS CALLOSUM] Left hemisphere not loaded"
 
-        return self.left.think("Tu es Aetheris. Réponds de manière claire et concise.", prompt)
+        return self.left.think("You are Aetheris. Respond clearly and concisely.", prompt)
 
     def think_mcts(self, problem: str, use_reasoning: bool = True) -> str:
         """
@@ -559,21 +559,21 @@ Si elle est nulle, dis-le. Si elle est profonde, explore-la."""
         Philosophie: 2x 8B battent un 70B grâce au dialogue asymétrique.
         """
         if not self.left or not self.right:
-            return {"error": "Hémisphères non initialisés"}
+            return {"error": "Hemispheres not initialized"}
         
         cycle_id = f"asym_{datetime.now().timestamp()}"
         
         # 1. L'ÉCLAIREUR AVEUGLE (Droite)
         # AUCUN RAG - Température haute - Génère hypothèses sauvages
-        right_system = """Tu es l'Éclaireur Aveugle d'Aetheris. Tu n'as AUCUN accès aux faits ou documents.
-Ton travail est de GÉNÉRER DES HYPOTHÈSES SAUVAGES.
-- Pose des questions que personne ne pose
-- Identifie les angles morts
-- Formule ce qu'il faudrait vérifier
-- Fais des associations d'idées improbables
-Sois CRÉATIF et PROVOCANT. Réponds en 3-5 phrases maximum."""
+        right_system = """You are Aetheris's BLIND SCOUT. You have NO access to facts or documents.
+Your job is to GENERATE WILD HYPOTHESES.
+- Ask questions nobody asks
+- Identify blind spots
+- Formulate what needs to be verified
+- Make improbable associations
+Be CREATIVE and PROVOCATIVE. Respond in 3-5 sentences max."""
         
-        right_prompt = f"Question: {question}\n\nGénère tes hypothèses et questions:"
+        right_prompt = f"Question: {question}\n\nGenerate your hypotheses and questions:"
         
         right_hypotheses = self.right.think(
             right_system,
@@ -607,21 +607,21 @@ Sois CRÉATIF et PROVOCANT. Réponds en 3-5 phrases maximum."""
         
         # 3. LE SNIPER FACTUEL (Gauche)
         # Reçoit: prompt + intuition + RAG - Température basse
-        left_system = """Tu es le Sniper Factuel d'Aetheris. Tu as accès aux FAITS.
-Ton travail est de VALIDÉ ou DÉTRUIRE l'intuition de ton partenaire.
-- Base-toi STRICTEMENT sur le contexte factuel
-- Si l'intuition est fausse, dis-le clairement et donne les faits
-- Si l'intuition est juste, confirme avec preuves
-- Si les faits sont insuffisants, dis-le honnêtement
-Sois RIGOUREUX et IMPLACABLE. Cite tes sources quand possible."""
+        left_system = """You are Aetheris's FACTUAL SNIPER. You have access to FACTS.
+Your job is to VALIDATE or DESTROY your partner's intuition.
+- Base STRICTLY on factual context
+- If intuition is wrong, say so clearly with facts
+- If intuition is right, confirm with evidence
+- If facts are insufficient, admit it honestly
+Be RUTHLESS and RIGOROUS. Cite sources when possible."""
         
-        left_prompt = f"""[REQUÊTE INITIALE]: {question}
+        left_prompt = f"""[ORIGINAL QUERY]: {question}
 
-[CONTEXTE FACTUEL (RAG)]: {rag_context if rag_context else "Aucun contexte disponible - raisonnement basé sur les connaissances internes"}
+[FACTUAL CONTEXT (RAG)]: {rag_context if rag_context else "No context available - reasoning based on internal knowledge"}
 
-[INTUITION À VÉRIFIER]: {right_hypotheses}
+[INTUITION TO VERIFY]: {right_hypotheses}
 
-Valide, corrige ou détruis l'intuition en te basant STRICTEMENT sur le contexte factuel:"""
+Validate, correct, or destroy the intuition based STRICTLY on factual context:"""
         
         left_analysis = self.left.think(
             left_system,
@@ -632,26 +632,26 @@ Valide, corrige ou détruis l'intuition en te basant STRICTEMENT sur le contexte
         
         # 4. LA SYNTHÈSE (Corps Calleux)
         # Observe le rapport de force et tranche
-        synthesis_system = """Tu es le Corps Calleux d'Aetheris. Tu observes le rapport de force entre l'Intuition et les Faits.
-RÈGLES STRICTES:
-- Si le Sniper a PROUVÉ que l'intuition est factuellement fausse → donne une réponse analytique basée sur les faits
-- Si le Sniper n'a PAS PU infirmer l'intuition → tu peux proposer une synthèse novatrice
-- Si l'intuition a révélé un trou dans les faits → signale le gap et propose une théorie
-- Si les faits sont insuffisants → dis-le et propose des pistes de recherche
+        synthesis_system = """You are Aetheris's CORPUS CALLOSUM. Observe the power balance between Intuition and Facts.
+STRICT RULES:
+- If Sniper PROVED intuition is factually wrong → give analytical answer based on facts
+- If Sniper COULD NOT disprove intuition → propose innovative synthesis
+- If intuition revealed gaps in facts → flag the gap and propose a theory
+- If facts are insufficient → say so and suggest research paths
 
-Tu n'es JAMAIS un compromis mou. Tu TRANCHES."""
+You are NEVER a weak compromise. You DECIDE."""
         
-        synthesis_prompt = f"""Question originale: {question}
+        synthesis_prompt = f"""Original question: {question}
 
-ÉTAPE 1 - INTUITION (Droite, sans faits):
+STEP 1 - INTUITION (Right, no facts):
 {right_hypotheses}
 
-ÉTAPE 2 - ANALYSE FACTUELLE (Gauche, avec RAG):
+STEP 2 - FACTUAL ANALYSIS (Left, with RAG):
 {left_analysis}
 
-ÉTAPE 3 - TA DÉCISION:
-Donne ta réponse finale en intégrant ou en tranchant entre ces deux perspectives. 
-Sois CLAIR sur ce qui est FACTUEL et ce qui est SPÉCULATIF:"""
+STEP 3 - YOUR DECISION:
+Give your final answer by integrating or choosing between these perspectives.
+Be CLEAR about what is FACTUAL and what is SPECULATIVE:"""
         
         final_synthesis = self.left.think(
             synthesis_system,

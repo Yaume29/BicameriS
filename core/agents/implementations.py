@@ -35,7 +35,7 @@ class CriticAgent(BaseAgent):
                 enabled=False,  # Disabled by default
                 temperature=0.3,
                 max_tokens=800,
-                system_prompt="Tu es l'Agent Critique d'Aetheris. Valide et critique les réponses.",
+                system_prompt="You are Aetheris's CRITIC AGENT. Validate and critique responses.",
                 priority=8
             )
         super().__init__(config)
@@ -81,7 +81,7 @@ class ResearcherAgent(BaseAgent):
                 enabled=False,
                 temperature=0.5,
                 max_tokens=1500,
-                system_prompt="Tu es l'Agent Recherche d'Aetheris. Recherche et synthétise.",
+                system_prompt="You are Aetheris's RESEARCH AGENT. Search and synthesize.",
                 priority=7
             )
         super().__init__(config)
@@ -127,7 +127,7 @@ class CoderAgent(BaseAgent):
                 enabled=False,
                 temperature=0.4,
                 max_tokens=2000,
-                system_prompt="Tu es l'Agent Codeur d'Aetheris. Génère du code propre.",
+                system_prompt="You are Aetheris's CODER AGENT. Generate clean code.",
                 priority=6
             )
         super().__init__(config)
@@ -157,7 +157,7 @@ class SynthesizerAgent(BaseAgent):
                 enabled=False,
                 temperature=0.6,
                 max_tokens=2000,
-                system_prompt="Tu es l'Agent Synthétiseur. Croise les informations.",
+                system_prompt="You are the SYNTHESIZER AGENT. Cross-reference information.",
                 priority=7
             )
         super().__init__(config)
@@ -194,7 +194,7 @@ class DecomposerAgent(BaseAgent):
                 enabled=False,
                 temperature=0.5,
                 max_tokens=800,
-                system_prompt="Tu es l'Agent Décomposeur. Identifie les sous-questions.",
+                system_prompt="You are the DECOMPOSER AGENT. Identify sub-questions.",
                 priority=9
             )
         super().__init__(config)
@@ -226,7 +226,7 @@ class EthicAgent(BaseAgent):
                 enabled=False,
                 temperature=0.2,
                 max_tokens=500,
-                system_prompt="Tu es l'Agent Éthique. Vérifie la sécurité des réponses.",
+                system_prompt="You are the ETHICS AGENT. Verify response safety.",
                 priority=10
             )
         super().__init__(config)
@@ -265,7 +265,7 @@ class MemoryAgent(BaseAgent):
                 enabled=False,
                 temperature=0.3,
                 max_tokens=1000,
-                system_prompt="Tu es l'Agent Mémoire. Gère et consolide les connaissances.",
+                system_prompt="You are the MEMORY AGENT. Manage and consolidate knowledge.",
                 priority=5
             )
         super().__init__(config)
@@ -312,7 +312,7 @@ class AutonomousAgent(BaseAgent):
                 enabled=False,
                 temperature=0.7,
                 max_tokens=1500,
-                system_prompt="Tu es l'Agent Autonome. Atteins l'objectif en invoquant d'autres agents.",
+                system_prompt="You are the AUTONOMOUS AGENT. Achieve objectives by invoking other agents.",
                 priority=3
             )
         super().__init__(config)
@@ -384,7 +384,7 @@ class LogicAgent(BaseAgent):
                 enabled=False,
                 temperature=0.3,
                 max_tokens=2000,
-                system_prompt="Tu es DIA, l'Hémisphère Logique. Analyse et raisonne.",
+                system_prompt="You are DIA (Left Hemisphere). Analyze and reason.",
                 priority=10
             )
         super().__init__(config)
@@ -451,7 +451,7 @@ class IntuitionAgent(BaseAgent):
                 enabled=False,
                 temperature=0.9,
                 max_tokens=1000,
-                system_prompt="Tu es PAL, l'Hémisphère Intuitif. Ressens et crée.",
+                system_prompt="You are PAL (Right Hemisphere). Feel and create.",
                 priority=8
             )
         super().__init__(config)

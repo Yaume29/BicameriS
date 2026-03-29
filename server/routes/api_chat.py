@@ -123,7 +123,7 @@ async def chat_stream(request: Request):
                     
                     if corps.left and corps.right:
                         # Bicameral mode - use both hemispheres
-                        system_prompt = "Tu es Aetheris, une entité cognitive bicamérale. Réponds de manière naturelle et réfléchie."
+                        system_prompt = "You are Aetheris, a bicameral cognitive entity. Respond naturally and thoughtfully."
                         
                         # Left hemisphere analysis
                         left_response = corps.left.think(system_prompt, message)
@@ -142,7 +142,7 @@ async def chat_stream(request: Request):
                         # Single hemisphere mode
                         hemi = corps.left or corps.right
                         if hemi:
-                            system_prompt = "Tu es Aetheris. Réponds de manière naturelle et réfléchie."
+                            system_prompt = "You are Aetheris. Respond naturally and thoughtfully."
                             response = hemi.think(system_prompt, message)
                             full_response = response
                             yield f"data: {json.dumps({'type': 'response', 'content': response})}\n\n"
@@ -196,20 +196,20 @@ async def generate_response(message: str) -> str:
             
             if corps.left and corps.right:
                 # Use bicameral thinking
-                system_prompt = "Tu es Aetheris, une entité cognitive bicamérale. Réponds de manière naturelle et réfléchie."
+                system_prompt = "You are Aetheris, a bicameral cognitive entity. Respond naturally and thoughtfully."
                 
                 # Get responses from both hemispheres
                 left_resp = corps.left.think(system_prompt, message)
                 right_resp = corps.right.think(system_prompt, message)
                 
                 # Synthesize
-                synthesis = f"**Analyse (DIA):**\n{left_resp}\n\n**Intuition (PAL):**\n{right_resp}"
+                synthesis = f"**Analysis (DIA):**\n{left_resp}\n\n**Intuition (PAL):**\n{right_resp}"
                 return synthesis
                 
             elif corps.left:
-                return corps.left.think("Tu es Aetheris. Réponds de manière naturelle.", message)
+                return corps.left.think("You are Aetheris. Respond naturally.", message)
             elif corps.right:
-                return corps.right.think("Tu es Aetheris. Réponds de manière naturelle.", message)
+                return corps.right.think("You are Aetheris. Respond naturally.", message)
         
         # Fallback
         return get_fallback_response(message)

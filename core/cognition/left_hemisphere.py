@@ -316,12 +316,12 @@ class LeftHemisphere:
     def summarize(self, content: str, max_tokens: int = 512) -> str:
         """Résume le contenu"""
         if not self.is_loaded:
-            return "[LEFT] Modèle non chargé"
+            return "[LEFT] Model not loaded"
 
-        prompt = f"Résume ce texte en points clés précis (max 5 points):\n{content[:8000]}"
+        prompt = f"Summarize this text in precise key points (max 5 points):\n{content[:8000]}"
 
         return self.think(
-            system_prompt="Tu es un assistant qui synthétise l'information.",
+            system_prompt="You are an assistant that synthesizes information.",
             user_prompt=prompt,
         )
 

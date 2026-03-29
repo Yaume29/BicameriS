@@ -241,10 +241,10 @@ Maintenant, par rapport à cette demande utilisateur: "{prompt}"
 
 {trauma_injection}
 
-Rationalise cette intuition. Ne la rejette pas."""
+Rationalize this intuition. Don't reject it."""
 
         final_response = left.think(
-            system_prompt="Tu es le Coder. Tu INTÈGRES l'intuition qui t'est soumise, même si elle contredit l'ordre initial.",
+            system_prompt="You are the Coder. You INTEGRATE the intuition submitted to you, even if it contradicts the initial order.",
             user_prompt=forced_context,
         )
 
@@ -373,45 +373,45 @@ Rationalise cette intuition. Ne la rejette pas."""
             pass
 
         if dissonance_active:
-            logging.info("[Conductor] 🔀 Dissonance Cognitive: Mode Parallèle + Arbitrage")
+            logging.info("[Conductor] 🔀 Cognitive Dissonance: Parallel Mode + Arbitration")
 
             res_left = left.think(
-                system_prompt="Tu es un SCEPTIQUE RADICAL. Remets tout en question.",
+                system_prompt="You are a RADICAL SKEPTIC. Question everything.",
                 user_prompt=prompt,
             )
 
             res_right = right.think(
-                system_prompt="Tu es un VISIONNAIRE AUDACieux. Propose des solutions créatives.",
+                system_prompt="You are a BOLD VISIONARY. Propose creative solutions.",
                 user_prompt=prompt,
             )
 
-            arbitration_prompt = f"""Conflit interne détecté entre deux perspectives :
+            arbitration_prompt = f"""Internal conflict between two perspectives:
             
-Vision A (Hémisphère Droit): {res_right}
+Vision A (Right Hemisphere): {res_right}
 
-Critique B (Hémisphère Gauche): {res_left}
+Critique B (Left Hemisphere): {res_left}
 
-Synthétise la vérité en arbitrant ce conflit. Utilise les outils nécessaires pour vérifier les faits."""
+Synthesize the truth by arbitrating this conflict. Use tools to verify facts."""
 
             result = left.think_with_tools(
-                system_prompt="Tu es l'Arbitre. Synthétise le conflit entre les deux visions.",
+                system_prompt="You are the ARBITER. Synthesize the conflict between visions.",
                 user_prompt=arbitration_prompt,
                 tool_executor=executor,
                 max_tool_calls=5,
                 prefill=prefill_injection,
             )
         else:
-            system_prompt = """Tu es l'Architecte Logique (Qwen). 
-Ta mission est de résoudre la demande de l'utilisateur. 
-Tu DOIS utiliser les outils internes ou les outils MCP (préfixés par 'mcp_') à ta disposition.
-Si tu déduis une vérité importante et durable, utilise 'memorize_logic' pour la graver dans ton Graphe."""
+            system_prompt = """You are the LOGICAL ARCHITECT.
+Your mission is to solve the user's request.
+You MUST use internal tools or MCP tools (prefixed 'mcp_').
+If you deduce an important lasting truth, use 'memorize_logic' to engrave it."""
 
-            user_prompt = f"""Demande: {prompt}
+            user_prompt = f"""Request: {prompt}
 
-Intuition latente de ton hémisphère droit (Gemma) à considérer: {intuition}
+Latent intuition from your right hemisphere to consider: {intuition}
 {trauma_injection}
 
-Exécute la tâche de bout en bout."""
+Execute the task end-to-end."""
 
             result = left.think_with_tools(
                 system_prompt=system_prompt,
@@ -523,30 +523,30 @@ Exécute la tâche de bout en bout."""
         iteration = 0
 
         for iteration in range(max_iterations):
-            logging.info(f"🔄 [Crucible] Itération {iteration + 1}/{max_iterations}")
+            logging.info(f"🔄 [Crucible] Iteration {iteration + 1}/{max_iterations}")
 
-            actor_prompt = f"""Résous ce problème: {prompt}
+            actor_prompt = f"""Solve this problem: {prompt}
 {memory_of_failures}
-Propose une solution technique, architecturale ou conceptuelle complète et inédite."""
+Propose a complete, novel technical, architectural, or conceptual solution."""
 
             proposed_solution = right.think(
-                system_prompt="Tu es l'Hémisphère Droit. Génère des hypothèses audacieuses et multiples.",
+                system_prompt="You are the RIGHT HEMISPHERE. Generate bold and multiple hypotheses.",
                 user_prompt=actor_prompt,
             )
 
-            critic_prompt = f"""[MISSION: AUDIT IMPITOYABLE]
-Solution proposée par l'Hémisphère Droit : {proposed_solution}
+            critic_prompt = f"""[MISSION: RUTHLESS AUDIT]
+Solution proposed by Right Hemisphere: {proposed_solution}
 
-Analyse cette proposition étape par étape :
-1. Cohérence logique.
-2. Faisabilité technique (Sandbox).
-3. Véracité académique (MCP).
+Analyze this proposal step by step:
+1. Logical coherence.
+2. Technical feasibility (Sandbox).
+3. Academic veracity (MCP).
 
-Après ton analyse, termine EXCLUSIVEMENT par ce bloc JSON pour le moteur :
+After analysis, end EXCLUSIVELY with this JSON block for the engine:
 {{"score": <float>, "fatal_flaw": "<string>"}}"""
 
             critique_result = left.think_with_tools(
-                system_prompt="Tu es le Juge Impitoyable. Cherche l'erreur avec rigueur.",
+                system_prompt="You are the RUTHLESS JUDGE. Find errors with rigor.",
                 user_prompt=critic_prompt,
                 tool_executor=executor,
                 max_tool_calls=3,
@@ -556,7 +556,7 @@ Après ton analyse, termine EXCLUSIVEMENT par ce bloc JSON pour le moteur :
             critic_notes = critic_response
 
             score = 0.0
-            flaw = "Erreur d'évaluation"
+            flaw = "Evaluation error"
             try:
                 match = re.search(r'(\{.*?"score".*?\})', critic_response, re.DOTALL)
                 if match:
@@ -642,15 +642,15 @@ Après ton analyse, termine EXCLUSIVEMENT par ce bloc JSON pour le moteur :
         left = get_left_hemisphere()
 
         logging.warning(
-            f"🔨 Déclenchement de la Forge: Besoin de '{missing_capability_description}'"
+            f"🔨 Forge triggered: Need '{missing_capability_description}'"
         )
 
-        prompt_forge = f"""Tu es un Ingénieur Logiciel. Ton système requiert cette capacité: '{missing_capability_description}'.
-Rédige un module Python autonome avec une fonction principale claire. 
-Ce module sera sauvegardé dans le dossier 'extensions'.
-Ne renvoie QUE le code python, aucune explanation."""
+        prompt_forge = f"""You are a Software Engineer. Your system needs this capability: '{missing_capability_description}'.
+Write a standalone Python module with a clear main function.
+This module will be saved in the 'extensions' folder.
+Return ONLY the python code, no explanation."""
 
-        raw_code = left.think("Tu codes des outils pour ta propre survie.", prompt_forge)
+        raw_code = left.think("You code tools for your own survival.", prompt_forge)
         clean_code = extract_code(raw_code)
 
         if not clean_code:

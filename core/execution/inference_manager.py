@@ -130,7 +130,7 @@ class SovereignWorker:
             return {"error": "Modèle non chargé"}
 
         prompt = task.get("prompt", "")
-        system = task.get("system", "Tu es un assistant IA.")
+        system = task.get("system", "You are a helpful AI assistant.")
         temp = task.get("temperature", 0.7)
         max_tokens = task.get("max_tokens", 2048)
 
@@ -181,7 +181,7 @@ class SovereignWorker:
             return
 
         prompt = task.get("prompt", "")
-        system = task.get("system", "Tu es un assistant IA.")
+        system = task.get("system", "You are a helpful AI assistant.")
         temp = task.get("temperature", 0.7)
         max_tokens = task.get("max_tokens", 2048)
 
@@ -634,7 +634,7 @@ class InferenceManager:
         self,
         name: str,
         prompt: str,
-        system: str = "Tu es un assistant IA.",
+        system: str = "You are a helpful AI assistant.",
         max_tokens: int = 2048,
         temperature: float = 0.7,
     ) -> Dict[str, Any]:
@@ -672,7 +672,7 @@ class InferenceManager:
         self,
         name: str,
         prompt: str,
-        system: str = "Tu es un assistant IA.",
+        system: str = "You are a helpful AI assistant.",
         max_tokens: int = 2048,
         temperature: float = 0.7,
     ):
