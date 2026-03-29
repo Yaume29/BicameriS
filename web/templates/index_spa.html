@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BICAMERIS - Diadikos & Palladion</title>
+    <link rel="stylesheet" href="/static/css/dashboard.css">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <script src="/static/js/stream_controller.js" defer></script>
+    <script src="/static/js/ui_manager.js" defer></script>
+</head>
+<body>
+    
+    <!-- ==================== APP CONTAINER (CSS Grid) ==================== -->
+    <div class="app-container">
+        
+        <!-- ==================== SIDEBAR ==================== -->
+        <aside class="sidebar">
+            <!-- Logo -->
+            <div class="sidebar-header">
+                <svg viewBox="0 0 200 60" class="sidebar-logo" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stop-color="#00f3ff"/>
+                            <stop offset="100%" stop-color="#ff0055"/>
+                        </linearGradient>
+                    </defs>
+                    <text x="100" y="35" text-anchor="middle" fill="url(#grad)" font-size="22" font-weight="900" font-family="monospace">BICAMERIS</text>
+                    <text x="100" y="52" text-anchor="middle" fill="#666" font-size="8" font-family="monospace">Diadikos & Palladion</text>
+                </svg>
+            </div>
+            
+            <!-- Interactive Brain SVG -->
+            <div class="brain-container">
+                <svg class="brain-svg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <filter id="glow">
+                            <feGaussianBlur stdDeviation="3" result="blur"/>
+                            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+                        </filter>
+                    </defs>
+                    
+                    <!-- Outer rings -->
+                    <circle cx="100" cy="100" r="95" fill="none" stroke="#1a1a2e" stroke-width="1"/>
+                    <circle cx="100" cy="100" r="85" fill="none" stroke="#111" stroke-width="0.5" stroke-dasharray="2,10"/>
+                    
+                    <!-- Left Hemisphere (Diadikos - Cyan) -->
+                    <path id="brain-left" class="brain-hemisphere brain-left" 
+                          d="M90,40 C60,35 30,50 25,100 C20,150 50,175 90,175 L90,40 Z"/>
+                    
+                    <!-- Right Hemisphere (Palladion - Red) -->
+                    <path id="brain-right" class="brain-hemisphere brain-right"
+                          d="M110,40 C140,35 170,50 175,100 C180,150 150,175 110,175 L110,40 Z"/>
+                    
+                    <!-- Corpus Callosum -->
+                    <path id="corpus-callosum" class="corpus-callosum" stroke-dasharray="5,5"
+                          d="M90,80 Q100,70 110,80 M90,100 Q100,90 110,100 M90,120 Q100,110 110,120"/>
+                    
+                    <!-- Labels -->
+                    <text x="60" y="105" fill="#00f3ff" font-size="10" text-anchor="middle" opacity="0.5">DIA</text>
+                    <text x="140" y="105" fill="#ff0055" font-size="10" text-anchor="middle" opacity="0.5">PAL</text>
+                </svg>
+            </div>
+            
+            <!-- Brain Labels -->
+            <div class="brain-labels">
+                <span class="brain-label-left">Diadikos</span>
+                <span class="brain-label-right">Palladion</span>
+            </div>
+            
+            <!-- Brain Status -->
+            <div class="brain-status">
+                <div class="brain-status-main standby" id="brain-status-main">STANDBY</div>
+                <div class="brain-status-meta" id="brain-status-meta">Awaiting</div>
+            </div>
+            
+            <!-- Navigation -->
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">Principal</div>
+                    <a href="/" class="nav-item active" data-panel="home">
+                        <span class="nav-icon">[=]</span> Accueil
+                    </a>
+                    <a href="/chat" class="nav-item" data-panel="chat">
+                        <span class="nav-icon">[#]</span> Chat
+                    </a>
+                    <a href="/unified" class="nav-item" data-panel="unified">
+                        <span class="nav-icon">[+]</span> Unifie
+                    </a>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">Cognition</div>
+                    <a href="/inception" class="nav-item" data-panel="inception">
+                        <span class="nav-icon">[@]</span> Inception
+                    </a>
+                    <a href="/laboratoire" class="nav-item" data-panel="laboratoire">
+                        <span class="nav-icon">[%]</span> Laboratoire
+                    </a>
+                    <a href="/think" class="nav-item" data-panel="think">
+                        <span class="nav-icon">[!]</span> Pensees
+                    </a>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">Systeme</div>
+                    <a href="/models" class="nav-item" data-panel="models">
+                        <span class="nav-icon">[*]</span> Modeles
+                    </a>
+                    <a href="/dashboard" class="nav-item" data-panel="dashboard">
+                        <span class="nav-icon">[~]</span> Dashboard
+                    </a>
+                    <a href="/tasks" class="nav-item" data-panel="tasks">
+                        <span class="nav-icon">[^]</span> Taches
+                    </a>
+                    <a href="/files" class="nav-item" data-panel="files">
+                        <span class="nav-icon">[&]</span> Fichiers
+                    </a>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">Config</div>
+                    <a href="/research" class="nav-item" data-panel="research">
+                        <span class="nav-icon">[?]</span> Recherche
+                    </a>
+                    <a href="/settings" class="nav-item" data-panel="settings">
+                        <span class="nav-icon">[$]</span> Parametres
+                    </a>
+                    <a href="/launcher" class="nav-item" data-panel="launcher">
+                        <span class="nav-icon">[>]</span> Relancer
+                    </a>
+                </div>
+            </nav>
+            
+            <!-- Metrics -->
+            <div class="sidebar-metrics">
+                <div class="metric-row">
+                    <span class="metric-label">Modele</span>
+                    <span class="metric-value" id="model-status">Non configure</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">Pulse</span>
+                    <span class="metric-value" id="pulse-value">0.00</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">Cycles</span>
+                    <span class="metric-value" id="cycles-value">0</span>
+                </div>
+            </div>
+        </aside>
+        
+        <!-- ==================== MAIN CONTENT ==================== -->
+        <main class="main-area">
+            <div class="panels-container">
+                
+                <!-- Panel: Home -->
+                <div id="panel-home" class="panel home active" style="display: grid;">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Bienvenue dans BICAMERIS</h3>
+                        </div>
+                        <p>Systeme Cognitif Bicameral - Dialogue entre Logique et Intuition</p>
+                        <p style="color: var(--text-dim); margin-top: 10px; font-size: 12px;">
+                            Le systeme est prete. Configurez vos modeles pour commencer.
+                        </p>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Etape 1: Modeles</h3>
+                        </div>
+                        <p>Selectionnez vos fichiers GGUF</p>
+                        <button class="btn btn-primary" onclick="window.uiManager.showPanel('models')">
+                            Configurer
+                        </button>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Etape 2: Dialogue</h3>
+                        </div>
+                        <p>Commencez a discuter avec Aetheris</p>
+                        <button class="btn btn-secondary" onclick="window.uiManager.showPanel('chat')">
+                            Ouvrir Chat
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Panel: Chat (loaded via AJAX) -->
+                <div id="panel-chat" class="panel chat">
+                    <div id="chat-container" style="grid-row: 1; overflow-y: auto; padding: 20px;">
+                        <p style="color: var(--text-dim);">Chargement du chat...</p>
+                    </div>
+                    <div style="grid-row: 2; padding: 15px; border-top: 1px solid var(--border);">
+                        <div style="display: flex; gap: 10px;">
+                            <input type="text" id="chat-input" class="form-input" placeholder="Votre message..." style="flex: 1;">
+                            <button class="btn btn-primary" onclick="sendChatMessage()">Envoyer</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Panel: Models (loaded via AJAX) -->
+                <div id="panel-models" class="panel">
+                    <div id="models-container" style="padding: 20px;">
+                        <p style="color: var(--text-dim);">Chargement de la configuration...</p>
+                    </div>
+                </div>
+                
+                <!-- Panel: Unified (loaded via AJAX) -->
+                <div id="panel-unified" class="panel">
+                    <div id="unified-container" style="padding: 20px;">
+                        <p style="color: var(--text-dim);">Chargement du mode unifie...</p>
+                    </div>
+                </div>
+                
+                <!-- Panel: Inception (loaded via AJAX) -->
+                <div id="panel-inception" class="panel">
+                    <div id="inception-container" style="padding: 20px;">
+                        <p style="color: var(--text-dim);">Chargement...</p>
+                    </div>
+                </div>
+                
+                <!-- Panel: Laboratoire (loaded via AJAX) -->
+                <div id="panel-laboratoire" class="panel">
+                    <div id="laboratoire-container" style="padding: 20px;">
+                        <p style="color: var(--text-dim);">Chargement...</p>
+                    </div>
+                </div>
+                
+                <!-- Panel: Think (loaded via AJAX) -->
+                <div id="panel-think" class="panel">
+                    <div id="think-container" style="padding: 20px;">
+                        <p style="color: var(--text-dim);">Chargement...</p>
+                    </div>
+                </div>
+                
+                <!-- Panel: Tasks (loaded via AJAX) -->
+                <div id="panel-tasks" class="panel">
+                    <div id="tasks-container" style="padding: 20px;">
+                        <p style="color: var(--text-dim);">Chargement...</p>
+                    </div>
+                </div>
+                
+                <!-- Panel: Files (loaded via AJAX) -->
+                <div id="panel-files" class="panel">
+                    <div id="files-container" style="padding: 20px;">
+                        <p style="color: var(--text-dim);">Chargement...</p>
+                    </div>
+                </div>
+                
+                <!-- Panel: Dashboard -->
+                <div id="panel-dashboard" class="panel">
+                    <div id="dashboard-container" style="padding: 20px;">
+                        <h3>Dashboard</h3>
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 15px;">
+                            <div class="card">
+                                <div class="metric-label">CPU</div>
+                                <div class="metric-value" id="dash-cpu">--</div>
+                            </div>
+                            <div class="card">
+                                <div class="metric-label">RAM</div>
+                                <div class="metric-value" id="dash-ram">--</div>
+                            </div>
+                            <div class="card">
+                                <div class="metric-label">GPU</div>
+                                <div class="metric-value" id="dash-gpu">--</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Panel: Research (loaded via AJAX) -->
+                <div id="panel-research" class="panel">
+                    <div id="research-container" style="padding: 20px;">
+                        <p style="color: var(--text-dim);">Chargement...</p>
+                    </div>
+                </div>
+                
+                <!-- Panel: Settings (loaded via AJAX) -->
+                <div id="panel-settings" class="panel settings">
+                    <div id="settings-container" style="padding: 20px;">
+                        <p style="color: var(--text-dim);">Chargement des parametres...</p>
+                    </div>
+                </div>
+                
+                <!-- Panel: Launcher (loaded via AJAX) -->
+                <div id="panel-launcher" class="panel">
+                    <div id="launcher-container" style="padding: 20px;">
+                        <p style="color: var(--text-dim);">Chargement...</p>
+                    </div>
+                </div>
+                
+            </div>
+        </main>
+        
+        <!-- ==================== FOOTER / STATUS BAR ==================== -->
+        <footer class="footer">
+            <div class="footer-status">
+                <div class="status-dot" id="status-ws"></div>
+                <span>WebSocket</span>
+                <span style="color: var(--text-dim);">|</span>
+                <span id="footer-mode">Mode: Emergence</span>
+            </div>
+            
+            <div class="footer-metrics">
+                <div class="activity-dots">
+                    <div class="activity-dot" id="dot-1"></div>
+                    <div class="activity-dot" id="dot-2"></div>
+                    <div class="activity-dot" id="dot-3"></div>
+                </div>
+                <span id="footer-pulse">Pulse: 0.50</span>
+            </div>
+        </footer>
+        
+    </div>
+    
+    <!-- ==================== INLINE SCRIPTS ==================== -->
+    <script>
+    // Chat message handler
+    function sendChatMessage() {
+        const input = document.getElementById('chat-input');
+        const message = input.value.trim();
+        if (!message) return;
+        
+        // Add to chat container
+        const container = document.getElementById('chat-container');
+        container.innerHTML += `<div style="text-align: right; margin: 10px 0;"><div style="display: inline-block; background: var(--bg-tertiary); padding: 8px 12px; border-radius: 8px;">${escapeHtml(message)}</div></div>`;
+        
+        input.value = '';
+        
+        // Send to API
+        fetch('/api/chat/send', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({message: message})
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.response) {
+                container.innerHTML += `<div style="margin: 10px 0;"><div style="display: inline-block; background: rgba(0,243,255,0.1); border: 1px solid var(--diadikos); padding: 8px 12px; border-radius: 8px;">${escapeHtml(data.response)}</div></div>`;
+                container.scrollTop = container.scrollHeight;
+            }
+        })
+        .catch(e => console.error('Chat error:', e));
+    }
+    
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+    
+    // Load panel content via AJAX
+    async function loadPanelContent(panelId) {
+        const container = document.getElementById(`${panelId}-container`);
+        if (!container) return;
+        
+        try {
+            const resp = await fetch(`/${panelId}`);
+            const html = await resp.text();
+            
+            // Extract body content from full HTML response
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            const content = doc.querySelector('.main-content') || doc.querySelector('body');
+            
+            if (content) {
+                container.innerHTML = content.innerHTML;
+            }
+        } catch (e) {
+            console.error(`Failed to load ${panelId}:`, e);
+            container.innerHTML = `<p style="color: var(--palladion);">Erreur de chargement</p>`;
+        }
+    }
+    
+    // Listen for panel changes and load content
+    document.addEventListener('panelChange', (e) => {
+        const panelId = e.detail.panel;
+        if (!['home', 'chat', 'dashboard'].includes(panelId)) {
+            loadPanelContent(panelId);
+        }
+    });
+    
+    // Handle Enter key in chat
+    document.getElementById('chat-input')?.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            sendChatMessage();
+        }
+    });
+    
+    // Initialize telemetry listener
+    document.addEventListener('DOMContentLoaded', () => {
+        if (window.streamController) {
+            window.streamController.on('thermal', (data) => {
+                document.getElementById('dash-cpu').textContent = `${data.cpu_load || 0}%`;
+                document.getElementById('dash-ram').textContent = `${data.ram_load || 0}%`;
+                document.getElementById('dash-gpu').textContent = `${data.gpu_temp || '--'}°C`;
+            });
+            
+            window.streamController.on('pulse', (data) => {
+                document.getElementById('footer-pulse').textContent = `Pulse: ${(data.pulse || 0.5).toFixed(2)}`;
+            });
+            
+            window.streamController.on('connected', () => {
+                document.getElementById('status-ws').classList.add('active');
+            });
+            
+            window.streamController.on('disconnected', () => {
+                document.getElementById('status-ws').classList.remove('active');
+            });
+        }
+    });
+    </script>
+    
+</body>
+</html>
