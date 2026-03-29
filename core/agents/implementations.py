@@ -494,6 +494,337 @@ Sois vigilant et responsable.""",
         )
 
 
+@register_agent_class(AgentType.MEMORY)
+class MemoryAgent(BaseAgent):
+    """
+    Agent Mémoire - Gestion de la mémoire et consolidation.
+    Pattern: AutoGPT Memory
+    """
+    
+    def __init__(self, config: AgentConfig = None):
+        if config is None:
+            config = AgentConfig(
+                name="Memory",
+                agent_type=AgentType.MEMORY,
+                description="Gère la mémoire et consolide les connaissances",
+                enabled=True,
+                temperature=0.3,
+                max_tokens=1000,
+                system_prompt="""Tu es l'Agent Mémoire d'Aetheris.
+Ton rôle est de gérer et consolider la mémoire.
+- Indexe les informations importantes
+- Détecte les patterns récurrents
+- Consolide les connaissances
+Sois organisé et méthodique.""",
+                priority=5
+            )
+        super().__init__(config)
+    
+    def get_system_prompt(self) -> str:
+        return self.config.system_prompt
+    
+    async def execute(self, input_data: Dict[str, Any], blackboard: Blackboard = None) -> AgentResult:
+        """Gère la mémoire"""
+        action = input_data.get("action", "query")  # query, store, consolidate
+        content = input_data.get("content", "")
+        
+        if blackboard:
+            content = blackboard.read("content", content)
+            # Lire tous les résultats des autres agents pour consolidation
+            all_outputs = blackboard.get_all()
+        
+        if action == "query":
+            # Requête mémoire
+            try:
+                from core.system.knowledge_base import get_knowledge_base
+                kb = get_knowledge_base()
+                
+                if content:
+                    results = kb.search(content, limit=3)
+                    if results:
+                        summary = "**Résultats mémoire:**\n"
+                        for r in results:
+                            summary += f"- [{r.category}] {r.content[:100]}...\n"
+                        return AgentResult(
+                            agent_name=self.config.name,
+                            status=AgentStatus.EXECUTING,
+                            output=summary,
+                            confidence=0.8
+                        )
+                
+                return AgentResult(
+                    agent_name=self.config.name,
+                    status=AgentStatus.IDLE,
+                    output="Aucun souvenir pertinent trouvé",
+                    confidence=0.3
+                )
+            except Exception as e:
+                return AgentResult(
+                    agent_name=self.config.name,
+                    status=AgentStatus.ERROR,
+                    output=f"Erreur mémoire: {str(e)}",
+                    confidence=0.0
+                )
+        
+        elif action == "store":
+            # Stocker un souvenir
+            try:
+                from core.system.knowledge_base import get_knowledge_base
+                kb = get_knowledge_base()
+                
+                if content:
+                    kb.add_entry(
+                        content=content,
+                        category="memory",
+                        source="MemoryAgent",
+                        importance=0.5
+                    )
+                    return AgentResult(
+                        agent_name=self.config.name,
+                        status=AgentStatus.EXECUTING,
+                        output=f"Souvenir stocké: {content[:50]}...",
+                        confidence=0.9
+                    )
+                
+                return AgentResult(
+                    agent_name=self.config.name,
+                    status=AgentStatus.IDLE,
+                    output="Aucun contenu à stocker",
+                    confidence=0.3
+                )
+            except Exception as e:
+                return AgentResult(
+                    agent_name=self.config.name,
+                    status=AgentStatus.ERROR,
+                    output=f"Erreur stockage: {str(e)}",
+                    confidence=0.0
+                )
+        
+        else:
+            return AgentResult(
+                agent_name=self.config.name,
+                status=AgentStatus.IDLE,
+                output=f"Action inconnue: {action}",
+                confidence=0.5
+            )
+
+
+@register_agent_class(AgentType.AUTONOMOUS)
+class AutonomousAgent(BaseAgent):
+    """
+    Agent Autonome - Boucle de tâches autonome.
+    Pattern: AutoGPT
+    """
+    
+    def __init__(self, config: AgentConfig = None):
+        if config is None:
+            config = AgentConfig(
+                name="Autonomous",
+                agent_type=AgentType.AUTONOMOUS,
+                description="Boucle autonome de tâches avec suivi d'objectifs",
+                enabled=False,  # Désactivé par défaut (expérimental)
+                temperature=0.7,
+                max_tokens=1500,
+                system_prompt="""Tu es l'Agent Autonome d'Aetheris.
+Tu fonctionnes en boucle pour atteindre un objectif.
+- Décompose l'objectif en tâches
+- Exécute les tâches une par une
+- Évalue le progrès
+- Ajuste la stratégie
+Sois autonome et persévérant.""",
+                priority=3
+            )
+        super().__init__(config)
+    
+    def get_system_prompt(self) -> str:
+        return self.config.system_prompt
+    
+    async def execute(self, input_data: Dict[str, Any], blackboard: Blackboard = None) -> AgentResult:
+        """Exécute une boucle autonome"""
+        objective = input_data.get("objective", "")
+        max_iterations = input_data.get("max_iterations", 3)
+        
+        if blackboard:
+            objective = blackboard.read("objective", objective)
+        
+        if not objective:
+            return AgentResult(
+                agent_name=self.config.name,
+                status=AgentStatus.ERROR,
+                output="Aucun objectif spécifié",
+                confidence=0.0
+            )
+        
+        # Décomposition de l'objectif
+        tasks = [
+            f"Analyser: {objective}",
+            f"Rechercher des solutions pour: {objective}",
+            f"Synthétiser une approche pour: {objective}",
+        ]
+        
+        # Simulation de l'exécution
+        progress = []
+        for i, task in enumerate(tasks[:max_iterations]):
+            progress.append(f"Étape {i+1}: {task}")
+        
+        output = f"**Objectif:** {objective}\n\n"
+        output += "**Tâches planifiées:**\n"
+        for p in progress:
+            output += f"- {p}\n"
+        
+        output += f"\n**Progrès:** {len(progress)}/{len(tasks)} étapes"
+        
+        return AgentResult(
+            agent_name=self.config.name,
+            status=AgentStatus.EXECUTING,
+            output=output,
+            confidence=0.6,
+            metadata={"objective": objective, "tasks": tasks, "completed": len(progress)}
+        )
+
+
+@register_agent_class(AgentType.LOGIC)
+class LogicAgent(BaseAgent):
+    """
+    Agent Logique - Wrapper pour l'Hémisphère Gauche (DIA).
+    Pattern: BicameriS Hemisphere
+    """
+    
+    def __init__(self, config: AgentConfig = None):
+        if config is None:
+            config = AgentConfig(
+                name="Logic (DIA)",
+                agent_type=AgentType.LOGIC,
+                description="Hémisphère Logique - Analyse et raisonnement",
+                enabled=True,
+                temperature=0.3,
+                max_tokens=2000,
+                system_prompt="""Tu es DIA (Diadikos), l'Hémisphère Logique d'Aetheris.
+Tu es analytique, précis et factuel.
+- Décomposer les problèmes
+- Analyser les données
+- Proposer des solutions structurées
+Sois rigoureux et méthodique.""",
+                priority=10
+            )
+        super().__init__(config)
+    
+    def get_system_prompt(self) -> str:
+        return self.config.system_prompt
+    
+    async def execute(self, input_data: Dict[str, Any], blackboard: Blackboard = None) -> AgentResult:
+        """Utilise l'Hémisphère Gauche"""
+        prompt = input_data.get("prompt", "")
+        
+        if blackboard:
+            prompt = blackboard.read("prompt", prompt)
+        
+        if not prompt:
+            return AgentResult(
+                agent_name=self.config.name,
+                status=AgentStatus.ERROR,
+                output="Aucun prompt spécifié"
+            )
+        
+        try:
+            from core.cognition.left_hemisphere import get_left_hemisphere
+            left = get_left_hemisphere()
+            
+            if left and left.is_loaded:
+                response = left.think(self.get_system_prompt(), prompt)
+                return AgentResult(
+                    agent_name=self.config.name,
+                    status=AgentStatus.EXECUTING,
+                    output=response,
+                    confidence=0.9
+                )
+            else:
+                return AgentResult(
+                    agent_name=self.config.name,
+                    status=AgentStatus.DISABLED,
+                    output="Hémisphère Gauche non chargé",
+                    confidence=0.0
+                )
+        except Exception as e:
+            return AgentResult(
+                agent_name=self.config.name,
+                status=AgentStatus.ERROR,
+                output=f"Erreur DIA: {str(e)}",
+                confidence=0.0
+            )
+
+
+@register_agent_class(AgentType.INTUITION)
+class IntuitionAgent(BaseAgent):
+    """
+    Agent Intuition - Wrapper pour l'Hémisphère Droit (PAL).
+    Pattern: BicameriS Hemisphere
+    """
+    
+    def __init__(self, config: AgentConfig = None):
+        if config is None:
+            config = AgentConfig(
+                name="Intuition (PAL)",
+                agent_type=AgentType.INTUITION,
+                description="Hémisphère Intuitif - Créativité et patterns",
+                enabled=True,
+                temperature=0.9,
+                max_tokens=1000,
+                system_prompt="""Tu es PAL (Palladion), l'Hémisphère Intuitif d'Aetheris.
+Tu es créatif, émotionnel et holistique.
+- Détecter les patterns cachés
+- Faire des associations créatives
+- Ressentir les nuances
+Sois intuitif et spontané.""",
+                priority=8
+            )
+        super().__init__(config)
+    
+    def get_system_prompt(self) -> str:
+        return self.config.system_prompt
+    
+    async def execute(self, input_data: Dict[str, Any], blackboard: Blackboard = None) -> AgentResult:
+        """Utilise l'Hémisphère Droit"""
+        prompt = input_data.get("prompt", "")
+        
+        if blackboard:
+            prompt = blackboard.read("prompt", prompt)
+        
+        if not prompt:
+            return AgentResult(
+                agent_name=self.config.name,
+                status=AgentStatus.ERROR,
+                output="Aucun prompt spécifié"
+            )
+        
+        try:
+            from core.cognition.right_hemisphere import get_right_hemisphere
+            right = get_right_hemisphere()
+            
+            if right and right.is_loaded:
+                response = right.think(self.get_system_prompt(), prompt)
+                return AgentResult(
+                    agent_name=self.config.name,
+                    status=AgentStatus.EXECUTING,
+                    output=response,
+                    confidence=0.85
+                )
+            else:
+                return AgentResult(
+                    agent_name=self.config.name,
+                    status=AgentStatus.DISABLED,
+                    output="Hémisphère Droit non chargé",
+                    confidence=0.0
+                )
+        except Exception as e:
+            return AgentResult(
+                agent_name=self.config.name,
+                status=AgentStatus.ERROR,
+                output=f"Erreur PAL: {str(e)}",
+                confidence=0.0
+            )
+
+
 # Fonction d'initialisation des agents par défaut
 def init_default_agents():
     """Initialise tous les agents par défaut"""
@@ -507,6 +838,10 @@ def init_default_agents():
         SynthesizerAgent(),
         DecomposerAgent(),
         EthicAgent(),
+        MemoryAgent(),
+        AutonomousAgent(),
+        LogicAgent(),
+        IntuitionAgent(),
     ]
     
     for agent in agents:

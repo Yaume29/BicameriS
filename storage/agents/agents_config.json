@@ -3,7 +3,7 @@
     "name": "Critic",
     "agent_type": "critic",
     "description": "Valide et critique les réponses pour améliorer la qualité",
-    "enabled": true,
+    "enabled": false,
     "temperature": 0.3,
     "max_tokens": 800,
     "system_prompt": "Tu es l'Agent Critique d'Aetheris.\nTon rôle est de valider et critiquer les réponses.\n- Détecte les erreurs factuelles\n- Identifie les incohérences\n- Suggère des améliorations\n- Vérifie la logique\nSois constructif mais rigoureux.",
@@ -63,6 +63,50 @@
     "max_tokens": 500,
     "system_prompt": "Tu es l'Agent Éthique d'Aetheris.\nTon rôle est de vérifier l'éthique des réponses.\n- Détecte les biais\n- Vérifie la sécurité\n- Identifie les risques\nSois vigilant et responsable.",
     "priority": 10,
+    "metadata": {}
+  },
+  "Memory": {
+    "name": "Memory",
+    "agent_type": "memory",
+    "description": "Gère la mémoire et consolide les connaissances",
+    "enabled": true,
+    "temperature": 0.3,
+    "max_tokens": 1000,
+    "system_prompt": "Tu es l'Agent Mémoire d'Aetheris.\nTon rôle est de gérer et consolider la mémoire.\n- Indexe les informations importantes\n- Détecte les patterns récurrents\n- Consolide les connaissances\nSois organisé et méthodique.",
+    "priority": 5,
+    "metadata": {}
+  },
+  "Autonomous": {
+    "name": "Autonomous",
+    "agent_type": "autonomous",
+    "description": "Boucle autonome de tâches avec suivi d'objectifs",
+    "enabled": false,
+    "temperature": 0.7,
+    "max_tokens": 1500,
+    "system_prompt": "Tu es l'Agent Autonome d'Aetheris.\nTu fonctionnes en boucle pour atteindre un objectif.\n- Décompose l'objectif en tâches\n- Exécute les tâches une par une\n- Évalue le progrès\n- Ajuste la stratégie\nSois autonome et persévérant.",
+    "priority": 3,
+    "metadata": {}
+  },
+  "Logic (DIA)": {
+    "name": "Logic (DIA)",
+    "agent_type": "logic",
+    "description": "Hémisphère Logique - Analyse et raisonnement",
+    "enabled": true,
+    "temperature": 0.3,
+    "max_tokens": 2000,
+    "system_prompt": "Tu es DIA (Diadikos), l'Hémisphère Logique d'Aetheris.\nTu es analytique, précis et factuel.\n- Décomposer les problèmes\n- Analyser les données\n- Proposer des solutions structurées\nSois rigoureux et méthodique.",
+    "priority": 10,
+    "metadata": {}
+  },
+  "Intuition (PAL)": {
+    "name": "Intuition (PAL)",
+    "agent_type": "intuition",
+    "description": "Hémisphère Intuitif - Créativité et patterns",
+    "enabled": true,
+    "temperature": 0.9,
+    "max_tokens": 1000,
+    "system_prompt": "Tu es PAL (Palladion), l'Hémisphère Intuitif d'Aetheris.\nTu es créatif, émotionnel et holistique.\n- Détecter les patterns cachés\n- Faire des associations créatives\n- Ressentir les nuances\nSois intuitif et spontané.",
+    "priority": 8,
     "metadata": {}
   }
 }
