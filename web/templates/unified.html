@@ -438,6 +438,9 @@
                     <button class="mode-btn active" data-mode="emergence" onclick="setMode('emergence')">
                         🧠 Émergence Pure
                     </button>
+                    <button class="mode-btn" data-mode="asymetrique" onclick="setMode('asymetrique')">
+                        ⚡ Double Double
+                    </button>
                     <button class="mode-btn" data-mode="knowledge" onclick="setMode('knowledge')">
                         📚 Connaissance (RAG)
                     </button>
@@ -617,6 +620,26 @@ L'intelligence vient du dialogue, pas des outils.
                 addPalladionMessage(data.passed, data.message);
                 break;
                 
+            // Double Double Asymétrique handlers
+            case 'right_hypotheses':
+                addAsymetriqueMessage('Éclaireur Aveugle', data.content, '#ff0055');
+                updateBrainState('right', 'thinking');
+                break;
+                
+            case 'rag_context':
+                addRagContextMessage(data.content, data.sources || []);
+                break;
+                
+            case 'left_analysis':
+                addAsymetriqueMessage('Sniper Factuel', data.content, '#00f3ff');
+                updateBrainState('left', 'thinking');
+                break;
+                
+            case 'final_synthesis':
+                addSynthesisMessage(data.content);
+                updateBrainState('bridge', true);
+                break;
+                
             case 'final_response':
                 addFinalMessage(data.content, {
                     confidence: data.confidence,
@@ -637,6 +660,56 @@ L'intelligence vient du dialogue, pas des outils.
                 setProcessing(false);
                 break;
         }
+    }
+    
+    function addAsymetriqueMessage(role, content, color) {
+        const container = document.getElementById('chat-messages');
+        const div = document.createElement('div');
+        div.className = 'message-bubble';
+        div.style.borderColor = color;
+        div.style.background = `${color}15`;
+        
+        div.innerHTML = `
+            <div class="message-role" style="color: ${color}">${role}</div>
+            <div class="message-content">${escapeHtml(content)}</div>
+        `;
+        
+        container.appendChild(div);
+        container.scrollTop = container.scrollHeight;
+    }
+    
+    function addRagContextMessage(content, sources) {
+        const container = document.getElementById('chat-messages');
+        const div = document.createElement('div');
+        div.className = 'message-bubble rag';
+        
+        const sourcesHtml = sources.length > 0 
+            ? `<div class="message-meta">Sources: ${sources.join(', ')}</div>`
+            : '';
+        
+        div.innerHTML = `
+            <div class="message-role rag">Hippocampe (RAG)</div>
+            <div class="message-content">${escapeHtml(content)}</div>
+            ${sourcesHtml}
+        `;
+        
+        container.appendChild(div);
+        container.scrollTop = container.scrollHeight;
+    }
+    
+    function addSynthesisMessage(content) {
+        const container = document.getElementById('chat-messages');
+        const div = document.createElement('div');
+        div.className = 'message-bubble final';
+        
+        div.innerHTML = `
+            <div class="message-role">Corps Calleux (Synthèse)</div>
+            <div class="message-content">${escapeHtml(content)}</div>
+            <div class="message-meta">Mode: Double Double Asymétrique</div>
+        `;
+        
+        container.appendChild(div);
+        container.scrollTop = container.scrollHeight;
     }
     
     function addMessage(role, content, meta = {}) {
@@ -791,6 +864,7 @@ L'intelligence vient du dialogue, pas des outils.
         
         const modeLabels = {
             'emergence': 'Émergence Pure',
+            'asymetrique': 'Double Double Asymétrique',
             'knowledge': 'Connaissance (RAG)',
             'hybrid': 'Hybride Adaptatif'
         };
@@ -802,6 +876,9 @@ L'intelligence vient du dialogue, pas des outils.
         if (mode === 'emergence') {
             ragStatus.textContent = 'Désactivé';
             ragStatus.style.color = 'var(--synapse)';
+        } else if (mode === 'asymetrique') {
+            ragStatus.textContent = 'Optionnel';
+            ragStatus.style.color = '#00f3ff';
         } else {
             ragStatus.textContent = 'Activé';
             ragStatus.style.color = '#ffaa00';

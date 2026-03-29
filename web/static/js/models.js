@@ -730,3 +730,120 @@ async function loadFolders(path) {
         folderList.innerHTML = `<div class="loading" style="color: #ff4444;">Erreur: ${err.message}</div>`;
     }
 }
+
+// ============ AUTO-CONNECT & PERSISTENCE TOGGLES ============
+
+let autoConnectEnabled = false;
+let persistenceEnabled = false;
+
+function toggleAutoConnect() {
+    autoConnectEnabled = !autoConnectEnabled;
+    const btn = document.getElementById('btn-autoconnect');
+    
+    if (autoConnectEnabled) {
+        btn.className = 'toggle-btn on';
+        btn.textContent = 'ON';
+        
+        // Sauvegarder la préférence
+        localStorage.setItem('bicameris_autoconnect', 'true');
+    } else {
+        btn.className = 'toggle-btn off';
+        btn.textContent = 'OFF';
+        
+        // Supprimer la préférence
+        localStorage.removeItem('bicameris_autoconnect');
+    }
+}
+
+function togglePersistence() {
+    persistenceEnabled = !persistenceEnabled;
+    const btn = document.getElementById('btn-persistence');
+    
+    if (persistenceEnabled) {
+        btn.className = 'toggle-btn on';
+        btn.textContent = 'ON';
+        
+        // Sauvegarder la préférence
+        localStorage.setItem('bicameris_persistence', 'true');
+        
+        // Sauvegarder la session actuelle
+        saveCurrentSession();
+    } else {
+        btn.className = 'toggle-btn off';
+        btn.textContent = 'OFF';
+        
+        // Supprimer la préférence et la session
+        localStorage.removeItem('bicameris_persistence');
+        localStorage.removeItem('bicameris_session');
+    }
+}
+
+function saveCurrentSession() {
+    const sessionData = {
+        left_model: document.getElementById('left-model')?.value || '',
+        right_model: document.getElementById('right-model')?.value || '',
+        left_temperature: document.getElementById('dia-temperature')?.value || 0.7,
+        right_temperature: document.getElementById('pal-temperature')?.value || 1.2,
+        bicameral_mode: document.getElementById('both-hemispheres')?.checked || false,
+        timestamp: new Date().toISOString()
+    };
+    
+    localStorage.setItem('bicameris_session', JSON.stringify(sessionData));
+}
+
+function loadSavedPreferences() {
+    // Charger les préférences sauvegardées
+    const autoConnect = localStorage.getItem('bicameris_autoconnect');
+    const persistence = localStorage.getItem('bicameris_persistence');
+    
+    if (autoConnect === 'true') {
+        autoConnectEnabled = true;
+        const btn = document.getElementById('btn-autoconnect');
+        if (btn) {
+            btn.className = 'toggle-btn on';
+            btn.textContent = 'ON';
+        }
+    }
+    
+    if (persistence === 'true') {
+        persistenceEnabled = true;
+        const btn = document.getElementById('btn-persistence');
+        if (btn) {
+            btn.className = 'toggle-btn on';
+            btn.textContent = 'ON';
+        }
+        
+        // Restaurer la session si elle existe
+        restoreSession();
+    }
+}
+
+function restoreSession() {
+    const sessionJson = localStorage.getItem('bicameris_session');
+    if (!sessionJson) return;
+    
+    try {
+        const session = JSON.parse(sessionJson);
+        
+        // Restaurer les valeurs dans les champs
+        const leftModel = document.getElementById('left-model');
+        const rightModel = document.getElementById('right-model');
+        const bothHemi = document.getElementById('both-hemispheres');
+        
+        if (leftModel && session.left_model) {
+            leftModel.value = session.left_model;
+        }
+        if (rightModel && session.right_model) {
+            rightModel.value = session.right_model;
+        }
+        if (bothHemi && session.bicameral_mode) {
+            bothHemi.checked = session.bicameral_mode;
+        }
+        
+    } catch (e) {
+        console.error('Erreur restauration session:', e);
+    }
+}
+
+// Charger les préférences au démarrage
+document.addEventListener('DOMContentLoaded', loadSavedPreferences);

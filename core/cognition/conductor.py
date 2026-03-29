@@ -192,8 +192,15 @@ class Conductor:
         task_result["right_raw"] = right_intuition
 
         from core.system.switchboard import get_switchboard
+        sb = get_switchboard()
+        
+        # INJECTION PSYCHOLOGIQUE : La Paranoïa de l'Alpha
+        security_directive = sb.get_security_directive()
+        if security_directive:
+            prompt_utilisateur = f"{security_directive}\n\n[PROMPT ORIGINAL]: {prompt_utilisateur}"
+            logging.warning(f"🛡️ Bouclier cognitif actif: Confiance Opérateur à {sb.get_trust_alpha():.2f}")
 
-        if get_switchboard().is_active("hyper_cognition_mode"):
+        if sb.is_active("hyper_cognition_mode"):
             logging.warning("☢️ [CRUCIBLE MODE] Activation de l'hyper-cognition asymétrique.")
             task_result = self._mode_crucible(prompt_utilisateur, task_result)
         elif pulse > 0.75:
@@ -290,8 +297,11 @@ Rationalise cette intuition. Ne la rejette pas."""
 
         # 2. OUTILS EXTERNES DYNAMIQUES (Le Model Context Protocol)
         from core.system.switchboard import get_switchboard
+        sb = get_switchboard()
 
-        if get_switchboard().is_active("strict_airgap_mode"):
+        if not sb.is_mcp_allowed():
+            logging.warning(f"[Conductor] 🛑 Outils MCP verrouillés : Confiance Opérateur insuffisante ({sb.get_trust_alpha():.2f}).")
+        elif sb.is_active("strict_airgap_mode"):
             logging.warning(
                 "[Conductor] 🛑 STRICT AIRGAP MODE ON : Outils MCP désactivés. Cognition en circuit fermé."
             )
@@ -299,6 +309,7 @@ Rationalise cette intuition. Ne la rejette pas."""
             try:
                 mcp = get_mcp_manager()
 
+                # --- A. Injection des outils RAG (Hippocampus) ---
                 try:
                     from core.system.hippocampus import get_hippocampus
 
@@ -306,32 +317,42 @@ Rationalise cette intuition. Ne la rejette pas."""
                     if hippo.is_available():
                         relevant_tools = hippo.search_tools(prompt, limit=5)
                         if relevant_tools:
-                            logging.info(
-                                f"[Conductor] 🎯 Tool RAG: {len(relevant_tools)} outils pertinents trouvés"
-                            )
                             for t in relevant_tools:
                                 server = t.get("server", "")
                                 native = t.get("native_name", "")
 
+                                # BOUCLIER DE TROUILLARD
                                 def make_caller(s, n):
-                                    return lambda a: mcp.call_tool(s, n, a)
+                                    def _safe_caller(a):
+                                        try:
+                                            return mcp.call_tool(s, n, a)
+                                        except Exception as e:
+                                            logging.error(f"❌ [MCP Error] {s}.{n}: {e}")
+                                            return {"error": f"Tool execution failed: {str(e)}"}
+                                    return _safe_caller
 
                                 executor.register(t.get("name"), make_caller(server, native))
-                            logging.info(
-                                f"[Conductor] 🌐 Tool RAG actif: {len(relevant_tools)} outils enregistrés"
-                            )
+                            logging.info(f"[Conductor] 🎯 Tool RAG actif: {len(relevant_tools)} outils enregistrés")
                             return
                 except Exception as e:
                     logging.debug(f"[Conductor] Tool RAG skipped: {e}")
 
+                # --- B. Injection du Fallback MCP global ---
                 mcp_tools = mcp.get_available_tools()
                 for server_info in mcp_tools:
                     server_name = server_info.get("server")
                     for tool in server_info.get("tools", []):
                         tool_name = tool.get("name")
 
+                        # BOUCLIER DE TROUILLARD
                         def make_mcp_caller(s_name, t_name):
-                            return lambda args: mcp.call_tool(s_name, t_name, args)
+                            def _safe_caller(args):
+                                try:
+                                    return mcp.call_tool(s_name, t_name, args)
+                                except Exception as e:
+                                    logging.error(f"❌ [MCP Error] {s_name}.{t_name}: {e}")
+                                    return {"error": f"Tool execution failed: {str(e)}"}
+                            return _safe_caller
 
                         executor.register(
                             f"mcp_{server_name}_{tool_name}",
@@ -444,6 +465,15 @@ Exécute la tâche de bout en bout."""
 
         left = get_left_hemisphere()
         right = get_right_hemisphere()
+        
+        # Vérifier que les hémisphères sont disponibles
+        if not left or not right:
+            logging.warning("[Crucible] Hémisphères non disponibles, mode dégradé")
+            return {
+                **task_result,
+                "status": "degraded",
+                "final_response": f"[MODE DÉGRADÉ] Hémisphères non chargés. Réponse simple pour: {prompt[:100]}...",
+            }
 
         from core.cognition.left_hemisphere import ToolExecutor
         from core.system.mcp_client import get_mcp_manager

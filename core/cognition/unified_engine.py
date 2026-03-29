@@ -23,6 +23,7 @@ from enum import Enum
 class UnifiedMode(str, Enum):
     """Modes de fonctionnement du module unifié"""
     EMERGENCE = "emergence"      # Mode par défaut - dialogue pur
+    ASYMETRIQUE = "asymetrique"  # Double Double Asymétrique (GAN sémantique)
     KNOWLEDGE = "knowledge"      # RAG activé
     HYBRID = "hybrid"           # RAG seulement si nécessaire
 
@@ -480,6 +481,116 @@ class UnifiedEngine:
             context_parts.append(f"[{msg.role.upper()}]: {msg.content[:200]}")
         
         return "\n".join(context_parts)
+    
+    async def process_asymetrique(
+        self,
+        session_id: str,
+        user_message: str,
+        rag_enabled: bool = False,
+        right_temperature: float = 0.8,
+        left_temperature: float = 0.1,
+        max_hypotheses_tokens: int = 300,
+        presence_penalty: float = 0.0,
+    ) -> AsyncGenerator[Dict, None]:
+        """
+        Traite un message en mode Double Double Asymétrique.
+        
+        Flux:
+        1. Droit hallucine (zéro RAG) - Température haute
+        2. Hippocampe cherche (si RAG activé)
+        3. Gauche audite avec faits - Température basse
+        4. Corps Calleux tranche
+        """
+        session = self.sessions.get(session_id)
+        if not session:
+            yield {"type": "error", "message": "Session not found"}
+            return
+        
+        # Ajouter le message utilisateur
+        user_msg = DialogueMessage(
+            role="user",
+            content=user_message,
+            timestamp=datetime.now().isoformat()
+        )
+        session.messages.append(user_msg)
+        
+        yield {"type": "user_message", "content": user_message}
+        
+        # 1. L'ÉCLAIREUR AVEUGLE (Droite)
+        yield {"type": "status", "state": "eclaireur_aveugle"}
+        
+        # Utiliser le Corps Calleux pour l'algorithme asymétrique
+        from server.extensions import registry
+        
+        if registry.corps_calleux:
+            corps = registry.corps_calleux
+            
+            # Exécuter l'algorithme complet
+            yield {"type": "status", "state": "right_thinking"}
+            
+            result = corps.dialogue_asymetrique(
+                question=user_message,
+                rag_enabled=rag_enabled,
+                right_temperature=right_temperature,
+                left_temperature=left_temperature,
+                max_hypotheses_tokens=max_hypotheses_tokens,
+                presence_penalty=presence_penalty,
+            )
+            
+            # Envoyer les hypothèses du droit
+            yield {
+                "type": "right_hypotheses",
+                "content": result.get("right_hypotheses", ""),
+                "step": "Éclaireur Aveugle"
+            }
+            
+            # 2. RAG (si activé)
+            if rag_enabled and result.get("rag_context"):
+                yield {
+                    "type": "rag_context",
+                    "content": result["rag_context"][:500] + "...",
+                    "sources": result.get("rag_sources", []),
+                    "step": "Hippocampe"
+                }
+            
+            # 3. Analyse du gauche
+            yield {"type": "status", "state": "sniper_factuel"}
+            yield {
+                "type": "left_analysis",
+                "content": result.get("left_analysis", ""),
+                "step": "Sniper Factuel"
+            }
+            
+            # 4. Synthèse finale
+            yield {"type": "status", "state": "synthese"}
+            yield {
+                "type": "final_synthesis",
+                "content": result.get("final_synthesis", ""),
+                "step": "Corps Calleux"
+            }
+            
+            # Sauvegarder dans la session
+            final_msg = DialogueMessage(
+                role="final",
+                content=result.get("final_synthesis", ""),
+                timestamp=datetime.now().isoformat(),
+                metadata=result
+            )
+            session.messages.append(final_msg)
+            
+            yield {
+                "type": "done",
+                "result": {
+                    "question": user_message,
+                    "right_hypotheses": result.get("right_hypotheses", ""),
+                    "left_analysis": result.get("left_analysis", ""),
+                    "final_synthesis": result.get("final_synthesis", ""),
+                    "rag_used": rag_enabled and bool(result.get("rag_context")),
+                    "mode": "asymetrique"
+                }
+            }
+        else:
+            yield {"type": "error", "message": "Corps Calleux not available"}
     
     def get_session(self, session_id: str) -> Optional[UnifiedSession]:
         """Récupère une session"""

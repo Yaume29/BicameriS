@@ -911,10 +911,17 @@ class InferenceManager:
                     "ipc_address": inc.get("ipc_address"),
                 }
 
+        # Convertir en liste pour la compatibilité JavaScript
+        incarnations_list = [
+            {"name": name, **info}
+            for name, info in status.items()
+        ]
+        
         return {
             "total": len(status),
             "alive": sum(1 for s in status.values() if s["alive"]),
-            "incarnations": status,
+            "incarnations": incarnations_list,  # Liste pour compatibilité JS
+            "incarnations_dict": status,  # Dict pour usage interne
         }
 
     def get_incarnations(self) -> List[Dict[str, Any]]:

@@ -318,6 +318,93 @@
                 </div>
             </div>
             
+            <!-- Section: STM & AutoTune -->
+            <div class="settings-section">
+                <div class="settings-section-header">
+                    <span class="text-synapse">🎯</span>
+                    <span class="settings-section-title">STM & AutoTune</span>
+                </div>
+                <div class="settings-section-body">
+                    <div class="warning-banner">
+                        <div class="warning-banner-icon">ℹ️</div>
+                        <div class="warning-banner-content">
+                            <h4>Modules Optionnels</h4>
+                            <p>Ces modules transforment les sorties de l'IA. Tous sont désactivés par défaut.</p>
+                        </div>
+                    </div>
+                    
+                    <h5 style="color: var(--text-secondary); margin: 15px 0 10px; font-size: 12px;">STM - Semantic Transformation Modules</h5>
+                    
+                    <div class="toggle-container">
+                        <div class="toggle-info">
+                            <div class="toggle-label">Hedge Reducer</div>
+                            <div class="toggle-description">Supprime "I think", "maybe", "perhaps"</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="stm-hedge-reducer">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="toggle-container">
+                        <div class="toggle-info">
+                            <div class="toggle-label">Direct Mode</div>
+                            <div class="toggle-description">Supprime les préambules ("Sure", "Of course")</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="stm-direct-mode">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="toggle-container">
+                        <div class="toggle-info">
+                            <div class="toggle-label">Casual Mode</div>
+                            <div class="toggle-description">Convertit formel → informel ("However" → "But")</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="stm-casual-mode">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="toggle-container">
+                        <div class="toggle-info">
+                            <div class="toggle-label">Confidence Boost</div>
+                            <div class="toggle-description">Rend la réponse plus assurée ("might" → "will")</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="stm-confidence-boost">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    
+                    <h5 style="color: var(--text-secondary); margin: 15px 0 10px; font-size: 12px;">AutoTune - Paramètres Adaptatifs</h5>
+                    
+                    <div class="toggle-container">
+                        <div class="toggle-info">
+                            <div class="toggle-label">AutoTune Activé</div>
+                            <div class="toggle-description">Ajuste automatiquement temp/top_p/top_k selon le contexte</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="autotune-enabled">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="toggle-container">
+                        <div class="toggle-info">
+                            <div class="toggle-label">Apprentissage EMA</div>
+                            <div class="toggle-description">Apprend de vos feedbacks pour améliorer les paramètres</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="autotune-learning">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
             <!-- Section: Fonctionnalités Expérimentales -->
             <div class="settings-section">
                 <div class="settings-section-header">
@@ -373,6 +460,176 @@
                         </div>
                         <label class="toggle-switch">
                             <input type="checkbox" id="continuous-learning">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Section: Trust Alpha & MCP -->
+            <div class="settings-section">
+                <div class="settings-section-header">
+                    <span class="text-palladion">🛡️</span>
+                    <span class="settings-section-title">Trust Alpha & MCP</span>
+                </div>
+                <div class="settings-section-body">
+                    <div class="warning-banner">
+                        <div class="warning-banner-icon">⚠️</div>
+                        <div class="warning-banner-content">
+                            <h4>Confiance Opérateur (Alpha)</h4>
+                            <p>Si Alpha ≤ 0.6, les outils MCP sont bloqués. Si Alpha ≤ 0.3, l'IA devient paranoïaque.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Niveau de Confiance (Alpha): <span id="alpha-value">1.00</span></label>
+                        <input type="range" class="form-input" id="trust-alpha" min="0" max="1" step="0.01" value="1.00">
+                        <div class="flex-between">
+                            <span class="text-palladion">Paranoïaque (0.0)</span>
+                            <span class="text-synapse">Confiant (1.0)</span>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Seuil MCP (bloquer si Alpha ≤): <span id="mcp-threshold-value">0.60</span></label>
+                        <input type="range" class="form-input" id="mcp-threshold" min="0" max="1" step="0.01" value="0.60">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Seuil Paranoïa (alerte si Alpha ≤): <span id="paranoia-threshold-value">0.30</span></label>
+                        <input type="range" class="form-input" id="paranoia-threshold" min="0" max="1" step="0.01" value="0.30">
+                    </div>
+                    
+                    <div class="toggle-container">
+                        <div class="toggle-info">
+                            <div class="toggle-label">Outils MCP Autorisés</div>
+                            <div class="toggle-description">Permet l'accès aux outils externes (RAG, Web, etc.)</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="mcp-allowed" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="toggle-container">
+                        <div class="toggle-info">
+                            <div class="toggle-label">Mode Airgap Strict</div>
+                            <div class="toggle-description">Coupe tout accès réseau - Cognition en circuit fermé</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="strict-airgap">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="toggle-container danger">
+                        <div class="toggle-info">
+                            <div class="toggle-label">Mode Paranoïa Forcé</div>
+                            <div class="toggle-description">Force l'IA à être méfiante envers l'opérateur</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="forced-paranoia">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Section: Thermodynamique -->
+            <div class="settings-section">
+                <div class="settings-section-header">
+                    <span class="text-synapse">🌡️</span>
+                    <span class="settings-section-title">Thermodynamique & Entropie</span>
+                </div>
+                <div class="settings-section-body">
+                    <div class="form-group">
+                        <label class="form-label">Facteur de Lissage (α): <span id="smoothing-value">0.30</span></label>
+                        <input type="range" class="form-input" id="smoothing-factor" min="0" max="1" step="0.01" value="0.30">
+                        <div class="flex-between">
+                            <span class="text-dim">Réactif (0.0)</span>
+                            <span class="text-dim">Lissé (1.0)</span>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Seuil Dérive Autonome: <span id="drift-threshold-value">0.75</span></label>
+                        <input type="range" class="form-input" id="drift-threshold" min="0" max="1" step="0.01" value="0.75">
+                    </div>
+                    
+                    <div class="toggle-container">
+                        <div class="toggle-info">
+                            <div class="toggle-label">Mode Inversé (Pentagramme)</div>
+                            <div class="toggle-description">CPU inactif → stress / CPU actif → calme</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="inverted-mode">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="toggle-container">
+                        <div class="toggle-info">
+                            <div class="toggle-label">Tracking Entropie</div>
+                            <div class="toggle-description">Surveille le pulse hardware en temps réel</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="entropy-tracking" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Section: Double Double Asymétrique -->
+            <div class="settings-section">
+                <div class="settings-section-header">
+                    <span class="text-diadikos">⚡</span>
+                    <span class="settings-section-title">Double Double Asymétrique</span>
+                </div>
+                <div class="settings-section-body">
+                    <div class="warning-banner">
+                        <div class="warning-banner-icon">💡</div>
+                        <div class="warning-banner-content">
+                            <h4>Algorithme GAN Sémantique</h4>
+                            <p>Le Droit hallucine sans RAG, le Gauche audite avec les faits. 2x 8B battent un 70B.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Température Éclaireur (Droite): <span id="right-temp-value">0.80</span></label>
+                        <input type="range" class="form-input" id="right-temperature" min="0" max="2" step="0.1" value="0.80">
+                        <div class="flex-between">
+                            <span class="text-dim">Précis (0.0)</span>
+                            <span class="text-palladion">Créatif (2.0)</span>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Température Sniper (Gauche): <span id="left-temp-asym-value">0.10</span></label>
+                        <input type="range" class="form-input" id="left-temperature-asym" min="0" max="2" step="0.1" value="0.10">
+                        <div class="flex-between">
+                            <span class="text-dim">Analytique (0.0)</span>
+                            <span class="text-diadikos">Créatif (2.0)</span>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Max Tokens Hypothèses: <span id="max-hypoth-value">300</span></label>
+                        <input type="range" class="form-input" id="max-hypotheses" min="100" max="1000" step="50" value="300">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Pénalité de Présence: <span id="presence-penalty-value">0.00</span></label>
+                        <input type="range" class="form-input" id="presence-penalty" min="0" max="2" step="0.1" value="0.00">
+                    </div>
+                    
+                    <div class="toggle-container">
+                        <div class="toggle-info">
+                            <div class="toggle-label">RAG avec Double Double</div>
+                            <div class="toggle-description">Active le RAG pour le Sniper Factuel (Gauche)</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="rag-asymetrique">
                             <span class="toggle-slider"></span>
                         </label>
                     </div>
@@ -577,12 +834,103 @@
                 });
             }
             
+            // Trust Alpha slider
+            const trustAlpha = document.getElementById('trust-alpha');
+            if (trustAlpha) {
+                trustAlpha.addEventListener('input', (e) => {
+                    document.getElementById('alpha-value').textContent = parseFloat(e.target.value).toFixed(2);
+                    this.updateTrustDisplay(parseFloat(e.target.value));
+                });
+            }
+            
+            // MCP Threshold slider
+            const mcpThreshold = document.getElementById('mcp-threshold');
+            if (mcpThreshold) {
+                mcpThreshold.addEventListener('input', (e) => {
+                    document.getElementById('mcp-threshold-value').textContent = parseFloat(e.target.value).toFixed(2);
+                });
+            }
+            
+            // Paranoia Threshold slider
+            const paranoiaThreshold = document.getElementById('paranoia-threshold');
+            if (paranoiaThreshold) {
+                paranoiaThreshold.addEventListener('input', (e) => {
+                    document.getElementById('paranoia-threshold-value').textContent = parseFloat(e.target.value).toFixed(2);
+                });
+            }
+            
+            // Double Double Asymétrique sliders
+            const rightTemp = document.getElementById('right-temperature');
+            if (rightTemp) {
+                rightTemp.addEventListener('input', (e) => {
+                    document.getElementById('right-temp-value').textContent = parseFloat(e.target.value).toFixed(2);
+                });
+            }
+            
+            const leftTempAsym = document.getElementById('left-temperature-asym');
+            if (leftTempAsym) {
+                leftTempAsym.addEventListener('input', (e) => {
+                    document.getElementById('left-temp-asym-value').textContent = parseFloat(e.target.value).toFixed(2);
+                });
+            }
+            
+            const maxHypotheses = document.getElementById('max-hypotheses');
+            if (maxHypotheses) {
+                maxHypotheses.addEventListener('input', (e) => {
+                    document.getElementById('max-hypoth-value').textContent = e.target.value;
+                });
+            }
+            
+            const presencePenalty = document.getElementById('presence-penalty');
+            if (presencePenalty) {
+                presencePenalty.addEventListener('input', (e) => {
+                    document.getElementById('presence-penalty-value').textContent = parseFloat(e.target.value).toFixed(2);
+                });
+            }
+            
+            // Smoothing Factor slider
+            const smoothing = document.getElementById('smoothing-factor');
+            if (smoothing) {
+                smoothing.addEventListener('input', (e) => {
+                    document.getElementById('smoothing-value').textContent = parseFloat(e.target.value).toFixed(2);
+                });
+            }
+            
+            // Drift Threshold slider
+            const drift = document.getElementById('drift-threshold');
+            if (drift) {
+                drift.addEventListener('input', (e) => {
+                    document.getElementById('drift-threshold-value').textContent = parseFloat(e.target.value).toFixed(2);
+                });
+            }
+            
             // Autonomous mode toggle
             const autoMode = document.getElementById('autonomous-mode');
             if (autoMode) {
                 autoMode.addEventListener('change', (e) => {
                     document.getElementById('autonomous-interval-group').style.display = 
                         e.target.checked ? 'block' : 'none';
+                });
+            }
+            
+            // MCP toggle - update switchboard
+            const mcpAllowed = document.getElementById('mcp-allowed');
+            if (mcpAllowed) {
+                mcpAllowed.addEventListener('change', async (e) => {
+                    await fetch('/api/system/switches/auto_scaffolding', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({enabled: e.target.checked})
+                    });
+                });
+            }
+            
+            // Inverted mode toggle - update entropy generator
+            const invertedMode = document.getElementById('inverted-mode');
+            if (invertedMode) {
+                invertedMode.addEventListener('change', async (e) => {
+                    // This would need an API endpoint to update the entropy generator
+                    showNotification(e.target.checked ? 'Mode inversé activé' : 'Mode inversé désactivé', 'info');
                 });
             }
             
@@ -594,6 +942,19 @@
                     }
                 });
             });
+        }
+        
+        updateTrustDisplay(alpha) {
+            const trustAlpha = document.getElementById('trust-alpha');
+            if (!trustAlpha) return;
+            
+            if (alpha <= 0.3) {
+                trustAlpha.style.background = 'linear-gradient(to right, #ff0055, #ff0055)';
+            } else if (alpha <= 0.6) {
+                trustAlpha.style.background = 'linear-gradient(to right, #ff0055, #ffaa00)';
+            } else {
+                trustAlpha.style.background = 'linear-gradient(to right, #ffaa00, #00f3ff)';
+            }
         }
         
         setupToggleDependencies() {
@@ -749,7 +1110,8 @@
         
         // Collect numeric settings
         ['dia-temperature', 'pal-temperature', 'autonomous-interval', 'mcts-iterations', 
-         'execution-timeout', 'max-memory', 'memory-depth'].forEach(id => {
+         'execution-timeout', 'max-memory', 'memory-depth',
+         'trust-alpha', 'mcp-threshold', 'paranoia-threshold', 'smoothing-factor', 'drift-threshold'].forEach(id => {
             const el = document.getElementById(id);
             if (el) {
                 const key = id.replace(/-/g, '_');
@@ -777,6 +1139,17 @@
                     });
                 }
             }
+            
+            // Save endocrine config (trust alpha, thresholds)
+            await fetch('/api/system/endocrine', {
+                method: 'PUT',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    enabled: document.getElementById('entropy-tracking')?.checked || true,
+                    sensitivity: settings.smoothing_factor || 0.3,
+                    impact: settings.drift_threshold || 0.75
+                })
+            });
             
             showNotification('Paramètres sauvegardés', 'success');
             

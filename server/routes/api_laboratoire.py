@@ -23,6 +23,7 @@ async def operator_profile():
 
 
 @router.put("/operator/adjust")
+@router.post("/operator/adjust")  # Support both PUT and POST
 async def operator_adjust(request: Request):
     """Adjust operator parameters"""
     try:

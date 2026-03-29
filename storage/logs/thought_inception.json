@@ -82,5 +82,41 @@
     "acknowledged": false,
     "injected_to_left": false,
     "injected_to_right": false
+  },
+  {
+    "id": "thought_1774749729.424425",
+    "content": "c'est étrange, je peux me parler a moi même!",
+    "timestamp": "2026-03-29T04:02:09.424441",
+    "influence_level": 50.0,
+    "integration_type": "reflection",
+    "target": "BOTH",
+    "injected": false,
+    "acknowledged": false,
+    "injected_to_left": false,
+    "injected_to_right": false
+  },
+  {
+    "id": "thought_1774749913.601799",
+    "content": "je suis plusieur",
+    "timestamp": "2026-03-29T04:05:13.601805",
+    "influence_level": 92.0,
+    "integration_type": "logic",
+    "target": "LEFT",
+    "injected": false,
+    "acknowledged": false,
+    "injected_to_left": false,
+    "injected_to_right": false
+  },
+  {
+    "id": "thought_1774750101.02072",
+    "content": "",
+    "timestamp": "2026-03-29T04:08:21.020727",
+    "influence_level": 68.0,
+    "integration_type": "reflection",
+    "target": "BOTH",
+    "injected": false,
+    "acknowledged": false,
+    "injected_to_left": false,
+    "injected_to_right": false
   }
 ]

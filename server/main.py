@@ -218,6 +218,105 @@ app.include_router(api_knowledge.router, prefix="/api")
 app.include_router(api_unified.router, prefix="/api")
 
 
+# ============ LEGACY ENDPOINTS (backwards compatibility) ============
+
+
+@app.get("/api/stats")
+async def legacy_stats():
+    """Legacy stats endpoint"""
+    try:
+        from server.extensions import registry
+        cycles = len(registry.corps_calleux.history) if registry.corps_calleux and hasattr(registry.corps_calleux, 'history') else 0
+        return {
+            "thinker": {"is_thinking": False, "cycles": cycles},
+            "corps_calleux": {"connected": registry.corps_calleux is not None, "cycles": cycles}
+        }
+    except Exception:
+        return {"thinker": {"is_thinking": False, "cycles": 0}, "corps_calleux": {"connected": False, "cycles": 0}}
+
+
+@app.get("/api/logs")
+async def legacy_logs(type: str = "all", limit: int = 100):
+    """Legacy logs endpoint"""
+    try:
+        from core.system.telemetry import get_telemetry
+        telemetry = get_telemetry()
+        if telemetry:
+            if type == "ERREUR":
+                return [l for l in telemetry.buffer if l.get("type") == "ERREUR"][-limit:]
+            return list(telemetry.buffer)[-limit:]
+        return []
+    except Exception:
+        return []
+
+
+@app.get("/api/logs_by_type")
+async def legacy_logs_by_type():
+    """Legacy logs by type endpoint"""
+    try:
+        from core.system.telemetry import get_telemetry
+        telemetry = get_telemetry()
+        if telemetry:
+            by_type = {}
+            for log in telemetry.buffer:
+                log_type = log.get("type", "unknown")
+                by_type[log_type] = by_type.get(log_type, 0) + 1
+            return by_type
+        return {}
+    except Exception:
+        return {}
+
+
+@app.get("/api/entropy")
+async def legacy_entropy():
+    """Legacy entropy endpoint"""
+    try:
+        from core.hardware.entropy_generator import get_entropy_generator
+        entropy = get_entropy_generator()
+        return {"pulse": entropy.get_pulse(), "mood": entropy._interpret_mood(entropy.last_pulse)}
+    except Exception:
+        return {"pulse": 0.5, "mood": "UNKNOWN"}
+
+
+@app.get("/api/agents")
+async def legacy_agents():
+    """Legacy agents endpoint"""
+    return {"agents": [{"name": "Conductor", "status": "active"}]}
+
+
+@app.get("/api/agents/providers")
+async def legacy_agent_providers():
+    """Legacy agent providers endpoint"""
+    return {"providers": []}
+
+
+@app.get("/api/memory/stats")
+async def legacy_memory_stats():
+    """Legacy memory stats endpoint"""
+    try:
+        from core.system.traumatic_memory import get_traumatic_memory
+        return get_traumatic_memory().get_stats()
+    except Exception:
+        return {"total": 0}
+
+
+@app.get("/api/memory/summary")
+async def legacy_memory_summary(hours: int = 24):
+    """Legacy memory summary endpoint"""
+    return {"summary": []}
+
+
+@app.get("/api/think/history")
+async def legacy_think_history(limit: int = 10):
+    """Legacy think history endpoint"""
+    try:
+        if registry.conductor and hasattr(registry.conductor, 'task_history'):
+            return registry.conductor.task_history[-limit:]
+        return []
+    except Exception:
+        return []
+
+
 # ============ WEBSOCKETS - PUSH MODE (PASSIVE) ============
 
 

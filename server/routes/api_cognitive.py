@@ -210,3 +210,258 @@ async def set_think_interval(request: Request, corps_calleux=Depends(get_corps_c
         return {"status": "ok", "interval": interval}
     except Exception as e:
         return {"status": "error", "error": str(e)}
+
+
+# ============================================
+# STM MODULES ENDPOINTS
+# ============================================
+
+
+@router.get("/stm/status")
+async def stm_status():
+    """Get STM engine status"""
+    try:
+        from core.cognition.stm_engine import get_stm_engine
+        stm = get_stm_engine()
+        return stm.get_stats()
+    except Exception as e:
+        return {"error": str(e)}
+
+
+@router.post("/stm/toggle/{module_id}")
+async def stm_toggle(module_id: str, request: Request):
+    """Toggle a STM module"""
+    try:
+        data = await request.json()
+        enabled = data.get("enabled", False)
+        
+        from core.cognition.stm_engine import get_stm_engine
+        stm = get_stm_engine()
+        
+        if enabled:
+            stm.enable_module(module_id)
+        else:
+            stm.disable_module(module_id)
+        
+        return {"status": "ok", "module": module_id, "enabled": enabled}
+    except Exception as e:
+        return {"status": "error", "error": str(e)}
+
+
+@router.post("/stm/apply")
+async def stm_apply(request: Request):
+    """Apply STM modules to text"""
+    try:
+        data = await request.json()
+        text = data.get("text", "")
+        
+        from core.cognition.stm_engine import get_stm_engine
+        stm = get_stm_engine()
+        
+        result = stm.apply(text)
+        return {"status": "ok", "original": text, "transformed": result}
+    except Exception as e:
+        return {"status": "error", "error": str(e)}
+
+
+# ============================================
+# AUTOTUNE ENDPOINTS
+# ============================================
+
+
+@router.get("/autotune/status")
+async def autotune_status():
+    """Get AutoTune engine status"""
+    try:
+        from core.cognition.auto_tune import get_autotune_engine
+        engine = get_autotune_engine()
+        return engine.get_stats()
+    except Exception as e:
+        return {"error": str(e)}
+
+
+@router.post("/autotune/toggle")
+async def autotune_toggle(request: Request):
+    """Toggle AutoTune"""
+    try:
+        data = await request.json()
+        enabled = data.get("enabled", False)
+        
+        from core.cognition.auto_tune import get_autotune_engine
+        engine = get_autotune_engine()
+        
+        if enabled:
+            engine.enable()
+        else:
+            engine.disable()
+        
+        return {"status": "ok", "enabled": enabled}
+    except Exception as e:
+        return {"status": "error", "error": str(e)}
+
+
+@router.post("/autotune/tune")
+async def autotune_tune(request: Request):
+    """Tune parameters for text"""
+    try:
+        data = await request.json()
+        text = data.get("text", "")
+        
+        from core.cognition.auto_tune import get_autotune_engine
+        engine = get_autotune_engine()
+        
+        result = engine.tune(text)
+        return {
+            "status": "ok",
+            "context": result.context.value,
+            "confidence": result.confidence,
+            "params": {
+                "temperature": result.params.temperature,
+                "top_p": result.params.top_p,
+                "top_k": result.params.top_k,
+                "frequency_penalty": result.params.frequency_penalty,
+                "presence_penalty": result.params.presence_penalty,
+                "repetition_penalty": result.params.repetition_penalty
+            },
+            "reasoning": result.reasoning
+        }
+    except Exception as e:
+        return {"status": "error", "error": str(e)}
+
+
+@router.post("/autotune/feedback")
+async def autotune_feedback(request: Request):
+    """Submit feedback for AutoTune learning"""
+    try:
+        data = await request.json()
+        context = data.get("context", "balanced")
+        rating = data.get("rating", 0)
+        
+        from core.cognition.auto_tune import get_autotune_engine
+        engine = get_autotune_engine()
+        
+        engine.feedback(context, rating)
+        return {"status": "ok", "message": "Feedback enregistré"}
+    except Exception as e:
+        return {"status": "error", "error": str(e)}
+
+
+# ============================================
+# LEGACY/COMPATIBILITY ENDPOINTS
+# ============================================
+
+
+@router.get("/think/history")
+async def think_history(limit: int = 10):
+    """Get thinking history (alias for conductor/history)"""
+    try:
+        from server.extensions import registry
+        
+        if registry.conductor and hasattr(registry.conductor, 'task_history'):
+            history = registry.conductor.task_history[-limit:]
+            return history
+        return []
+    except Exception as e:
+        return []
+
+
+@router.get("/logs")
+async def get_logs(type: str = "all", limit: int = 100):
+    """Get system logs"""
+    try:
+        from core.system.telemetry import get_telemetry
+        telemetry = get_telemetry()
+        
+        if telemetry:
+            if type == "ERREUR":
+                logs = [l for l in telemetry.buffer if l.get("type") == "ERREUR"][-limit:]
+            else:
+                logs = list(telemetry.buffer)[-limit:]
+            return logs
+        return []
+    except Exception as e:
+        return []
+
+
+@router.get("/logs_by_type")
+async def logs_by_type():
+    """Get logs grouped by type"""
+    try:
+        from core.system.telemetry import get_telemetry
+        telemetry = get_telemetry()
+        
+        if telemetry:
+            by_type = {}
+            for log in telemetry.buffer:
+                log_type = log.get("type", "unknown")
+                if log_type not in by_type:
+                    by_type[log_type] = 0
+                by_type[log_type] += 1
+            return by_type
+        return {}
+    except Exception as e:
+        return {}
+
+
+@router.get("/entropy")
+async def get_entropy():
+    """Get entropy/pulse data"""
+    try:
+        from core.hardware.entropy_generator import get_entropy_generator
+        entropy = get_entropy_generator()
+        
+        return {
+            "pulse": entropy.get_pulse(),
+            "mood": entropy._interpret_mood(entropy.last_pulse)
+        }
+    except Exception as e:
+        return {"pulse": 0.5, "mood": "UNKNOWN"}
+
+
+@router.get("/agents")
+async def get_agents():
+    """Get list of agents"""
+    try:
+        # Return available agents
+        return {
+            "agents": [
+                {"name": "Conductor", "status": "active" if registry.conductor else "inactive"},
+                {"name": "Corps Calleux", "status": "active" if registry.corps_calleux else "inactive"},
+                {"name": "CriticAgent", "status": "available"},
+                {"name": "ResearchAgent", "status": "available"},
+                {"name": "CoderAgent", "status": "available"},
+            ]
+        }
+    except Exception as e:
+        return {"agents": []}
+
+
+@router.get("/agents/providers")
+async def get_agent_providers():
+    """Get agent providers"""
+    return {"providers": []}
+
+
+@router.get("/memory/stats")
+async def memory_stats():
+    """Get memory statistics"""
+    try:
+        from core.system.traumatic_memory import get_traumatic_memory
+        memory = get_traumatic_memory()
+        
+        return memory.get_stats()
+    except Exception as e:
+        return {"total": 0, "errors": 0, "success": 0}
+
+
+@router.get("/memory/summary")
+async def memory_summary(hours: int = 24):
+    """Get memory summary for last N hours"""
+    try:
+        from core.system.traumatic_memory import get_traumatic_memory
+        memory = get_traumatic_memory()
+        
+        recent = memory.get_recent_failures(hours=hours)
+        return {"summary": recent}
+    except Exception as e:
+        return {"summary": []}

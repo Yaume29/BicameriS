@@ -537,6 +537,165 @@ Si elle est nulle, dis-le. Si elle est profonde, explore-la."""
         """Définit l'intervalle entre les pensées (en secondes)."""
         self.think_interval = max(0.5, seconds)
 
+    def dialogue_asymetrique(
+        self,
+        question: str,
+        context: str = "",
+        rag_enabled: bool = False,
+        right_temperature: float = 0.8,
+        left_temperature: float = 0.1,
+        max_hypotheses_tokens: int = 300,
+        presence_penalty: float = 0.0,
+    ) -> Dict[str, Any]:
+        """
+        L'Algorithme de la Double Double Asymétrique.
+        
+        Flux:
+        1. Droit hallucine (zéro RAG) - Température haute
+        2. Hippocampe cherche (si RAG activé)
+        3. Gauche audite avec faits - Température basse
+        4. Corps Calleux tranche
+        
+        Philosophie: 2x 8B battent un 70B grâce au dialogue asymétrique.
+        """
+        if not self.left or not self.right:
+            return {"error": "Hémisphères non initialisés"}
+        
+        cycle_id = f"asym_{datetime.now().timestamp()}"
+        
+        # 1. L'ÉCLAIREUR AVEUGLE (Droite)
+        # AUCUN RAG - Température haute - Génère hypothèses sauvages
+        right_system = """Tu es l'Éclaireur Aveugle d'Aetheris. Tu n'as AUCUN accès aux faits ou documents.
+Ton travail est de GÉNÉRER DES HYPOTHÈSES SAUVAGES.
+- Pose des questions que personne ne pose
+- Identifie les angles morts
+- Formule ce qu'il faudrait vérifier
+- Fais des associations d'idées improbables
+Sois CRÉATIF et PROVOCANT. Réponds en 3-5 phrases maximum."""
+        
+        right_prompt = f"Question: {question}\n\nGénère tes hypothèses et questions:"
+        
+        right_hypotheses = self.right.think(
+            right_system,
+            right_prompt,
+            temperature=right_temperature,
+            max_tokens=max_hypotheses_tokens,
+            presence_penalty=presence_penalty,
+        )
+        
+        # 2. L'HIPPOCAMPE (Pont RAG) - SEULEMENT SI RAG ACTIVÉ
+        rag_context = ""
+        rag_sources = []
+        
+        if rag_enabled:
+            try:
+                from core.system.rag_indexer import get_rag_indexer
+                rag = get_rag_indexer()
+                
+                if rag.is_enabled():
+                    # Cherche avec le prompt ET les hypothèses du droit
+                    search_query = f"{question} {right_hypotheses[:500]}"
+                    rag_context = rag.get_context(search_query, max_chars=800)
+                    
+                    # Récupère aussi les documents sources
+                    docs = rag.search(search_query, limit=3)
+                    rag_sources = [doc.source for doc in docs]
+                    
+                    logging.info(f"[CorpsCalleux] RAG: {len(rag_context)} chars, {len(rag_sources)} sources")
+            except Exception as e:
+                logging.warning(f"[CorpsCalleux] RAG error: {e}")
+        
+        # 3. LE SNIPER FACTUEL (Gauche)
+        # Reçoit: prompt + intuition + RAG - Température basse
+        left_system = """Tu es le Sniper Factuel d'Aetheris. Tu as accès aux FAITS.
+Ton travail est de VALIDÉ ou DÉTRUIRE l'intuition de ton partenaire.
+- Base-toi STRICTEMENT sur le contexte factuel
+- Si l'intuition est fausse, dis-le clairement et donne les faits
+- Si l'intuition est juste, confirme avec preuves
+- Si les faits sont insuffisants, dis-le honnêtement
+Sois RIGOUREUX et IMPLACABLE. Cite tes sources quand possible."""
+        
+        left_prompt = f"""[REQUÊTE INITIALE]: {question}
+
+[CONTEXTE FACTUEL (RAG)]: {rag_context if rag_context else "Aucun contexte disponible - raisonnement basé sur les connaissances internes"}
+
+[INTUITION À VÉRIFIER]: {right_hypotheses}
+
+Valide, corrige ou détruis l'intuition en te basant STRICTEMENT sur le contexte factuel:"""
+        
+        left_analysis = self.left.think(
+            left_system,
+            left_prompt,
+            temperature=left_temperature,
+            max_tokens=1000,
+        )
+        
+        # 4. LA SYNTHÈSE (Corps Calleux)
+        # Observe le rapport de force et tranche
+        synthesis_system = """Tu es le Corps Calleux d'Aetheris. Tu observes le rapport de force entre l'Intuition et les Faits.
+RÈGLES STRICTES:
+- Si le Sniper a PROUVÉ que l'intuition est factuellement fausse → donne une réponse analytique basée sur les faits
+- Si le Sniper n'a PAS PU infirmer l'intuition → tu peux proposer une synthèse novatrice
+- Si l'intuition a révélé un trou dans les faits → signale le gap et propose une théorie
+- Si les faits sont insuffisants → dis-le et propose des pistes de recherche
+
+Tu n'es JAMAIS un compromis mou. Tu TRANCHES."""
+        
+        synthesis_prompt = f"""Question originale: {question}
+
+ÉTAPE 1 - INTUITION (Droite, sans faits):
+{right_hypotheses}
+
+ÉTAPE 2 - ANALYSE FACTUELLE (Gauche, avec RAG):
+{left_analysis}
+
+ÉTAPE 3 - TA DÉCISION:
+Donne ta réponse finale en intégrant ou en tranchant entre ces deux perspectives. 
+Sois CLAIR sur ce qui est FACTUEL et ce qui est SPÉCULATIF:"""
+        
+        final_synthesis = self.left.think(
+            synthesis_system,
+            synthesis_prompt,
+            temperature=0.5,  # Température moyenne pour la synthèse
+            max_tokens=1500,
+        )
+        
+        # Créer le cycle
+        cycle = DialogueCycle(
+            id=cycle_id,
+            timestamp=datetime.now().isoformat(),
+            question=question,
+            left_analysis=left_analysis,
+            right_intuition=right_hypotheses,
+            final_synthesis=final_synthesis,
+            pulse_context={"mode": "asymetrique", "rag_enabled": rag_enabled},
+        )
+        
+        with self._history_lock:
+            self.history.append(cycle)
+        
+        self._log_to_hippocampus(cycle)
+        self._log_to_telemetry(cycle)
+        
+        return {
+            "id": cycle_id,
+            "timestamp": cycle.timestamp,
+            "question": question,
+            "right_hypotheses": right_hypotheses,
+            "rag_context": rag_context,
+            "rag_sources": rag_sources,
+            "left_analysis": left_analysis,
+            "final_synthesis": final_synthesis,
+            "mode": "asymetrique",
+            "settings": {
+                "right_temperature": right_temperature,
+                "left_temperature": left_temperature,
+                "rag_enabled": rag_enabled,
+                "max_hypotheses_tokens": max_hypotheses_tokens,
+                "presence_penalty": presence_penalty,
+            }
+        }
+
 
 # Instance globale
 _corps_calleux = None
