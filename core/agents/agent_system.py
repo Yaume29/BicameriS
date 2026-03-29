@@ -129,7 +129,7 @@ class Blackboard:
 class BaseAgent(ABC):
     """
     Classe abstraite pour tous les agents.
-    Pattern: Strategy + Template Method + Blackboard
+    Pattern: Strategy + Template Method + Blackboard + Streaming
     """
     
     def __init__(self, config: AgentConfig):
@@ -139,17 +139,24 @@ class BaseAgent(ABC):
         self.execution_history: deque = deque(maxlen=100)
     
     @abstractmethod
-    async def execute(self, input_data: Dict[str, Any], blackboard: Blackboard = None) -> AgentResult:
+    async def execute(
+        self,
+        input_data: Dict[str, Any],
+        blackboard: Blackboard = None,
+        stream_callback: Callable = None
+    ) -> AgentResult:
         """
         Exécute l'agent avec les données d'entrée.
         
         Args:
             input_data: Données d'entrée spécifiques à l'agent
             blackboard: Mémoire partagée pour le chaînage (optionnel)
+            stream_callback: Callback pour streaming de tokens (optionnel)
+                Signature: async def callback(data: Dict) -> None
+                data: {"status": "processing", "chunk": "token", "agent": "name"}
         
-        Chaque agent implémente sa propre logique.
-        Si blackboard est fourni, l'agent peut lire les résultats
-        d'autres agents via blackboard.read_agent_output(agent_name).
+        Le stream_callback permet d'animer le cerveau SVG en temps réel
+        pendant la génération des tokens.
         """
         pass
     
@@ -389,9 +396,18 @@ class AgentCoordinator:
         self,
         agent_name: str,
         input_data: Dict,
-        blackboard: Blackboard = None
+        blackboard: Blackboard = None,
+        stream_callback: Callable = None
     ) -> AgentResult:
-        """Exécute un agent spécifique"""
+        """
+        Exécute un agent spécifique.
+        
+        Args:
+            agent_name: Nom de l'agent
+            input_data: Données d'entrée
+            blackboard: Mémoire partagée
+            stream_callback: Callback pour streaming de tokens
+        """
         agent = self.registry.get_agent(agent_name)
         if not agent:
             return AgentResult(
@@ -410,8 +426,12 @@ class AgentCoordinator:
         agent.update_status(AgentStatus.THINKING)
         
         try:
-            # FIX 3: Passer le blackboard pour le chaînage
-            result = await agent.execute(input_data, blackboard=blackboard)
+            # FIX 3 + Streaming: Passer le blackboard et stream_callback
+            result = await agent.execute(
+                input_data,
+                blackboard=blackboard,
+                stream_callback=stream_callback
+            )
             agent.update_status(AgentStatus.IDLE)
             agent.add_to_history(result)
             
