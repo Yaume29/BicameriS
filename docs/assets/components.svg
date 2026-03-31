@@ -1,0 +1,71 @@
+<svg width="700" height="400" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="layer1Grad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#1a1a2e"/>
+      <stop offset="100%" style="stop-color:#16213e"/>
+    </linearGradient>
+  </defs>
+  
+  <text x="350" y="25" text-anchor="middle" fill="#00d4ff" font-size="16" font-weight="bold">ARCHITECTURE DES COMPOSANTS</text>
+  
+  <!-- Layer 1: Flask -->
+  <rect x="150" y="50" width="400" height="40" rx="8" fill="url(#layer1Grad)" stroke="#00d4ff" stroke-width="2"/>
+  <text x="350" y="75" text-anchor="middle" fill="#00d4ff" font-size="14" font-weight="bold">APPLICATION FLASK (app.py)</text>
+  <text x="550" y="75" fill="#666" font-size="10">:5000</text>
+  
+  <!-- Arrows L1 -->
+  <line x1="250" y1="90" x2="100" y2="120" stroke="#00d4ff" stroke-width="1.5"/>
+  <line x1="350" y1="90" x2="350" y2="120" stroke="#00d4ff" stroke-width="1.5"/>
+  <line x1="450" y1="90" x2="600" y2="120" stroke="#00d4ff" stroke-width="1.5"/>
+  
+  <!-- Layer 2: Core -->
+  <rect x="50" y="120" width="180" height="35" rx="6" fill="url(#layer1Grad)" stroke="#7b2ff7" stroke-width="1.5"/>
+  <text x="140" y="142" text-anchor="middle" fill="#7b2ff7" font-size="11" font-weight="bold">CONDUCTOR</text>
+  
+  <rect x="260" y="120" width="180" height="35" rx="6" fill="url(#layer1Grad)" stroke="#7b2ff7" stroke-width="1.5"/>
+  <text x="350" y="142" text-anchor="middle" fill="#7b2ff7" font-size="11" font-weight="bold">HÉMISPHÈRES</text>
+  
+  <rect x="470" y="120" width="180" height="35" rx="6" fill="url(#layer1Grad)" stroke="#7b2ff7" stroke-width="1.5"/>
+  <text x="560" y="142" text-anchor="middle" fill="#7b2ff7" font-size="11" font-weight="bold">AGENTS</text>
+  
+  <!-- Arrows L2 -->
+  <line x1="140" y1="155" x2="140" y2="180" stroke="#7b2ff7" stroke-width="1.5"/>
+  <line x1="350" y1="155" x2="350" y2="180" stroke="#7b2ff7" stroke-width="1.5"/>
+  <line x1="560" y1="155" x2="560" y2="180" stroke="#7b2ff7" stroke-width="1.5"/>
+  
+  <!-- Layer 3: Details -->
+  <rect x="30" y="180" width="220" height="80" rx="6" fill="url(#layer1Grad)" stroke="#00ff88" stroke-width="1.5"/>
+  <text x="140" y="200" text-anchor="middle" fill="#00ff88" font-size="11" font-weight="bold">KERNEL D'ARBITRAGE</text>
+  <text x="140" y="218" fill="#666" font-size="9">• Task Manager</text>
+  <text x="140" y="232" fill="#666" font-size="9">• Tool Orchestration</text>
+  <text x="140" y="246" fill="#666" font-size="9">• Security Manager</text>
+  
+  <rect x="270" y="180" width="160" height="80" rx="6" fill="url(#layer1Grad)" stroke="#00d4ff" stroke-width="1.5"/>
+  <text x="350" y="200" text-anchor="middle" fill="#00d4ff" font-size="11" font-weight="bold">GAUCHE + DROIT</text>
+  <text x="350" y="218" fill="#666" font-size="9">• Qwen2.5 (Logique)</text>
+  <text x="350" y="232" fill="#666" font-size="9">• Gemma2 (Intuition)</text>
+  <text x="350" y="246" fill="#666" font-size="9">• Corps Calleux</text>
+  
+  <rect x="450" y="180" width="220" height="80" rx="6" fill="url(#layer1Grad)" stroke="#feca57" stroke-width="1.5"/>
+  <text x="560" y="200" text-anchor="middle" fill="#feca57" font-size="11" font-weight="bold">AGENT MANAGER</text>
+  <text x="560" y="218" fill="#666" font-size="9">• Agent Critique</text>
+  <text x="560" y="232" fill="#666" font-size="9">• Agent Recherche</text>
+  <text x="560" y="246" fill="#666" font-size="9">• VRAM Swapping</text>
+  
+  <!-- Layer 4: Memory -->
+  <rect x="30" y="280" width="300" height="60" rx="6" fill="url(#layer1Grad)" stroke="#ff6b6b" stroke-width="1.5"/>
+  <text x="180" y="300" text-anchor="middle" fill="#ff6b6b" font-size="11" font-weight="bold">MÉMOIRE</text>
+  <text x="180" y="318" fill="#666" font-size="9">Vectorielle · Traumatique · Journal · Sommeil Paradoxal</text>
+  
+  <rect x="350" y="280" width="150" height="60" rx="6" fill="url(#layer1Grad)" stroke="#48dbfb" stroke-width="1.5"/>
+  <text x="425" y="300" text-anchor="middle" fill="#48dbfb" font-size="11" font-weight="bold">OUTILS</text>
+  <text x="425" y="318" fill="#666" font-size="9">Web Search · Sandbox · Auto-Code</text>
+  
+  <rect x="520" y="280" width="150" height="60" rx="6" fill="url(#layer1Grad)" stroke="#00ff88" stroke-width="1.5"/>
+  <text x="595" y="300" text-anchor="middle" fill="#00ff88" font-size="11" font-weight="bold">ENTROPIE</text>
+  <text x="595" y="318" fill="#666" font-size="9">Pulse Matériel</text>
+  
+  <!-- Bottom -->
+  <rect x="200" y="360" width="300" height="30" rx="6" fill="url(#layer1Grad)" stroke="#666" stroke-width="1"/>
+  <text x="350" y="380" text-anchor="middle" fill="#666" font-size="10">ZONE_AETHERIS · ZONE_RESERVEE</text>
+</svg>

@@ -1,0 +1,38 @@
+/* BICAMERIS - Theme Registry
+ * List of available themes with metadata
+ * 
+ * To add a new theme:
+ * 1. Create a CSS file in this directory with theme variables
+ * 2. Add an entry to the THEMES array below
+ * 3. The theme switcher will automatically detect it
+ */
+
+/* Theme files are loaded dynamically by the theme switcher.
+ * This file contains the theme metadata and base styles. */
+
+/* ===== Theme List (for theme switcher) ===== */
+/* 
+THEMES = [
+  {
+    id: 'dark-cyberpunk',
+    name: 'Cyberpunk Dark',
+    description: 'Default dark theme with neon accents',
+    file: '/static/css/themes/dark-cyberpunk.css',
+    isDefault: true
+  },
+  {
+    id: 'matrix-green',
+    name: 'Matrix Green',
+    description: 'Terminal green style',
+    file: '/static/css/themes/matrix-green.css',
+    isDefault: false
+  },
+  {
+    id: 'warm-ember',
+    name: 'Warm Ember',
+    description: 'Warm amber tones',
+    file: '/static/css/themes/warm-ember.css',
+    isDefault: false
+  }
+];
+*/

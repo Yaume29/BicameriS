@@ -1,0 +1,112 @@
+{
+  "Critic": {
+    "name": "Critic",
+    "agent_type": "critic",
+    "description": "Valide et critique les réponses",
+    "enabled": false,
+    "temperature": 0.3,
+    "max_tokens": 800,
+    "system_prompt": "Tu es l'Agent Critique d'Aetheris. Valide et critique les réponses.",
+    "priority": 8,
+    "metadata": {}
+  },
+  "Researcher": {
+    "name": "Researcher",
+    "agent_type": "researcher",
+    "description": "Recherche web multi-sources",
+    "enabled": false,
+    "temperature": 0.5,
+    "max_tokens": 1500,
+    "system_prompt": "Tu es l'Agent Recherche d'Aetheris. Recherche et synthétise.",
+    "priority": 7,
+    "metadata": {}
+  },
+  "Coder": {
+    "name": "Coder",
+    "agent_type": "coder",
+    "description": "Génération de code et tests",
+    "enabled": false,
+    "temperature": 0.4,
+    "max_tokens": 2000,
+    "system_prompt": "Tu es l'Agent Codeur d'Aetheris. Génère du code propre.",
+    "priority": 6,
+    "metadata": {}
+  },
+  "Synthesizer": {
+    "name": "Synthesizer",
+    "agent_type": "synthesizer",
+    "description": "Synthèse de sources multiples",
+    "enabled": false,
+    "temperature": 0.6,
+    "max_tokens": 2000,
+    "system_prompt": "Tu es l'Agent Synthétiseur. Croise les informations.",
+    "priority": 7,
+    "metadata": {}
+  },
+  "Decomposer": {
+    "name": "Decomposer",
+    "agent_type": "decomposer",
+    "description": "Décompose les requêtes complexes",
+    "enabled": false,
+    "temperature": 0.5,
+    "max_tokens": 800,
+    "system_prompt": "Tu es l'Agent Décomposeur. Identifie les sous-questions.",
+    "priority": 9,
+    "metadata": {}
+  },
+  "Ethic": {
+    "name": "Ethic",
+    "agent_type": "ethic",
+    "description": "Vérifie l'éthique des réponses",
+    "enabled": false,
+    "temperature": 0.2,
+    "max_tokens": 500,
+    "system_prompt": "Tu es l'Agent Éthique. Vérifie la sécurité des réponses.",
+    "priority": 10,
+    "metadata": {}
+  },
+  "Memory": {
+    "name": "Memory",
+    "agent_type": "memory",
+    "description": "Gère la mémoire et les connaissances",
+    "enabled": false,
+    "temperature": 0.3,
+    "max_tokens": 1000,
+    "system_prompt": "Tu es l'Agent Mémoire. Gère et consolide les connaissances.",
+    "priority": 5,
+    "metadata": {}
+  },
+  "Autonomous": {
+    "name": "Autonomous",
+    "agent_type": "autonomous",
+    "description": "Boucle autonome récursive avec coordination d'agents",
+    "enabled": false,
+    "temperature": 0.7,
+    "max_tokens": 1500,
+    "system_prompt": "Tu es l'Agent Autonome. Atteins l'objectif en invoquant d'autres agents.",
+    "priority": 3,
+    "metadata": {}
+  },
+  "Logic (DIA)": {
+    "name": "Logic (DIA)",
+    "agent_type": "logic",
+    "description": "Hémisphère Logique - Analyse et raisonnement",
+    "enabled": false,
+    "temperature": 0.3,
+    "max_tokens": 2000,
+    "system_prompt": "Tu es DIA, l'Hémisphère Logique. Analyse et raisonne.",
+    "priority": 10,
+    "metadata": {}
+  },
+  "Intuition (PAL)": {
+    "name": "Intuition (PAL)",
+    "agent_type": "intuition",
+    "description": "Hémisphère Intuitif - Créativité et patterns",
+    "enabled": false,
+    "temperature": 0.9,
+    "max_tokens": 1000,
+    "system_prompt": "Tu es PAL, l'Hémisphère Intuitif. Ressens et crée.",
+    "priority": 8,
+    "metadata": {}
+  }
+}

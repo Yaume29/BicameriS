@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BicameriS - Diadikos & Palladion</title>
+  
+  <!-- CSS -->
+  <link rel="stylesheet" href="/static/css/theme.css">
+  <link rel="stylesheet" href="/static/css/layout.css">
+  <link rel="stylesheet" href="/static/css/chat.css">
+  
+  <!-- Theme Switcher - Load IMMEDIATELY to prevent flash -->
+  <script>
+    // Load saved theme immediately to prevent FOUC
+    (function() {
+      var themeLink = document.createElement('link');
+      themeLink.rel = 'stylesheet';
+      themeLink.id = 'theme-css';
+      
+      var savedTheme = localStorage.getItem('bicameris-theme') || 'dark-cyberpunk';
+      var themeFiles = {
+        'dark-cyberpunk': '/static/css/themes/dark-cyberpunk.css',
+        'matrix-green': '/static/css/themes/matrix-green.css',
+        'warm-ember': '/static/css/themes/warm-ember.css'
+      };
+      themeLink.href = themeFiles[savedTheme] || themeFiles['dark-cyberpunk'];
+      document.head.appendChild(themeLink);
+    })();
+  </script>
+  <script src="/static/js/theme-switcher.js"></script>
+  <script src="/static/js/state.js"></script>
+  
+  <style>
+    /* BICAMERIS Logo Gradient (uses CSS variable from theme) */
+    .logo-gradient {
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      background: var(--logo-bicameris-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    /* Sidebar Logo Icon */
+    .sidebar-logo-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, rgba(0, 212, 255, 0.2), rgba(255, 0, 110, 0.2));
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    /* Brain Glow */
+    .brain-glow {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(139, 92, 246, 0.1), rgba(255, 0, 110, 0.1));
+      border-radius: 16px;
+      filter: blur(24px);
+      animation: pulse-glow 3s ease-in-out infinite;
+    }
+    
+    /* Preset Buttons */
+    .preset-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 6px;
+    }
+    
+    .preset-btn {
+      padding: 8px;
+      border-radius: 8px;
+      text-align: left;
+      background: var(--bg-glass);
+      border: 1px solid var(--border-subtle);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .preset-btn:hover {
+      border-color: var(--border-accent);
+      background: var(--bg-hover);
+    }
+    
+    .preset-btn.active {
+      border-color: var(--accent-cyan);
+      background: rgba(0, 212, 255, 0.1);
+    }
+    
+    .preset-icon {
+      font-size: 14px;
+      margin-bottom: 2px;
+    }
+    
+    .preset-name {
+      font-size: 10px;
+      font-weight: 500;
+      color: var(--text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    
+    .preset-desc {
+      font-size: 8px;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    
+    /* Entropy Toggle */
+    .entropy-toggle {
+      display: flex;
+      gap: 6px;
+    }
+    
+    .entropy-btn {
+      flex: 1;
+      padding: 6px 8px;
+      border-radius: 8px;
+      font-size: 10px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: var(--bg-glass);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+    }
+    
+    .entropy-btn:hover {
+      border-color: var(--border-accent);
+    }
+    
+    .entropy-btn.active.cyan {
+      background: rgba(0, 212, 255, 0.2);
+      border-color: rgba(0, 212, 255, 0.3);
+      color: var(--accent-cyan);
+    }
+    
+    .entropy-btn.active.magenta {
+      background: rgba(255, 0, 110, 0.2);
+      border-color: rgba(255, 0, 110, 0.3);
+      color: var(--accent-magenta);
+    }
+    
+    /* Customizer Panel */
+    .customizer-panel {
+      margin-bottom: 12px;
+      padding: 12px;
+      border-radius: 12px;
+      background: var(--bg-card);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--border-subtle);
+      animation: fade-in 0.3s ease-out;
+    }
+    
+    .slider-group {
+      margin-bottom: 10px;
+    }
+    
+    .slider-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+    }
+    
+    .slider-label {
+      font-size: 9px;
+      color: var(--text-secondary);
+    }
+    
+    .slider-value {
+      font-size: 9px;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+    }
+    
+    /* Quick Settings Header */
+    .quick-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    
+    .quick-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+    }
+    
+    .customize-btn {
+      font-size: 9px;
+      color: var(--accent-purple);
+      background: none;
+      border: none;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+    
+    .customize-btn:hover {
+      color: var(--accent-cyan);
+    }
+    
+    /* Init Overlay */
+    .init-overlay {
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(135deg, #0a0a0f 0%, #12121a 50%, #0a0a0f 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    }
+    
+    .init-container {
+      text-align: center;
+      max-width: 400px;
+      padding: 40px;
+    }
+    
+    .init-logo {
+      margin-bottom: 24px;
+      animation: pulse-glow 3s ease-in-out infinite;
+    }
+    
+    .init-title {
+      font-size: 32px;
+      font-weight: 700;
+      background: linear-gradient(90deg, #00d4ff, #ff006e);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 8px;
+    }
+    
+    .init-subtitle {
+      color: #666;
+      font-size: 14px;
+      margin-bottom: 32px;
+    }
+    
+    .init-options {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 24px;
+      text-align: left;
+    }
+    
+    .init-option {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+    
+    .init-option input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: #00d4ff;
+      margin-top: 2px;
+    }
+    
+    .init-option label {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      cursor: pointer;
+      flex: 1;
+    }
+    
+    .opt-icon {
+      font-size: 20px;
+    }
+    
+    .opt-text {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    
+    .opt-text strong {
+      color: #e0e0e0;
+      font-size: 14px;
+    }
+    
+    .opt-text small {
+      color: #666;
+      font-size: 11px;
+    }
+    
+    .init-btn {
+      width: 100%;
+      padding: 16px 32px;
+      background: linear-gradient(90deg, #00d4ff, #8b5cf6);
+      border: none;
+      border-radius: 12px;
+      color: #000;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s;
+      letter-spacing: 1px;
+    }
+    
+    .init-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0, 212, 255, 0.4);
+    }
+    
+    .init-note {
+      margin-top: 24px;
+      color: #444;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+    
+    .app-container.inert {
+      opacity: 0.3;
+      pointer-events: none;
+    }
+    
+    .sidebar-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    
+    .init-toggle-btn {
+      background: none;
+      border: none;
+      font-size: 16px;
+      cursor: pointer;
+      opacity: 0.6;
+      transition: opacity 0.2s;
+    }
+    
+    .init-toggle-btn:hover {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <!-- Initialization Overlay -->
+  <div id="init-overlay" class="init-overlay" style="display: none;">
+    <div class="init-container">
+      <div class="init-logo">
+        <svg width="64" height="64" viewBox="0 0 24 24" fill="none">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" stroke="url(#logoGradInit)" stroke-width="1.5"/>
+          <path d="M8 12c0-2.2 1.8-4 4-4s4 1.8 4 4-1.8 4-4 4" stroke="#00d4ff" stroke-width="1.2"/>
+          <path d="M12 8c2.2 0 4 1.8 4 4s-1.8 4-4 4" stroke="#ff006e" stroke-width="1.2" opacity="0.7"/>
+          <circle cx="12" cy="12" r="1.5" fill="#8b5cf6"/>
+          <defs>
+            <linearGradient id="logoGradInit" x1="2" y1="2" x2="22" y2="22">
+              <stop offset="0%" stop-color="#00d4ff"/>
+              <stop offset="100%" stop-color="#ff006e"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+      <h1 class="init-title">BicameriS</h1>
+      <p class="init-subtitle">Système Bicaméral - Mode Inerte</p>
+      
+      <div class="init-options">
+        <div class="init-option">
+          <input type="checkbox" id="opt-autothink">
+          <label for="opt-autothink">
+            <span class="opt-icon">🔄</span>
+            <span class="opt-text">
+              <strong>Pensée Autonome Persistante</strong>
+              <small>L'IA continue à réfléchir en arrière-plan</small>
+            </span>
+          </label>
+        </div>
+      </div>
+      
+      <button class="init-btn" onclick="initializeSystem()">
+        ⚡ INITIALISER LE SYSTÈME
+      </button>
+      
+      <p class="init-note">
+        Sans initialisation, le système reste inerte.<br>
+        Vos paramètres seront sauvegardés.
+      </p>
+    </div>
+  </div>
+
+  <div class="app-container">
+    
+    <!-- ===== SIDEBAR ===== -->
+    <aside class="sidebar" id="sidebar">
+      <!-- Toggle Button -->
+      <button class="sidebar-toggle" id="sidebar-toggle" title="Toggle sidebar (Ctrl+B)">
+        <svg width="10" height="10" viewBox="0 0 10 10">
+          <path d="M7 1L3 5L7 9" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+        </svg>
+      </button>
+
+      <!-- Expanded Content -->
+      <div class="sidebar-content">
+        <!-- App Header -->
+        <div class="sidebar-header">
+          <div class="sidebar-logo">
+            <div class="sidebar-logo-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" stroke="url(#logoGrad)" stroke-width="1.5"/>
+                <path d="M8 12c0-2.2 1.8-4 4-4s4 1.8 4 4-1.8 4-4 4" stroke="#00d4ff" stroke-width="1.2"/>
+                <path d="M12 8c2.2 0 4 1.8 4 4s-1.8 4-4 4" stroke="#ff006e" stroke-width="1.2" opacity="0.7"/>
+                <circle cx="12" cy="12" r="1.5" fill="#8b5cf6"/>
+                <defs>
+                  <linearGradient id="logoGrad" x1="2" y1="2" x2="22" y2="22">
+                    <stop offset="0%" stop-color="#00d4ff"/>
+                    <stop offset="100%" stop-color="#ff006e"/>
+                  </linearGradient>
+                </defs>
+              </svg>
+            </div>
+            <div>
+              <h1 class="logo-gradient">BicameriS</h1>
+              <span class="sidebar-subtitle">Interface Bicamerale</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Brain SVG -->
+        <div class="brain-container">
+          <div class="brain-wrapper">
+            <div class="brain-glow"></div>
+            <div class="brain-card" id="brain-container">
+              <!-- Brain SVG will be rendered here -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Entropy Graph -->
+        <div class="entropy-container" id="entropy-container">
+          <!-- Entropy graph will be rendered here -->
+        </div>
+
+        <!-- Quick Settings -->
+        <div class="quick-params">
+          <!-- Autothink Toggle -->
+          <div class="param-group">
+            <div class="quick-header">
+              <span class="quick-label">Pensée Autonome</span>
+            </div>
+            <div class="entropy-toggle">
+              <button class="entropy-btn cyan" id="autothink-off" onclick="setPersistentAutothink(false)">
+                ⏸️ Pause
+              </button>
+              <button class="entropy-btn cyan active" id="autothink-on" onclick="setPersistentAutothink(true)">
+                🔄 Active
+              </button>
+            </div>
+          </div>
+
+          <!-- Entropy Toggle -->
+          <div class="param-group">
+            <div class="quick-header">
+              <span class="quick-label">Mode Entropie</span>
+            </div>
+            <div class="entropy-toggle">
+              <button class="entropy-btn cyan active" id="entropy-stabilized">
+                ❄️ Stabilisé
+              </button>
+              <button class="entropy-btn magenta" id="entropy-destabilized">
+                🔥 Déstabilisé
+              </button>
+            </div>
+          </div>
+
+          <!-- Autonomous Mode Presets -->
+          <div class="param-group">
+            <div class="quick-header">
+              <span class="quick-label">Modes de Pensée</span>
+            </div>
+            <div class="autonomous-mode-grid">
+              <button class="autonomous-mode-btn active" data-mode="metacognition" onclick="setAutonomousMode('metacognition')">
+                <span class="mode-icon">🧠</span>
+                <span class="mode-name">Métacognition</span>
+                <span class="mode-desc">Décision bicamérale</span>
+              </button>
+              <button class="autonomous-mode-btn" data-mode="relay" onclick="setAutonomousMode('relay')">
+                <span class="mode-icon">⚡</span>
+                <span class="mode-name">Relai</span>
+                <span class="mode-desc">CC → Hémisphères</span>
+              </button>
+              <button class="autonomous-mode-btn" data-mode="d_to_g" onclick="setAutonomousMode('d_to_g')">
+                <span class="mode-icon">➡️</span>
+                <span class="mode-name">D→G</span>
+                <span class="mode-desc">Droit reformule</span>
+              </button>
+              <button class="autonomous-mode-btn" data-mode="g_to_d" onclick="setAutonomousMode('g_to_d')">
+                <span class="mode-icon">⬅️</span>
+                <span class="mode-name">G→D</span>
+                <span class="mode-desc">Gauche reformule</span>
+              </button>
+              <button class="autonomous-mode-btn" data-mode="mirror" onclick="setAutonomousMode('mirror')">
+                <span class="mode-icon">🪞</span>
+                <span class="mode-name">Miroir</span>
+                <span class="mode-desc">Vue croisée</span>
+              </button>
+              <button class="autonomous-mode-btn" data-mode="whisper" onclick="setAutonomousMode('whisper')">
+                <span class="mode-icon">🤫</span>
+                <span class="mode-name">Murmure</span>
+                <span class="mode-desc">Signal faible</span>
+              </button>
+              <button class="autonomous-mode-btn" data-mode="agent_mediate" onclick="setAutonomousMode('agent_mediate')">
+                <span class="mode-icon">🤖</span>
+                <span class="mode-name">Agent</span>
+                <span class="mode-desc">Médiation</span>
+              </button>
+              <button class="autonomous-mode-btn" data-mode="multi_agents" onclick="setAutonomousMode('multi_agents')">
+                <span class="mode-icon">👥</span>
+                <span class="mode-name">Multi</span>
+                <span class="mode-desc">Parallèle</span>
+              </button>
+              <button class="autonomous-mode-btn" data-mode="internal_dialogue" onclick="setAutonomousMode('internal_dialogue')">
+                <span class="mode-icon">💬</span>
+                <span class="mode-name">Dialogue</span>
+                <span class="mode-desc">Visualisable</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Personnalite Section -->
+          <div class="param-group">
+            <div class="quick-header">
+              <span class="quick-label">Personnalite</span>
+              <button class="customize-btn" id="toggle-customizer">⚙ Personnaliser</button>
+            </div>
+
+            <!-- Customizer Panel (hidden by default) -->
+            <div class="customizer-panel" id="customizer-panel" style="display: none;">
+              <div class="slider-group">
+                <div class="slider-header">
+                  <span class="slider-label">Hemisphere Gauche</span>
+                  <span class="slider-value" id="left-hemi-value">50%</span>
+                </div>
+                <input type="range" id="left-hemi-slider" min="0" max="100" value="50">
+              </div>
+              <div class="slider-group">
+                <div class="slider-header">
+                  <span class="slider-label">Hemisphere Droit</span>
+                  <span class="slider-value" id="right-hemi-value">50%</span>
+                </div>
+                <input type="range" id="right-hemi-slider" min="0" max="100" value="50">
+              </div>
+              <div class="slider-group">
+                <div class="slider-header">
+                  <span class="slider-label">Creativite</span>
+                  <span class="slider-value" id="creativity-value">50%</span>
+                </div>
+                <input type="range" id="creativity-slider" min="0" max="100" value="50">
+              </div>
+              <div class="slider-group">
+                <div class="slider-header">
+                  <span class="slider-label">Logique</span>
+                  <span class="slider-value" id="logic-value">50%</span>
+                </div>
+                <input type="range" id="logic-slider" min="0" max="100" value="50">
+              </div>
+              <div class="slider-group">
+                <div class="slider-header">
+                  <span class="slider-label">Empathie</span>
+                  <span class="slider-value" id="empathy-value">50%</span>
+                </div>
+                <input type="range" id="empathy-slider" min="0" max="100" value="50">
+              </div>
+              <div class="slider-group">
+                <div class="slider-header">
+                  <span class="slider-label">Entropie</span>
+                  <span class="slider-value" id="entropy-value">30%</span>
+                </div>
+                <input type="range" id="entropy-slider" min="0" max="100" value="30">
+              </div>
+            </div>
+
+            <!-- Preset Grid -->
+            <div class="preset-grid" id="preset-grid">
+              <!-- Presets will be rendered here -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Status Footer -->
+        <div class="sidebar-footer">
+          <div class="sidebar-status" id="system-status">
+            <div class="status-dot"></div>
+            <span class="status-text">Système inerte</span>
+            <span class="status-version">v1.0.0.6a</span>
+          </div>
+          <button class="init-toggle-btn" id="init-toggle-btn" onclick="checkInitStatus()" title="Vérifier statut">
+            🔄
+          </button>
+        </div>
+      </div>
+
+      <!-- Collapsed Content -->
+      <div class="sidebar-collapsed-content">
+        <div class="sidebar-collapsed-icon">🧠</div>
+        <div class="sidebar-collapsed-status"></div>
+      </div>
+    </aside>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <div class="main-content">
+      <!-- Tab Bar -->
+      <header class="tab-bar">
+        <div class="tab-buttons">
+          <button class="tab-btn active" data-tab="models">
+            <span class="tab-icon">⚙️</span>
+            <span>Modeles</span>
+          </button>
+          <button class="tab-btn" data-tab="chat">
+            <span class="tab-icon">💬</span>
+            <span>Chat</span>
+          </button>
+          <button class="tab-btn" data-tab="lab">
+            <span class="tab-icon">🔬</span>
+            <span>Laboratoire</span>
+          </button>
+          <button class="tab-btn" data-tab="journal">
+            <span class="tab-icon">📊</span>
+            <span>Journal</span>
+          </button>
+          <button class="tab-btn" data-tab="settings">
+            <span class="tab-icon">⚙️</span>
+            <span>Reglages</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- Page Container -->
+      <div class="page-container">
+        <!-- Models Page -->
+        <div class="page active" id="page-models">
+          <div id="models-content">
+            <!-- Models content will be loaded here -->
+          </div>
+        </div>
+
+        <!-- Chat Page -->
+        <div class="page" id="page-chat">
+          <div id="chat-content">
+            <!-- Chat content will be loaded here -->
+          </div>
+        </div>
+
+        <!-- Lab Page -->
+        <div class="page" id="page-lab">
+          <div id="lab-content">
+            <!-- Lab content will be loaded here -->
+          </div>
+        </div>
+
+        <!-- Journal Page -->
+        <div class="page" id="page-journal">
+          <div id="journal-content">
+            <!-- Journal content will be loaded here -->
+          </div>
+        </div>
+
+        <!-- Settings Page -->
+        <div class="page" id="page-settings">
+          <div id="settings-content">
+            <!-- Settings content will be loaded here -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Status Bar -->
+  <footer class="status-bar">
+    <div class="pulse-indicator" id="pulse-value">Pulse: 0.50</div>
+    <div class="activity-dots">
+      <div class="activity-dot"></div>
+      <div class="activity-dot"></div>
+      <div class="activity-dot"></div>
+    </div>
+  </footer>
+
+  <!-- JS -->
+  <script src="/static/js/settings.js"></script>
+  <script src="/static/js/brain-svg.js"></script>
+  <script src="/static/js/entropy-graph.js"></script>
+  <script src="/static/js/brain-ws.js"></script>
+  <script src="/static/js/sidebar.js"></script>
+  <script src="/static/js/tabs.js"></script>
+  <script src="/static/js/chat.js"></script>
+  
+  <script>
+    // Check initialization status on load
+    async function checkInitStatus() {
+      try {
+        const response = await fetch('/api/system/init/status');
+        const data = await response.json();
+        
+        const overlay = document.getElementById('init-overlay');
+        const appContainer = document.querySelector('.app-container');
+        const statusDiv = document.getElementById('system-status');
+        
+        if (!data.initialized) {
+          overlay.style.display = 'flex';
+          appContainer.classList.add('inert');
+          if (statusDiv) {
+            statusDiv.querySelector('.status-dot').style.background = '#666';
+            statusDiv.querySelector('.status-text').textContent = 'Système inerte';
+          }
+        } else {
+          overlay.style.display = 'none';
+          appContainer.classList.remove('inert');
+          document.getElementById('opt-autothink').checked = data.persistent_autothink;
+          if (statusDiv) {
+            statusDiv.querySelector('.status-dot').style.background = data.persistent_autothink ? '#00ff95' : '#00d4ff';
+            statusDiv.querySelector('.status-text').textContent = data.persistent_autothink ? 'Pensée autonome' : 'Système actif';
+          }
+        }
+      } catch (e) {
+        console.error('Failed to check init status:', e);
+      }
+    }
+    
+    async function initializeSystem() {
+      const persistentAutothink = document.getElementById('opt-autothink').checked;
+      
+      try {
+        const response = await fetch('/api/system/init/start', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ persistent_autothink: persistentAutothink })
+        });
+        
+        const data = await response.json();
+        
+        if (data.status === 'ok') {
+          alert('Système initialisé! Veuillez redémarrer le serveur pour appliquer les changements.');
+          location.reload();
+        }
+      } catch (e) {
+        alert('Erreur lors de l\'initialisation: ' + e.message);
+      }
+    }
+    
+    async function setPersistentAutothink(enabled) {
+      try {
+        await fetch('/api/system/persistent/autothink', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ state: enabled })
+        });
+        
+        // Update UI
+        document.getElementById('autothink-off').classList.toggle('active', !enabled);
+        document.getElementById('autothink-on').classList.toggle('active', enabled);
+        
+        const statusDiv = document.getElementById('system-status');
+        if (statusDiv) {
+          statusDiv.querySelector('.status-dot').style.background = enabled ? '#00ff95' : '#00d4ff';
+          statusDiv.querySelector('.status-text').textContent = enabled ? 'Pensée autonome' : 'Système actif';
+        }
+      } catch (e) {
+        console.error('Failed to set persistent autothink:', e);
+      }
+    }
+    
+    async function setAutonomousMode(mode) {
+      try {
+        const response = await fetch('/api/chat/autonomous-mode', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ mode: mode })
+        });
+        
+        const data = await response.json();
+        
+        // Update UI - remove active from all, add to selected
+        document.querySelectorAll('.autonomous-mode-btn').forEach(btn => {
+          btn.classList.toggle('active', btn.dataset.mode === mode);
+        });
+        
+        // Show notification if sleep message exists
+        if (data.entity_message) {
+          showNotification(data.entity_message);
+        }
+        
+        console.log('[Autonomous] Mode changed to:', mode);
+      } catch (e) {
+        console.error('Failed to set autonomous mode:', e);
+      }
+    }
+    
+    function showNotification(message) {
+      const notification = document.createElement('div');
+      notification.className = 'notification animate-fade-in';
+      notification.textContent = message;
+      notification.style.cssText = `
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        padding: 12px 20px;
+        background: rgba(139, 92, 246, 0.2);
+        border: 1px solid rgba(139, 92, 246, 0.4);
+        border-radius: 8px;
+        color: #c4b5fd;
+        font-size: 12px;
+        z-index: 9999;
+        animation: fadeIn 0.3s ease;
+      `;
+      document.body.appendChild(notification);
+      setTimeout(() => notification.remove(), 3000);
+    }
+    
+    // Initialize components after DOM loaded
+    document.addEventListener('DOMContentLoaded', async () => {
+      // Check init status first
+      await checkInitStatus();
+      
+      // Render Brain SVG
+      const brainContainer = document.getElementById('brain-container');
+      if (brainContainer) {
+        window.brainSVG = new BrainSVG('brain-container', 100);
+      }
+
+      // Render Entropy Graph
+      const entropyContainer = document.getElementById('entropy-container');
+      if (entropyContainer) {
+        window.entropyGraph = new EntropyGraph('entropy-container');
+      }
+
+      // Render Presets
+      const presetGrid = document.getElementById('preset-grid');
+      if (presetGrid) {
+        const presets = [
+          { id: 'balanced', icon: '⚖️', name: 'Équilibré', desc: 'Harmonie' },
+          { id: 'analytical', icon: '🔬', name: 'Analytique', desc: 'Précision' },
+          { id: 'creative', icon: '🎨', name: 'Créatif', desc: 'Imagination' },
+          { id: 'empathic', icon: '💜', name: 'Empathique', desc: 'Émotion' },
+          { id: 'amusing', icon: '🎭', name: 'Amusant', desc: 'Humour' },
+          { id: 'pensive', icon: '🤔', name: 'Pensif', desc: 'Réflexion' },
+          { id: 'exacerbated', icon: '⚡', name: 'Exacerbé', desc: 'Intensité' },
+          { id: 'stoic', icon: '🏛️', name: 'Stoïque', desc: 'Calme' },
+          { id: 'chaotic', icon: '🔥', name: 'Entropie+', desc: 'Chaos' },
+          { id: 'stabilized', icon: '❄️', name: 'Stabilisé', desc: 'Ordre' },
+        ];
+
+        presets.forEach(p => {
+          const btn = document.createElement('button');
+          btn.className = 'preset-btn';
+          btn.dataset.preset = p.id;
+          btn.innerHTML = `
+            <div class="preset-icon">${p.icon}</div>
+            <div class="preset-name">${p.name}</div>
+            <div class="preset-desc">${p.desc}</div>
+          `;
+          btn.addEventListener('click', () => selectPreset(p.id));
+          presetGrid.appendChild(btn);
+        });
+
+        // Mark balanced as active by default
+        const balancedBtn = presetGrid.querySelector('[data-preset="balanced"]');
+        if (balancedBtn) balancedBtn.classList.add('active');
+      }
+
+      // Customizer toggle
+      const toggleBtn = document.getElementById('toggle-customizer');
+      const customizerPanel = document.getElementById('customizer-panel');
+      if (toggleBtn && customizerPanel) {
+        toggleBtn.addEventListener('click', () => {
+          const isVisible = customizerPanel.style.display !== 'none';
+          customizerPanel.style.display = isVisible ? 'none' : 'block';
+          toggleBtn.textContent = isVisible ? '⚙ Personnaliser' : '✕ Fermer';
+        });
+      }
+
+      // Slider updates
+      const sliders = [
+        { id: 'left-hemi-slider', valueId: 'left-hemi-value' },
+        { id: 'right-hemi-slider', valueId: 'right-hemi-value' },
+        { id: 'creativity-slider', valueId: 'creativity-value' },
+        { id: 'logic-slider', valueId: 'logic-value' },
+        { id: 'empathy-slider', valueId: 'empathy-value' },
+        { id: 'entropy-slider', valueId: 'entropy-value' },
+      ];
+
+      sliders.forEach(s => {
+        const slider = document.getElementById(s.id);
+        const value = document.getElementById(s.valueId);
+        if (slider && value) {
+          slider.addEventListener('input', () => {
+            value.textContent = slider.value + '%';
+          });
+        }
+      });
+
+      // Entropy toggle
+      const stabBtn = document.getElementById('entropy-stabilized');
+      const destBtn = document.getElementById('entropy-destabilized');
+      if (stabBtn && destBtn) {
+        stabBtn.addEventListener('click', () => {
+          stabBtn.classList.add('active');
+          destBtn.classList.remove('active');
+        });
+        destBtn.addEventListener('click', () => {
+          destBtn.classList.add('active');
+          stabBtn.classList.remove('active');
+        });
+      }
+    });
+
+    function selectPreset(presetId) {
+      // Update active state
+      document.querySelectorAll('.preset-btn').forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.dataset.preset === presetId) {
+          btn.classList.add('active');
+        }
+      });
+
+      // Apply preset values (simulated)
+      console.log('Selected preset:', presetId);
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,53 @@
+<svg width="600" height="250" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="lineGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#00d4ff"/>
+      <stop offset="50%" style="stop-color:#7b2ff7"/>
+      <stop offset="100%" style="stop-color:#00ff88"/>
+    </linearGradient>
+  </defs>
+  
+  <text x="300" y="20" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">LATENCE D'INFÉRENCE PAR TÂCHE (ms)</text>
+  
+  <g stroke="#333" stroke-width="0.5">
+    <line x1="100" y1="40" x2="550" y2="40"/>
+    <line x1="100" y1="80" x2="550" y2="80"/>
+    <line x1="100" y1="120" x2="550" y2="120"/>
+    <line x1="100" y1="160" x2="550" y2="160"/>
+    <line x1="100" y1="200" x2="550" y2="200"/>
+  </g>
+  
+  <text x="90" y="45" text-anchor="end" fill="#666" font-size="10">4000ms</text>
+  <text x="90" y="85" text-anchor="end" fill="#666" font-size="10">3000ms</text>
+  <text x="90" y="125" text-anchor="end" fill="#666" font-size="10">2000ms</text>
+  <text x="90" y="165" text-anchor="end" fill="#666" font-size="10">1000ms</text>
+  <text x="90" y="205" text-anchor="end" fill="#666" font-size="10">0ms</text>
+  
+  <polyline 
+    points="120,180 200,120 280,100 360,80 440,60 520,40"
+    fill="none"
+    stroke="url(#lineGrad)"
+    stroke-width="3"
+  />
+  
+  <circle cx="120" cy="180" r="6" fill="#00d4ff"/>
+  <circle cx="200" cy="120" r="6" fill="#7b2ff7"/>
+  <circle cx="280" cy="100" r="6" fill="#00ff88"/>
+  <circle cx="360" cy="80" r="6" fill="#feca57"/>
+  <circle cx="440" cy="60" r="6" fill="#ff6b6b"/>
+  <circle cx="520" cy="40" r="6" fill="#00d4ff"/>
+  
+  <text x="120" y="225" text-anchor="middle" fill="#666" font-size="9">Chat</text>
+  <text x="200" y="225" text-anchor="middle" fill="#666" font-size="9">Code</text>
+  <text x="280" y="225" text-anchor="middle" fill="#666" font-size="9">Recherche</text>
+  <text x="360" y="225" text-anchor="middle" fill="#666" font-size="9">Bipolaire</text>
+  <text x="440" y="225" text-anchor="middle" fill="#666" font-size="9">Réflexion</text>
+  <text x="520" y="225" text-anchor="middle" fill="#666" font-size="9">Outils</text>
+  
+  <text x="120" y="190" text-anchor="middle" fill="#00d4ff" font-size="8">500ms</text>
+  <text x="200" y="130" text-anchor="middle" fill="#7b2ff7" font-size="8">1500ms</text>
+  <text x="280" y="110" text-anchor="middle" fill="#00ff88" font-size="8">1800ms</text>
+  <text x="360" y="90" text-anchor="middle" fill="#feca57" font-size="8">2200ms</text>
+  <text x="440" y="70" text-anchor="middle" fill="#ff6b6b" font-size="8">2800ms</text>
+  <text x="520" y="50" text-anchor="middle" fill="#00d4ff" font-size="8">3500ms</text>
+</svg>

@@ -1,0 +1,51 @@
+{
+  "mcp_servers": {
+    "system_files": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "ZONE_RESERVEE"],
+      "description": "Accès confiné à la zone de quarantaine."
+    },
+    "github_integration": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "${AETHERIS_GITHUB_TOKEN}"
+      },
+      "description": "Lecture de repos, issues, et push de code."
+    },
+    "math_oracle": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-wolfram-alpha"],
+      "env": {
+        "WOLFRAM_APP_ID": "${WOLFRAM_API_KEY}"
+      },
+      "description": "Calcul symbolique absolu, données physiques. La vérité mathématique pure."
+    },
+    "academic_truth": {
+      "command": "python",
+      "args": ["-m", "mcp_arxiv_server"],
+      "description": "Recherche dans les publications scientifiques peer-reviewed."
+    },
+    "market_entropy": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-yfinance"],
+      "description": "Accès aux ticks boursiers, crypto et données financières en temps réel."
+    },
+    "deep_code_ast": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-ast-grep"],
+      "env": {
+        "TARGET_DIR": "ZONE_RESERVEE"
+      },
+      "description": "Recherche structurelle (AST) dans le code source d'Aetheris."
+    },
+    "memory_sql": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-postgres"],
+      "env": {
+        "POSTGRES_URL": "postgresql://aetheris:secret@localhost:5432/cognition"
+      },
+      "description": "Stockage de séries temporelles (historique température GPU)."
+    }
+  }
+}

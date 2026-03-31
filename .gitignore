@@ -1,0 +1,75 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+*.egg
+
+# Distribution
+build/
+dist/
+downloads/
+eggs/
+.eggs/
+
+# Virtual environments
+.env
+.venv
+env/
+venv/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Runtime generated
+*.log
+*.db
+*.sqlite
+memory/
+cookies.txt
+nul
+run.py
+.aetheris_map.json
+
+# Debug and reports
+debug.md
+RAPPORT_*.md
+DEBUG/
+
+# Storage (runtime data)
+storage/
+storage/config/
+storage/experiments/
+
+# Model files (too large)
+*.bin
+*.gguf
+*.ggml
+*.safetensors
+*.pt
+*.pth
+*.onnx
+
+# Temporary
+*.tmp
+*.bak
+*~
+
+# Project specific
+Version1/
+ZONE_RESERVEE/sandbox/
+ZONE_AETHERIS/memory/
+ZONE_AETHERIS/logs/
+ZONE_AETHERIS/workspace/
+ZONE_RESERVEE/logs/
+test
+ZONE_AETHERIS/ZONE_AETHERIS/

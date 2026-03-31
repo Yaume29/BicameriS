@@ -1,0 +1,370 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="100%" height="100%">
+  <defs>
+    <filter id="glow-cyan" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="3" result="blur1"/>
+      <feGaussianBlur in="SourceGraphic" stdDeviation="8" result="blur2"/>
+      <feMerge>
+        <feMergeNode in="blur2"/>
+        <feMergeNode in="blur1"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="glow-magenta" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="3" result="blur1"/>
+      <feGaussianBlur in="SourceGraphic" stdDeviation="8" result="blur2"/>
+      <feMerge>
+        <feMergeNode in="blur2"/>
+        <feMergeNode in="blur1"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="glow-amber" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="3" result="blur1"/>
+      <feGaussianBlur in="SourceGraphic" stdDeviation="7" result="blur2"/>
+      <feMerge>
+        <feMergeNode in="blur2"/>
+        <feMergeNode in="blur1"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="glow-soft" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="12" result="blur"/>
+    </filter>
+    <radialGradient id="bg-grad" cx="50%" cy="40%" r="55%">
+      <stop offset="0%" stop-color="#141620"/>
+      <stop offset="100%" stop-color="#0b0c10"/>
+    </radialGradient>
+    <linearGradient id="mag-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ff003c"/>
+      <stop offset="100%" stop-color="#8a2be2"/>
+    </linearGradient>
+    <linearGradient id="amber-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffdd00"/>
+      <stop offset="100%" stop-color="#ff8c00"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="100%" height="100%" fill="url(#bg-grad)"/>
+
+  <!-- Ambient background glow -->
+  <ellipse cx="400" cy="300" rx="280" ry="220" fill="#00f0ff" opacity="0.03" filter="url(#glow-soft)"/>
+  <ellipse cx="520" cy="300" rx="220" ry="200" fill="#ff003c" opacity="0.03" filter="url(#glow-soft)"/>
+
+  <!-- ==================== LEFT HEMISPHERE ==================== -->
+  <g id="left-hemisphere" filter="url(#glow-cyan)">
+
+    <!-- Outer contour - angular brain shape -->
+    <path d="M 380 120 L 340 110 L 290 115 L 240 135 L 200 170 L 170 215 L 155 270 L 150 330 L 155 390 L 170 440 L 195 480 L 230 510 L 270 530 L 310 540 L 350 535 L 380 520"
+          fill="none" stroke="#00f0ff" stroke-width="2" opacity="0.6"/>
+
+    <!-- Inner angular contours -->
+    <path d="M 360 145 L 320 138 L 275 145 L 235 165 L 205 200 L 182 245 L 170 295 L 166 345 L 170 395 L 182 440 L 200 475 L 225 500 L 255 518 L 290 528 L 325 525 L 360 510"
+          fill="none" stroke="#00f0ff" stroke-width="1" opacity="0.3"/>
+
+    <!-- Horizontal circuit traces -->
+    <path d="M 200 200 L 260 200 L 280 220 L 340 220" fill="none" stroke="#00f0ff" stroke-width="1.5"/>
+    <path d="M 170 260 L 220 260 L 240 240 L 300 240 L 320 260 L 370 260" fill="none" stroke="#00f0ff" stroke-width="1.5"/>
+    <path d="M 155 320 L 200 320 L 220 300 L 280 300 L 300 320 L 360 320" fill="none" stroke="#00f0ff" stroke-width="1.5"/>
+    <path d="M 160 380 L 210 380 L 230 400 L 290 400 L 310 380 L 370 380" fill="none" stroke="#00f0ff" stroke-width="1.5"/>
+    <path d="M 175 440 L 220 440 L 240 420 L 300 420 L 320 440 L 365 440" fill="none" stroke="#00f0ff" stroke-width="1.5"/>
+    <path d="M 200 490 L 250 490 L 270 510 L 330 510" fill="none" stroke="#00f0ff" stroke-width="1.5"/>
+
+    <!-- Vertical circuit traces -->
+    <path d="M 260 140 L 260 200 L 280 220 L 280 300 L 260 320 L 260 400 L 280 420 L 280 480 L 260 500" fill="none" stroke="#00f0ff" stroke-width="1.5"/>
+    <path d="M 200 170 L 200 200 L 220 220 L 220 260 L 200 280 L 200 320 L 220 340 L 220 380 L 200 400 L 200 440 L 220 460 L 220 490" fill="none" stroke="#00f0ff" stroke-width="1.5"/>
+    <path d="M 320 145 L 320 200 L 340 220 L 340 260 L 320 280 L 320 320 L 340 340 L 340 380 L 320 400 L 320 440 L 340 460 L 340 500" fill="none" stroke="#00f0ff" stroke-width="1.5"/>
+
+    <!-- Diagonal traces -->
+    <path d="M 240 165 L 260 185 L 260 220" fill="none" stroke="#00f0ff" stroke-width="1"/>
+    <path d="M 280 240 L 260 260 L 260 300" fill="none" stroke="#00f0ff" stroke-width="1"/>
+    <path d="M 300 300 L 280 320 L 280 360" fill="none" stroke="#00f0ff" stroke-width="1"/>
+    <path d="M 220 340 L 240 360 L 240 400" fill="none" stroke="#00f0ff" stroke-width="1"/>
+    <path d="M 260 400 L 240 420 L 240 460" fill="none" stroke="#00f0ff" stroke-width="1"/>
+    <path d="M 300 380 L 280 400 L 280 440" fill="none" stroke="#00f0ff" stroke-width="1"/>
+
+    <!-- Brutalist tech nodes - hexagonal -->
+    <polygon points="260,190 270,184 280,190 280,202 270,208 260,202" fill="none" stroke="#00f0ff" stroke-width="1.5"/>
+    <polygon points="260,190 270,184 280,190 280,202 270,208 260,202" fill="#00f0ff" opacity="0.15"/>
+
+    <polygon points="200,250 210,244 220,250 220,262 210,268 200,262" fill="none" stroke="#00f0ff" stroke-width="1.5"/>
+    <polygon points="200,250 210,244 220,250 220,262 210,268 200,262" fill="#00f0ff" opacity="0.15"/>
+
+    <polygon points="320,250 330,244 340,250 340,262 330,268 320,262" fill="none" stroke="#00f0ff" stroke-width="1.5"/>
+    <polygon points="320,250 330,244 340,250 340,262 330,268 320,262" fill="#00f0ff" opacity="0.15"/>
+
+    <polygon points="260,310 270,304 280,310 280,322 270,328 260,322" fill="none" stroke="#00f0ff" stroke-width="1.5"/>
+    <polygon points="260,310 270,304 280,310 280,322 270,328 260,322" fill="#00f0ff" opacity="0.15"/>
+
+    <polygon points="200,370 210,364 220,370 220,382 210,388 200,382" fill="none" stroke="#00f0ff" stroke-width="1.5"/>
+    <polygon points="200,370 210,364 220,370 220,382 210,388 200,382" fill="#00f0ff" opacity="0.15"/>
+
+    <polygon points="320,370 330,364 340,370 340,382 330,388 320,382" fill="none" stroke="#00f0ff" stroke-width="1.5"/>
+    <polygon points="320,370 330,364 340,370 340,382 330,388 320,382" fill="#00f0ff" opacity="0.15"/>
+
+    <polygon points="260,430 270,424 280,430 280,442 270,448 260,442" fill="none" stroke="#00f0ff" stroke-width="1.5"/>
+    <polygon points="260,430 270,424 280,430 280,442 270,448 260,442" fill="#00f0ff" opacity="0.15"/>
+
+    <!-- Circular nodes -->
+    <circle cx="260" cy="140" r="5" fill="#00f0ff" opacity="0.8"/>
+    <circle cx="260" cy="140" r="2" fill="#0b0c10"/>
+    <circle cx="200" cy="170" r="4" fill="#00f0ff" opacity="0.7"/>
+    <circle cx="200" cy="170" r="1.5" fill="#0b0c10"/>
+    <circle cx="320" cy="145" r="4" fill="#00f0ff" opacity="0.7"/>
+    <circle cx="320" cy="145" r="1.5" fill="#0b0c10"/>
+    <circle cx="260" cy="500" r="5" fill="#00f0ff" opacity="0.8"/>
+    <circle cx="260" cy="500" r="2" fill="#0b0c10"/>
+    <circle cx="200" cy="490" r="4" fill="#00f0ff" opacity="0.6"/>
+    <circle cx="200" cy="490" r="1.5" fill="#0b0c10"/>
+    <circle cx="320" cy="500" r="4" fill="#00f0ff" opacity="0.6"/>
+    <circle cx="320" cy="500" r="1.5" fill="#0b0c10"/>
+
+    <!-- Small accent dots -->
+    <circle cx="240" cy="165" r="2" fill="#00f0ff" opacity="0.5"/>
+    <circle cx="280" cy="240" r="2" fill="#00f0ff" opacity="0.5"/>
+    <circle cx="300" cy="300" r="2" fill="#00f0ff" opacity="0.5"/>
+    <circle cx="220" cy="340" r="2" fill="#00f0ff" opacity="0.5"/>
+    <circle cx="240" cy="400" r="2" fill="#00f0ff" opacity="0.5"/>
+    <circle cx="280" cy="440" r="2" fill="#00f0ff" opacity="0.5"/>
+    <circle cx="260" cy="260" r="2" fill="#00f0ff" opacity="0.5"/>
+    <circle cx="260" cy="360" r="2" fill="#00f0ff" opacity="0.5"/>
+    <circle cx="260" cy="460" r="2" fill="#00f0ff" opacity="0.5"/>
+
+    <!-- Micro-circuit details -->
+    <path d="M 230 200 L 235 200 L 235 205 L 240 205" fill="none" stroke="#00f0ff" stroke-width="0.8" opacity="0.5"/>
+    <path d="M 300 200 L 305 200 L 305 205 L 310 205" fill="none" stroke="#00f0ff" stroke-width="0.8" opacity="0.5"/>
+    <path d="M 230 260 L 235 260 L 235 265 L 240 265" fill="none" stroke="#00f0ff" stroke-width="0.8" opacity="0.5"/>
+    <path d="M 300 260 L 305 260 L 305 265 L 310 265" fill="none" stroke="#00f0ff" stroke-width="0.8" opacity="0.5"/>
+    <path d="M 230 320 L 235 320 L 235 325 L 240 325" fill="none" stroke="#00f0ff" stroke-width="0.8" opacity="0.5"/>
+    <path d="M 300 320 L 305 320 L 305 325 L 310 325" fill="none" stroke="#00f0ff" stroke-width="0.8" opacity="0.5"/>
+    <path d="M 230 380 L 235 380 L 235 385 L 240 385" fill="none" stroke="#00f0ff" stroke-width="0.8" opacity="0.5"/>
+    <path d="M 300 380 L 305 380 L 305 385 L 310 385" fill="none" stroke="#00f0ff" stroke-width="0.8" opacity="0.5"/>
+    <path d="M 230 440 L 235 440 L 235 445 L 240 445" fill="none" stroke="#00f0ff" stroke-width="0.8" opacity="0.5"/>
+    <path d="M 300 440 L 305 440 L 305 445 L 310 445" fill="none" stroke="#00f0ff" stroke-width="0.8" opacity="0.5"/>
+
+    <!-- Data flow arrows -->
+    <path d="M 340 220 L 355 220 L 350 215 M 355 220 L 350 225" fill="none" stroke="#00f0ff" stroke-width="1.2"/>
+    <path d="M 360 260 L 375 260 L 370 255 M 375 260 L 370 265" fill="none" stroke="#00f0ff" stroke-width="1.2"/>
+    <path d="M 360 320 L 375 320 L 370 315 M 375 320 L 370 325" fill="none" stroke="#00f0ff" stroke-width="1.2"/>
+    <path d="M 360 380 L 375 380 L 370 375 M 375 380 L 370 385" fill="none" stroke="#00f0ff" stroke-width="1.2"/>
+    <path d="M 330 510 L 345 510 L 340 505 M 345 510 L 340 515" fill="none" stroke="#00f0ff" stroke-width="1.2"/>
+
+    <!-- Central left processing core -->
+    <rect x="245" y="295" width="30" height="30" fill="none" stroke="#00f0ff" stroke-width="2" transform="rotate(45 260 310)"/>
+    <rect x="250" y="300" width="20" height="20" fill="#00f0ff" opacity="0.1" transform="rotate(45 260 310)"/>
+    <circle cx="260" cy="310" r="4" fill="#00f0ff" opacity="0.9"/>
+  </g>
+
+  <!-- ==================== RIGHT HEMISPHERE ==================== -->
+  <g id="right-hemisphere" filter="url(#glow-magenta)">
+
+    <!-- Outer organic contour -->
+    <path d="M 420 120 C 460 108, 510 112, 550 130 C 590 150, 620 185, 640 230 C 658 275, 665 325, 660 375 C 655 425, 640 470, 615 505 C 590 540, 555 560, 515 568 C 475 575, 445 565, 420 540"
+          fill="none" stroke="url(#mag-grad)" stroke-width="2" opacity="0.6"/>
+
+    <!-- Inner organic contour -->
+    <path d="M 440 145 C 475 135, 515 140, 548 158 C 580 178, 605 208, 622 248 C 638 288, 644 332, 640 378 C 635 422, 622 462, 600 495 C 578 528, 548 548, 515 556 C 482 563, 455 554, 435 532"
+          fill="none" stroke="url(#mag-grad)" stroke-width="1" opacity="0.3"/>
+
+    <!-- Organic neural web - primary curves -->
+    <path d="M 440 180 C 460 170, 490 165, 520 175 C 550 185, 580 200, 600 225 C 620 250, 630 280, 625 310"
+          fill="none" stroke="#ff003c" stroke-width="1.5" opacity="0.8"/>
+    <path d="M 430 240 C 455 225, 490 215, 530 220 C 570 225, 600 245, 620 275 C 640 305, 645 340, 635 370"
+          fill="none" stroke="#ff003c" stroke-width="1.5" opacity="0.8"/>
+    <path d="M 425 300 C 450 285, 490 275, 535 280 C 580 285, 610 305, 630 335 C 650 365, 655 400, 645 430"
+          fill="none" stroke="#ff003c" stroke-width="1.5" opacity="0.8"/>
+    <path d="M 430 360 C 455 345, 495 335, 540 340 C 585 345, 615 365, 635 395 C 655 425, 660 460, 650 490"
+          fill="none" stroke="#ff003c" stroke-width="1.5" opacity="0.8"/>
+    <path d="M 440 420 C 465 405, 505 395, 545 400 C 585 405, 610 425, 625 455 C 640 485, 642 515, 630 540"
+          fill="none" stroke="#ff003c" stroke-width="1.5" opacity="0.8"/>
+    <path d="M 455 470 C 480 458, 515 450, 550 455 C 585 460, 605 480, 615 505 C 625 530, 620 555, 605 570"
+          fill="none" stroke="#ff003c" stroke-width="1.5" opacity="0.8"/>
+
+    <!-- Secondary organic curves - cross connections -->
+    <path d="M 480 180 C 470 210, 465 250, 475 290 C 485 330, 480 370, 490 410 C 500 450, 495 490, 510 530"
+          fill="none" stroke="#8a2be2" stroke-width="1.2" opacity="0.6"/>
+    <path d="M 530 175 C 520 210, 525 250, 520 290 C 515 330, 530 370, 525 410 C 520 450, 540 490, 545 530"
+          fill="none" stroke="#8a2be2" stroke-width="1.2" opacity="0.6"/>
+    <path d="M 580 200 C 570 240, 575 280, 570 320 C 565 360, 580 400, 575 440 C 570 480, 585 510, 590 540"
+          fill="none" stroke="#8a2be2" stroke-width="1.2" opacity="0.6"/>
+
+    <!-- Tertiary wild curves -->
+    <path d="M 460 200 C 500 190, 550 200, 580 230 C 610 260, 620 300, 610 340 C 600 380, 615 420, 600 460 C 585 500, 570 530, 550 550"
+          fill="none" stroke="#ff003c" stroke-width="0.8" opacity="0.4"/>
+    <path d="M 500 170 C 540 165, 580 180, 600 210 C 620 240, 630 280, 620 320 C 610 360, 625 400, 610 440 C 595 480, 580 520, 560 555"
+          fill="none" stroke="#8a2be2" stroke-width="0.8" opacity="0.4"/>
+
+    <!-- Chaotic branching tendrils -->
+    <path d="M 520 220 C 530 200, 545 190, 560 195" fill="none" stroke="#ff003c" stroke-width="1" opacity="0.5"/>
+    <path d="M 530 280 C 545 260, 560 250, 575 255" fill="none" stroke="#ff003c" stroke-width="1" opacity="0.5"/>
+    <path d="M 540 340 C 555 320, 570 310, 585 315" fill="none" stroke="#ff003c" stroke-width="1" opacity="0.5"/>
+    <path d="M 545 400 C 560 380, 575 370, 590 375" fill="none" stroke="#ff003c" stroke-width="1" opacity="0.5"/>
+    <path d="M 550 455 C 565 435, 580 425, 595 430" fill="none" stroke="#ff003c" stroke-width="1" opacity="0.5"/>
+
+    <path d="M 490 220 C 480 200, 465 190, 455 195" fill="none" stroke="#8a2be2" stroke-width="1" opacity="0.5"/>
+    <path d="M 495 280 C 485 260, 470 250, 460 255" fill="none" stroke="#8a2be2" stroke-width="1" opacity="0.5"/>
+    <path d="M 500 340 C 490 320, 475 310, 465 315" fill="none" stroke="#8a2be2" stroke-width="1" opacity="0.5"/>
+    <path d="M 505 400 C 495 380, 480 370, 470 375" fill="none" stroke="#8a2be2" stroke-width="1" opacity="0.5"/>
+
+    <!-- Organic nodes - soft circles -->
+    <circle cx="520" cy="175" r="6" fill="#ff003c" opacity="0.7"/>
+    <circle cx="520" cy="175" r="3" fill="#ff003c" opacity="0.9"/>
+    <circle cx="530" cy="220" r="5" fill="#ff003c" opacity="0.6"/>
+    <circle cx="530" cy="220" r="2.5" fill="#ff003c" opacity="0.8"/>
+    <circle cx="535" cy="280" r="6" fill="#8a2be2" opacity="0.7"/>
+    <circle cx="535" cy="280" r="3" fill="#8a2be2" opacity="0.9"/>
+    <circle cx="540" cy="340" r="5" fill="#ff003c" opacity="0.6"/>
+    <circle cx="540" cy="340" r="2.5" fill="#ff003c" opacity="0.8"/>
+    <circle cx="545" cy="400" r="6" fill="#8a2be2" opacity="0.7"/>
+    <circle cx="545" cy="400" r="3" fill="#8a2be2" opacity="0.9"/>
+    <circle cx="550" cy="455" r="5" fill="#ff003c" opacity="0.6"/>
+    <circle cx="550" cy="455" r="2.5" fill="#ff003c" opacity="0.8"/>
+
+    <circle cx="600" cy="225" r="4" fill="#ff003c" opacity="0.5"/>
+    <circle cx="620" cy="275" r="4" fill="#8a2be2" opacity="0.5"/>
+    <circle cx="630" cy="335" r="4" fill="#ff003c" opacity="0.5"/>
+    <circle cx="635" cy="395" r="4" fill="#8a2be2" opacity="0.5"/>
+    <circle cx="625" cy="455" r="4" fill="#ff003c" opacity="0.5"/>
+    <circle cx="615" cy="505" r="4" fill="#8a2be2" opacity="0.5"/>
+
+    <circle cx="480" cy="180" r="3" fill="#8a2be2" opacity="0.4"/>
+    <circle cx="475" cy="290" r="3" fill="#ff003c" opacity="0.4"/>
+    <circle cx="490" cy="410" r="3" fill="#8a2be2" opacity="0.4"/>
+    <circle cx="510" cy="530" r="3" fill="#ff003c" opacity="0.4"/>
+
+    <!-- Wild synapse sparks -->
+    <circle cx="560" cy="195" r="2" fill="#ff003c" opacity="0.6"/>
+    <circle cx="575" cy="255" r="2" fill="#ff003c" opacity="0.6"/>
+    <circle cx="585" cy="315" r="2" fill="#ff003c" opacity="0.6"/>
+    <circle cx="590" cy="375" r="2" fill="#ff003c" opacity="0.6"/>
+    <circle cx="595" cy="430" r="2" fill="#ff003c" opacity="0.6"/>
+    <circle cx="455" cy="195" r="2" fill="#8a2be2" opacity="0.6"/>
+    <circle cx="460" cy="255" r="2" fill="#8a2be2" opacity="0.6"/>
+    <circle cx="465" cy="315" r="2" fill="#8a2be2" opacity="0.6"/>
+    <circle cx="470" cy="375" r="2" fill="#8a2be2" opacity="0.6"/>
+
+    <!-- Central right processing core - organic -->
+    <circle cx="535" cy="310" r="18" fill="none" stroke="#ff003c" stroke-width="1.5" opacity="0.6"/>
+    <circle cx="535" cy="310" r="12" fill="none" stroke="#8a2be2" stroke-width="1" opacity="0.5"/>
+    <circle cx="535" cy="310" r="6" fill="url(#mag-grad)" opacity="0.8"/>
+    <circle cx="535" cy="310" r="3" fill="#ff003c" opacity="0.9"/>
+
+    <!-- Extra organic wisps -->
+    <path d="M 500 160 C 510 140, 530 130, 550 135 C 570 140, 580 155, 575 170"
+          fill="none" stroke="#ff003c" stroke-width="0.6" opacity="0.3"/>
+    <path d="M 620 200 C 640 190, 655 200, 660 220 C 665 240, 655 260, 640 270"
+          fill="none" stroke="#8a2be2" stroke-width="0.6" opacity="0.3"/>
+    <path d="M 640 400 C 660 390, 670 405, 665 425 C 660 445, 645 455, 630 450"
+          fill="none" stroke="#ff003c" stroke-width="0.6" opacity="0.3"/>
+    <path d="M 500 550 C 510 570, 530 580, 550 575 C 570 570, 580 555, 575 540"
+          fill="none" stroke="#8a2be2" stroke-width="0.6" opacity="0.3"/>
+  </g>
+
+  <!-- ==================== CORPUS CALLOSUM ==================== -->
+  <g id="corpus-callosum" filter="url(#glow-amber)">
+
+    <!-- Main data bus trunk -->
+    <rect x="385" y="150" width="30" height="370" rx="4" fill="none" stroke="#ffb700" stroke-width="2" opacity="0.8"/>
+    <rect x="390" y="155" width="20" height="360" rx="3" fill="#ffb700" opacity="0.05"/>
+
+    <!-- Internal bus lines -->
+    <line x1="392" y1="160" x2="392" y2="510" stroke="#ffb700" stroke-width="1" opacity="0.6"/>
+    <line x1="400" y1="160" x2="400" y2="510" stroke="#ffb700" stroke-width="1.5" opacity="0.8"/>
+    <line x1="408" y1="160" x2="408" y2="510" stroke="#ffb700" stroke-width="1" opacity="0.6"/>
+
+    <!-- Data packets / energy pulses -->
+    <rect x="395" y="180" width="10" height="4" rx="2" fill="#ffdd00" opacity="0.9"/>
+    <rect x="395" y="210" width="10" height="4" rx="2" fill="#ffb700" opacity="0.7"/>
+    <rect x="395" y="245" width="10" height="4" rx="2" fill="#ffdd00" opacity="0.9"/>
+    <rect x="395" y="280" width="10" height="4" rx="2" fill="#ffb700" opacity="0.7"/>
+    <rect x="395" y="315" width="10" height="4" rx="2" fill="#ffdd00" opacity="0.9"/>
+    <rect x="395" y="350" width="10" height="4" rx="2" fill="#ffb700" opacity="0.7"/>
+    <rect x="395" y="385" width="10" height="4" rx="2" fill="#ffdd00" opacity="0.9"/>
+    <rect x="395" y="420" width="10" height="4" rx="2" fill="#ffb700" opacity="0.7"/>
+    <rect x="395" y="455" width="10" height="4" rx="2" fill="#ffdd00" opacity="0.9"/>
+    <rect x="395" y="490" width="10" height="4" rx="2" fill="#ffb700" opacity="0.7"/>
+
+    <!-- Cross-bridge connections to left hemisphere -->
+    <path d="M 385 200 L 370 200 L 360 200" fill="none" stroke="#ffb700" stroke-width="1.5" opacity="0.7"/>
+    <path d="M 385 260 L 370 260 L 360 260" fill="none" stroke="#ffb700" stroke-width="1.5" opacity="0.7"/>
+    <path d="M 385 320 L 370 320 L 360 320" fill="none" stroke="#ffb700" stroke-width="1.5" opacity="0.7"/>
+    <path d="M 385 380 L 370 380 L 360 380" fill="none" stroke="#ffb700" stroke-width="1.5" opacity="0.7"/>
+    <path d="M 385 440 L 370 440 L 360 440" fill="none" stroke="#ffb700" stroke-width="1.5" opacity="0.7"/>
+    <path d="M 385 500 L 370 500 L 360 500" fill="none" stroke="#ffb700" stroke-width="1.5" opacity="0.7"/>
+
+    <!-- Cross-bridge connections to right hemisphere -->
+    <path d="M 415 200 L 430 200 L 440 200" fill="none" stroke="#ffb700" stroke-width="1.5" opacity="0.7"/>
+    <path d="M 415 260 L 430 260 L 440 260" fill="none" stroke="#ffb700" stroke-width="1.5" opacity="0.7"/>
+    <path d="M 415 320 L 430 320 L 440 320" fill="none" stroke="#ffb700" stroke-width="1.5" opacity="0.7"/>
+    <path d="M 415 380 L 430 380 L 440 380" fill="none" stroke="#ffb700" stroke-width="1.5" opacity="0.7"/>
+    <path d="M 415 440 L 430 440 L 440 440" fill="none" stroke="#ffb700" stroke-width="1.5" opacity="0.7"/>
+    <path d="M 415 500 L 430 500 L 440 500" fill="none" stroke="#ffb700" stroke-width="1.5" opacity="0.7"/>
+
+    <!-- Bridge nodes -->
+    <circle cx="400" cy="170" r="5" fill="#ffb700" opacity="0.8"/>
+    <circle cx="400" cy="170" r="2.5" fill="#ffdd00" opacity="0.9"/>
+    <circle cx="400" cy="230" r="4" fill="#ffb700" opacity="0.7"/>
+    <circle cx="400" cy="290" r="5" fill="#ffb700" opacity="0.8"/>
+    <circle cx="400" cy="290" r="2.5" fill="#ffdd00" opacity="0.9"/>
+    <circle cx="400" cy="350" r="4" fill="#ffb700" opacity="0.7"/>
+    <circle cx="400" cy="410" r="5" fill="#ffb700" opacity="0.8"/>
+    <circle cx="400" cy="410" r="2.5" fill="#ffdd00" opacity="0.9"/>
+    <circle cx="400" cy="470" r="4" fill="#ffb700" opacity="0.7"/>
+    <circle cx="400" cy="520" r="5" fill="#ffb700" opacity="0.8"/>
+    <circle cx="400" cy="520" r="2.5" fill="#ffdd00" opacity="0.9"/>
+
+    <!-- Junction nodes at bridge edges -->
+    <circle cx="385" cy="200" r="3" fill="#ffb700" opacity="0.6"/>
+    <circle cx="385" cy="260" r="3" fill="#ffb700" opacity="0.6"/>
+    <circle cx="385" cy="320" r="3" fill="#ffb700" opacity="0.6"/>
+    <circle cx="385" cy="380" r="3" fill="#ffb700" opacity="0.6"/>
+    <circle cx="385" cy="440" r="3" fill="#ffb700" opacity="0.6"/>
+    <circle cx="385" cy="500" r="3" fill="#ffb700" opacity="0.6"/>
+
+    <circle cx="415" cy="200" r="3" fill="#ffb700" opacity="0.6"/>
+    <circle cx="415" cy="260" r="3" fill="#ffb700" opacity="0.6"/>
+    <circle cx="415" cy="320" r="3" fill="#ffb700" opacity="0.6"/>
+    <circle cx="415" cy="380" r="3" fill="#ffb700" opacity="0.6"/>
+    <circle cx="415" cy="440" r="3" fill="#ffb700" opacity="0.6"/>
+    <circle cx="415" cy="500" r="3" fill="#ffb700" opacity="0.6"/>
+
+    <!-- Top and bottom bridge caps -->
+    <path d="M 385 150 L 400 140 L 415 150" fill="none" stroke="#ffb700" stroke-width="2"/>
+    <path d="M 385 520 L 400 530 L 415 520" fill="none" stroke="#ffb700" stroke-width="2"/>
+
+    <!-- Energy flow particles along bus -->
+    <circle cx="400" cy="190" r="1.5" fill="#ffdd00" opacity="0.9"/>
+    <circle cx="400" cy="220" r="1.5" fill="#ffdd00" opacity="0.9"/>
+    <circle cx="400" cy="270" r="1.5" fill="#ffdd00" opacity="0.9"/>
+    <circle cx="400" cy="305" r="1.5" fill="#ffdd00" opacity="0.9"/>
+    <circle cx="400" cy="340" r="1.5" fill="#ffdd00" opacity="0.9"/>
+    <circle cx="400" cy="375" r="1.5" fill="#ffdd00" opacity="0.9"/>
+    <circle cx="400" cy="405" r="1.5" fill="#ffdd00" opacity="0.9"/>
+    <circle cx="400" cy="445" r="1.5" fill="#ffdd00" opacity="0.9"/>
+    <circle cx="400" cy="480" r="1.5" fill="#ffdd00" opacity="0.9"/>
+    <circle cx="400" cy="510" r="1.5" fill="#ffdd00" opacity="0.9"/>
+  </g>
+
+  <!-- ==================== TYPOGRAPHY ==================== -->
+
+  <!-- Main Title -->
+  <text x="400" y="610" text-anchor="middle" font-family="'Courier New', Courier, monospace" font-size="42" font-weight="bold" letter-spacing="8" fill="#00f0ff" filter="url(#glow-cyan)">BicameriS</text>
+
+  <!-- Subtitle -->
+  <text x="400" y="655" text-anchor="middle" font-family="'Courier New', Courier, monospace" font-size="18" letter-spacing="5" fill="#ff003c" filter="url(#glow-magenta)" opacity="0.9">Diadikos - Palladion</text>
+
+  <!-- Decorative line under subtitle -->
+  <line x1="320" y1="670" x2="480" y2="670" stroke="url(#mag-grad)" stroke-width="0.5" opacity="0.4"/>
+
+  <!-- Signature -->
+  <text x="720" y="740" text-anchor="end" font-family="'Courier New', Courier, monospace" font-size="11" letter-spacing="3" fill="#ffb700" filter="url(#glow-amber)" opacity="0.7">By Hope 'n Mind</text>
+
+  <!-- Subtle decorative elements -->
+  <line x1="80" y1="600" x2="120" y2="600" stroke="#00f0ff" stroke-width="0.5" opacity="0.3"/>
+  <line x1="680" y1="600" x2="720" y2="600" stroke="#ff003c" stroke-width="0.5" opacity="0.3"/>
+
+  <!-- Corner accents -->
+  <path d="M 30 30 L 60 30 L 60 35 L 35 35 L 35 60 L 30 60 Z" fill="#00f0ff" opacity="0.15"/>
+  <path d="M 770 30 L 740 30 L 740 35 L 765 35 L 765 60 L 770 60 Z" fill="#ff003c" opacity="0.15"/>
+  <path d="M 30 770 L 60 770 L 60 765 L 35 765 L 35 740 L 30 740 Z" fill="#ffb700" opacity="0.15"/>
+  <path d="M 770 770 L 740 770 L 740 765 L 765 765 L 765 740 L 770 740 Z" fill="#8a2be2" opacity="0.15"/>
+</svg>

@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+
+        :root {
+            --bg-dark: #020406;
+            --path-empty: #441111; /* Rouge sombre pour le vide */
+            --glow-empty: #ff0000;
+            --path-active: #00ff95; /* Vert Diadikos */
+            --path-fused: #00e5ff;  /* Cyan Palladion / Shared */
+            --bridge-color: #00ff95;
+            --text-dim: #444;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: 'Orbitron', sans-serif;
+            overflow: hidden;
+        }
+
+        .monitor-frame {
+            position: relative;
+            width: 450px;
+            height: 450px;
+            border: 1px solid #111;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* --- STYLES DES HEMISPHERES --- */
+        .hemisphere {
+            fill: rgba(0,0,0,0.6);
+            stroke-width: 2;
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            stroke-linecap: round;
+        }
+
+        .neural-lines {
+            fill: none;
+            stroke-width: 0.5;
+            opacity: 0.15;
+        }
+
+        /* États de couleur */
+        .state-empty { stroke: var(--path-empty); filter: drop-shadow(0 0 2px var(--glow-empty)); opacity: 0.5; }
+        .state-loaded { stroke: var(--path-active); filter: url(#glow-green); opacity: 1; }
+        .state-fused { stroke: var(--path-fused); filter: url(#glow-cyan); opacity: 1; }
+
+        /* --- ANIMATIONS DE PENSÉE --- */
+        .thinking-pulse {
+            animation: breathe 1.5s infinite ease-in-out;
+            stroke-width: 3 !important;
+        }
+
+        @keyframes breathe {
+            0%, 100% { opacity: 0.7; stroke-width: 2; }
+            50% { opacity: 1; stroke-width: 4; filter: brightness(1.3) drop-shadow(0 0 10px currentColor); }
+        }
+
+        /* --- CORPS CALLEUX (LE PONT) --- */
+        .bridge-line {
+            stroke: #222;
+            stroke-width: 1.5;
+            stroke-dasharray: 4,4;
+            transition: all 0.5s ease;
+        }
+
+        .bridge-active {
+            stroke: var(--bridge-color);
+            filter: drop-shadow(0 0 5px var(--bridge-color));
+            stroke-dasharray: 100;
+            stroke-dashoffset: 100;
+            animation: bridge-flow 2s infinite linear;
+        }
+
+        @keyframes bridge-flow {
+            from { stroke-dashoffset: 20; }
+            to { stroke-dashoffset: 0; }
+        }
+
+        /* --- AGENTS (SATELLITES) --- */
+        .agent-node {
+            fill: #111;
+            stroke: #333;
+            stroke-width: 1;
+            transition: all 0.3s;
+        }
+        .agent-active {
+            fill: var(--path-active);
+            stroke: white;
+            filter: drop-shadow(0 0 5px var(--path-active));
+        }
+
+        /* --- UI OVERLAY --- */
+        .label-container {
+            position: absolute;
+            bottom: 30px;
+            text-align: center;
+            width: 100%;
+        }
+
+        .log-text {
+            font-size: 10px;
+            color: var(--text-dim);
+            letter-spacing: 2px;
+            margin: 2px 0;
+        }
+
+        .status-badge {
+            font-size: 12px;
+            padding: 4px 10px;
+            border: 1px solid #222;
+            display: inline-block;
+            margin-top: 10px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+
+<div class="monitor-frame">
+    <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <filter id="glow-green">
+                <feGaussianBlur stdDeviation="2.5" result="blur"/>
+                <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+            </filter>
+            <filter id="glow-cyan">
+                <feGaussianBlur stdDeviation="3" result="blur"/>
+                <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+            </filter>
+        </defs>
+
+        <!-- Cercle de scan arrière-plan -->
+        <circle cx="100" cy="100" r="95" fill="none" stroke="#080808" stroke-width="1" />
+        <circle cx="100" cy="100" r="85" fill="none" stroke="#080808" stroke-width="0.5" stroke-dasharray="2,10" />
+
+        <!-- AGENTS INDICATORS -->
+        <circle id="agent-critic" class="agent-node" cx="100" cy="15" r="3" />
+        <circle id="agent-research" class="agent-node" cx="185" cy="100" r="3" />
+        <circle id="agent-coder" class="agent-node" cx="15" cy="100" r="3" />
+
+        <!-- HÉMISPHÈRE GAUCHE (DIADIKOS) -->
+        <g id="grp-left">
+            <path id="hem-l" class="hemisphere state-empty" d="M90,40 C70,35 40,45 35,85 C30,125 50,165 80,175 C85,178 90,165 90,145 L90,40" />
+            <path class="neural-lines" d="M45,80 Q60,85 85,75" stroke="currentColor"/>
+            <path class="neural-lines" d="M45,110 Q65,100 85,120" stroke="currentColor"/>
+        </g>
+
+        <!-- HÉMISPHÈRE DROIT (PALLADION) -->
+        <g id="grp-right">
+            <path id="hem-r" class="hemisphere state-empty" d="M110,40 C130,35 160,45 165,85 C170,125 150,165 120,175 C115,178 110,165 110,145 L110,40" />
+            <path class="neural-lines" d="M155,80 Q140,85 115,75" stroke="currentColor"/>
+            <path class="neural-lines" d="M155,110 Q135,100 115,120" stroke="currentColor"/>
+        </g>
+
+        <!-- CORPS CALLEUX -->
+        <g id="bridge">
+            <line class="bridge-line" x1="94" y1="70" x2="106" y2="70" />
+            <line class="bridge-line" x1="94" y1="100" x2="106" y2="100" />
+            <line class="bridge-line" x1="94" y1="130" x2="106" y2="130" />
+        </g>
+    </svg>
+
+    <div class="label-container">
+        <div class="log-text" id="ui-meta">KERNEL_METROLOGY_ACTIVE</div>
+        <div class="log-text" id="ui-sub">AWAITING_INSTRUCTION</div>
+        <div class="status-badge" id="status-main">INITIALISATION</div>
+    </div>
+</div>
+
+<script>
+    /**
+     * Mises à jour pseudo-directes de l'état
+     * @param {Object} data - L'état du noyau (ex: {left: 'loaded', right: 'empty', thinking: 'left', bridge: true, agents: ['critic']})
+     */
+    function updateMonitor(data) {
+        const hL = document.getElementById('hem-l');
+        const hR = document.getElementById('hem-r');
+        const bridgeLines = document.getElementById('bridge').querySelectorAll('line');
+        const statusMain = document.getElementById('status-main');
+        const uiSub = document.getElementById('ui-sub');
+
+        // 1. Gestion des Hémisphères
+        hL.className = "hemisphere " + (data.left === 'loaded' ? 'state-loaded' : (data.left === 'fused' ? 'state-fused' : 'state-empty'));
+        hR.className = "hemisphere " + (data.right === 'loaded' ? 'state-loaded' : (data.right === 'fused' ? 'state-fused' : 'state-empty'));
+
+        // 2. Gestion de la pensée (Pulsation indépendante)
+        if (data.thinking === 'left') hL.classList.add('thinking-pulse');
+        if (data.thinking === 'right') hR.classList.add('thinking-pulse');
+        if (data.thinking === 'both') { hL.classList.add('thinking-pulse'); hR.classList.add('thinking-pulse'); }
+
+        // 3. Gestion du Pont (Mouvement)
+        bridgeLines.forEach(l => {
+            if (data.bridge) {
+                l.classList.add('bridge-active');
+                l.style.stroke = (data.left === 'fused') ? 'var(--path-fused)' : 'var(--path-active)';
+            } else {
+                l.classList.remove('bridge-active');
+                l.style.stroke = "#222";
+            }
+        });
+
+        // 4. Gestion des Agents
+        document.getElementById('agent-critic').className = "agent-node" + (data.agents.includes('critic') ? ' agent-active' : '');
+        document.getElementById('agent-research').className = "agent-node" + (data.agents.includes('research') ? ' agent-active' : '');
+        document.getElementById('agent-coder').className = "agent-node" + (data.agents.includes('coder') ? ' agent-active' : '');
+
+        // 5. Labels UI
+        statusMain.innerText = data.status_text || "IDLE";
+        statusMain.style.color = (data.left === 'fused') ? 'var(--path-fused)' : (data.left === 'loaded' ? 'var(--path-active)' : 'var(--path-empty)');
+        uiSub.innerText = data.sub_text || "SYSTEM_READY";
+    }
+
+    // --- SCÉNARIO DE DÉMONSTRATION OPÉRATIVE ---
+    
+    // T+1s : Modèle unique chargé (Cyan), prêt.
+    setTimeout(() => updateMonitor({
+        left: 'fused', right: 'fused', thinking: 'none', bridge: true, agents: [], 
+        status_text: 'FUSION_CORE_LOADED', sub_text: 'SINGLE_MODEL_BIPOLAR'
+    }), 1000);
+
+    // T+4s : Réflexion intense à gauche (Diadikos pense)
+    setTimeout(() => updateMonitor({
+        left: 'loaded', right: 'empty', thinking: 'left', bridge: false, agents: [], 
+        status_text: 'DIADIKOS_PROCESSING', sub_text: 'ANALYZING_LOGIC_STACK'
+    }), 4000);
+
+    // T+7s : Passage au mode Bipolaire (Deux modèles), les deux pensent + Bridge actif
+    setTimeout(() => updateMonitor({
+        left: 'loaded', right: 'loaded', thinking: 'both', bridge: true, agents: ['critic'], 
+        status_text: 'BICAMERAL_DEBATE', sub_text: 'AGENT_CRITIC_DELEGATED'
+    }), 7000);
+
+    // T+10s : Retour Standby (Rouge)
+    setTimeout(() => updateMonitor({
+        left: 'empty', right: 'empty', thinking: 'none', bridge: false, agents: [], 
+        status_text: 'STANDBY', sub_text: 'ENERGY_CONSERVATION'
+    }), 12000);
+
+</script>
+
+</body>
+</html>

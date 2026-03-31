@@ -1,0 +1,853 @@
+/* ==========================================
+   LABORATORY - Unified Module System
+   ==========================================
+   Chaque module peut surcharger les couleurs
+   en definissant --module-color dans son HTML
+   ========================================== */
+
+/* --- Variables par defaut (Inception) --- */
+:root,
+.module-inception {
+  --module-color: #00d4ff;
+  --module-color-rgb: 0, 212, 255;
+  --module-bg: rgba(0, 212, 255, 0.1);
+  --module-border: rgba(0, 212, 255, 0.2);
+}
+
+/* --- Editeur Specialiste (Violet) --- */
+.module-editeur,
+.module-2_EditeurSpecialiste {
+  --module-color: #8b5cf6;
+  --module-color-rgb: 139, 92, 246;
+  --module-bg: rgba(139, 92, 246, 0.1);
+  --module-border: rgba(139, 92, 246, 0.2);
+}
+
+/* --- Induction (Ambre) --- */
+.module-induction,
+.module-3_Induction {
+  --module-color: #f59e0b;
+  --module-color-rgb: 245, 158, 11;
+  --module-bg: rgba(245, 158, 11, 0.1);
+  --module-border: rgba(245, 158, 11, 0.2);
+}
+
+/* --- Autonome (Vert) --- */
+.module-autonome,
+.module-4_Autonome {
+  --module-color: #10b981;
+  --module-color-rgb: 16, 185, 129;
+  --module-bg: rgba(16, 185, 129, 0.1);
+  --module-border: rgba(16, 185, 129, 0.2);
+}
+
+/* ==========================================
+   LAYOUT
+   ========================================== */
+
+.lab-container {
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header */
+.lab-header {
+  padding: 16px 24px;
+  background: linear-gradient(90deg, var(--bg-secondary), var(--bg-primary));
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.lab-header h1 {
+  font-size: 1.5rem;
+  background: linear-gradient(90deg, var(--module-color), var(--accent-purple));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Tabs */
+.lab-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 8px 24px;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-subtle);
+  flex-wrap: wrap;
+}
+
+.lab-tab {
+  padding: 10px 20px;
+  background: transparent;
+  border: 1px solid var(--border-subtle);
+  color: var(--text-muted);
+  cursor: pointer;
+  border-radius: 8px 8px 0 0;
+  font-size: 0.85rem;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.lab-tab:hover {
+  background: rgba(255,255,255,0.05);
+  color: var(--text-primary);
+}
+
+.lab-tab.active {
+  background: var(--bg-primary);
+  border-color: var(--module-color);
+  color: var(--module-color);
+  border-bottom-color: var(--bg-primary);
+}
+
+/* Content */
+.lab-content {
+  flex: 1;
+  overflow: hidden;
+  background: var(--bg-primary);
+}
+
+.module-container {
+  height: 100%;
+  overflow-y: auto;
+  padding: 20px;
+}
+
+/* ==========================================
+   FORMULAIRES COMMUNS
+   ========================================== */
+
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+input[type="text"],
+input[type="number"],
+textarea,
+select {
+  width: 100%;
+  padding: 12px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: var(--module-color);
+  box-shadow: 0 0 0 2px var(--module-bg);
+}
+
+/* Range Slider */
+input[type="range"] {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 4px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 2px;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--module-color);
+  cursor: pointer;
+  box-shadow: 0 0 8px rgba(var(--module-color-rgb), 0.4);
+}
+
+/* Buttons */
+.btn {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.btn-primary {
+  background: var(--module-color);
+  color: #000;
+}
+
+.btn-primary:hover {
+  box-shadow: 0 0 20px rgba(var(--module-color-rgb), 0.4);
+}
+
+.btn-danger {
+  background: var(--accent-red);
+  color: #fff;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Radio & Checkbox */
+.radio-group {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.radio-group label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  color: var(--text-primary);
+}
+
+/* ==========================================
+   CARTES MODULES
+   ========================================== */
+
+.module-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.module-card h3 {
+  color: var(--module-color);
+  margin-bottom: 16px;
+  font-size: 1.1rem;
+}
+
+.module-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.module-header h3 {
+  margin-bottom: 0;
+}
+
+/* ==========================================
+   EDITEUR SPECIALISTE (CHAT)
+   ========================================== */
+
+.module-editeur {
+  height: calc(100vh - 140px);
+}
+
+.editeur-layout {
+  display: grid;
+  grid-template-columns: 280px 1fr 300px;
+  height: 100%;
+}
+
+/* Sidebar - Thèmes */
+.editeur-sidebar {
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border-subtle);
+  overflow-y: auto;
+}
+
+.sidebar-header {
+  padding: 16px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.sidebar-header h3 {
+  font-size: 1rem;
+  color: var(--module-color);
+}
+
+/* Accordéon thèmes */
+.themes-accordion {
+  padding: 8px;
+}
+
+.theme-group {
+  margin-bottom: 4px;
+}
+
+.theme-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  background: var(--bg-tertiary);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.theme-header:hover {
+  background: var(--bg-hover);
+}
+
+.theme-header.expanded {
+  background: var(--module-bg);
+}
+
+.theme-icon {
+  font-size: 1.2rem;
+}
+
+.theme-label {
+  flex: 1;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.expand-icon {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  transition: transform 0.2s;
+}
+
+.theme-header.expanded .expand-icon {
+  transform: rotate(90deg);
+}
+
+.theme-subthemes {
+  display: none;
+  padding: 4px 8px 8px;
+}
+
+.theme-subthemes.show {
+  display: block;
+}
+
+.subtheme-item {
+  padding: 10px 16px;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+
+.subtheme-item:hover {
+  background: var(--module-bg);
+  color: var(--module-color);
+}
+
+/* Chat Principal */
+.editeur-main {
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-primary);
+}
+
+.chat-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--module-border);
+}
+
+.current-theme {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.current-theme .theme-icon {
+  color: var(--module-color);
+}
+
+.chat-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-subtle);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.btn-icon:hover {
+  background: var(--module-bg);
+  border-color: var(--module-color);
+}
+
+/* Messages */
+#editeur-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.015) 1px, transparent 0);
+  background-size: 24px 24px;
+}
+
+.message {
+  max-width: 75%;
+  padding: 10px 16px;
+  border-radius: 16px;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  animation: chat-in 0.25s ease-out;
+}
+
+@keyframes chat-in {
+  from { opacity: 0; transform: scale(0.95) translateY(10px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.message.user {
+  align-self: flex-end;
+  background: rgba(var(--module-color-rgb), 0.15);
+  border: 1px solid var(--module-border);
+  color: var(--text-primary);
+}
+
+.message.assistant {
+  align-self: flex-start;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+}
+
+.message.system {
+  align-self: center;
+  background: var(--bg-glass);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  max-width: 90%;
+}
+
+.message-time {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  margin-top: 4px;
+  text-align: right;
+}
+
+/* Typing */
+.typing-indicator {
+  align-self: flex-start;
+  padding: 8px 16px;
+  background: var(--bg-glass);
+  border: 1px solid var(--border-subtle);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.typing-indicator span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--module-color);
+  animation: typing 1.4s infinite;
+}
+
+.typing-indicator span:nth-child(2) { animation-delay: 0.15s; }
+.typing-indicator span:nth-child(3) { animation-delay: 0.3s; }
+
+@keyframes typing {
+  0%, 60%, 100% { transform: translateY(0); }
+  30% { transform: translateY(-4px); }
+}
+
+/* Input */
+.chat-input-area {
+  display: flex;
+  gap: 8px;
+  padding: 12px;
+  background: var(--bg-secondary);
+  border-top: 1px solid var(--border-subtle);
+}
+
+.chat-input-area textarea {
+  flex: 1;
+  resize: none;
+}
+
+.send-btn {
+  padding: 10px 18px;
+  background: linear-gradient(135deg, rgba(var(--module-color-rgb), 0.2), var(--accent-purple));
+  border: 1px solid var(--module-border);
+  border-radius: 24px;
+  cursor: pointer;
+  font-size: 1rem;
+  color: var(--text-primary);
+  transition: all 0.2s;
+}
+
+.send-btn:hover {
+  background: linear-gradient(135deg, rgba(var(--module-color-rgb), 0.3), var(--accent-purple));
+  transform: scale(1.05);
+}
+
+/* Workspace Panel */
+.editeur-workspace {
+  background: var(--bg-secondary);
+  border-left: 1px solid var(--module-border);
+  display: flex;
+  flex-direction: column;
+}
+
+.workspace-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--module-border);
+}
+
+.workspace-header h4 {
+  color: var(--module-color);
+  font-size: 0.9rem;
+}
+
+.workspace-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.workspace-actions .btn-icon {
+  padding: 4px 8px;
+  font-size: 0.8rem;
+}
+
+.workspace-toolbar {
+  display: flex;
+  gap: 6px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--module-border);
+  background: var(--bg-tertiary);
+}
+
+.workspace-toolbar .btn-small {
+  padding: 4px 10px;
+  font-size: 0.75rem;
+  background: var(--module-bg);
+  border: 1px solid var(--module-border);
+  color: var(--module-color);
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.workspace-toolbar .btn-small:hover {
+  background: var(--module-color);
+  color: var(--bg-primary);
+}
+
+.file-item.directory {
+  color: var(--module-color);
+  font-weight: 500;
+}
+
+.workspace-files {
+  padding: 12px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.file-item {
+  padding: 8px 12px;
+  cursor: pointer;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.file-item:hover {
+  background: var(--module-bg);
+  color: var(--module-color);
+}
+
+.file-editor {
+  border-top: 1px solid var(--border-subtle);
+  display: flex;
+  flex-direction: column;
+  height: 200px;
+}
+
+.file-tabs {
+  padding: 8px 12px;
+  background: var(--bg-tertiary);
+  font-size: 0.8rem;
+}
+
+.file-content {
+  flex: 1;
+  background: var(--bg-primary);
+  border: none;
+  padding: 12px;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  resize: none;
+  color: var(--text-primary);
+}
+
+/* ==========================================
+   INCEPTION
+   ========================================== */
+
+.module-inception {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.inception-form,
+.inceptions-list {
+  background: var(--bg-card);
+  border: 1px solid var(--module-border);
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.inception-form h3,
+.inceptions-list h3 {
+  color: var(--module-color);
+  margin-bottom: 16px;
+  font-size: 1.1rem;
+}
+
+.weight-value,
+.intensity-value,
+.reformulation-value {
+  color: var(--module-color);
+  font-weight: bold;
+  margin-left: 10px;
+}
+
+/* ==========================================
+   INDUCTION
+   ========================================== */
+
+.module-induction {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.method-buttons,
+.mode-buttons {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.method-btn,
+.mode-btn {
+  padding: 8px 16px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 0.85rem;
+}
+
+.method-btn:hover,
+.mode-btn:hover {
+  background: var(--module-bg);
+}
+
+.method-btn.active,
+.mode-btn.active {
+  background: var(--module-color);
+  color: #000;
+  border-color: var(--module-color);
+}
+
+/* ==========================================
+   AUTONOME
+   ========================================== */
+
+.module-autonome {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.autonome-config {
+  background: var(--bg-card);
+  border: 1px solid var(--module-border);
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.autonome-config h3 {
+  color: var(--module-color);
+  margin-bottom: 16px;
+}
+
+.autonome-chat {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+}
+
+.hemisphere-config {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.hemi-selector {
+  flex: 1;
+}
+
+.swap-btn {
+  padding: 8px 12px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.toggles {
+  margin-bottom: 16px;
+}
+
+.toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  cursor: pointer;
+}
+
+.thinking-indicators {
+  display: flex;
+  justify-content: space-around;
+  padding: 12px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.hemi-indicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.hemi-indicator .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--text-muted);
+}
+
+.hemi-indicator.active .dot {
+  background: var(--module-color);
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.autonome-messages {
+  flex: 1;
+  padding: 16px;
+  overflow-y: auto;
+}
+
+.autonome-input {
+  display: flex;
+  gap: 8px;
+  padding: 12px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.autonome-input input {
+  flex: 1;
+}
+
+.autonome-input button {
+  padding: 8px 16px;
+  background: var(--module-color);
+  border: none;
+  border-radius: 8px;
+  color: #000;
+  cursor: pointer;
+}
+
+/* ==========================================
+   DIVERS
+   ========================================== */
+
+.empty,
+.empty-state {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  text-align: center;
+  padding: 20px;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.action-buttons .btn {
+  flex: 1;
+}
+
+/* ==========================================
+   RESPONSIVE
+   ========================================== */
+
+@media (max-width: 1024px) {
+  .editeur-layout {
+    grid-template-columns: 1fr;
+  }
+  
+  .editeur-sidebar,
+  .editeur-workspace {
+    display: none;
+  }
+  
+  .module-inception,
+  .module-autonome {
+    grid-template-columns: 1fr;
+  }
+}

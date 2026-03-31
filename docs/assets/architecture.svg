@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 600" width="100%" height="100%" style="background:#0b0f19; font-family:'Courier New', monospace;">
+  <defs>
+    <linearGradient id="cyan-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00f3ff" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#0077ff" stop-opacity="0.2"/>
+    </linearGradient>
+    <linearGradient id="red-grad" x1="100%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ff0055" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#aa0022" stop-opacity="0.2"/>
+    </linearGradient>
+    <filter id="glow-cyan" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="8" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+    <filter id="glow-red" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="8" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background Grid -->
+  <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+    <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#141d36" stroke-width="1" />
+  </pattern>
+  <rect width="100%" height="100%" fill="url(#grid)" />
+
+  <!-- Connecting Lines (Corpus Callosum) -->
+  <path d="M 350 300 Q 500 150 650 300" fill="none" stroke="#ffffff" stroke-width="3" stroke-dasharray="5,5" filter="url(#glow-cyan)" />
+  <path d="M 350 300 Q 500 450 650 300" fill="none" stroke="#ffffff" stroke-width="3" stroke-dasharray="5,5" filter="url(#glow-red)" />
+  
+  <!-- Corpus Callosum Node -->
+  <circle cx="500" cy="300" r="45" fill="#0b0f19" stroke="#ffffff" stroke-width="3" filter="url(#glow-cyan)" />
+  <text x="500" y="295" fill="#fff" text-anchor="middle" font-size="12" font-weight="bold">CORPUS</text>
+  <text x="500" y="312" fill="#fff" text-anchor="middle" font-size="12" font-weight="bold">CALLOSUM</text>
+
+  <!-- Left Hemisphere (Diadikos) -->
+  <g transform="translate(100, 150)">
+    <rect width="250" height="300" rx="15" fill="url(#cyan-grad)" stroke="#00f3ff" stroke-width="2" filter="url(#glow-cyan)" />
+    <text x="125" y="40" fill="#ffffff" font-size="20" font-weight="bold" text-anchor="middle">DIADIKOS</text>
+    <text x="125" y="60" fill="#00f3ff" font-size="12" text-anchor="middle">[ Hémisphère Gauche ]</text>
+    
+    <line x1="20" y1="80" x2="230" y2="80" stroke="#00f3ff" stroke-width="1" opacity="0.5" />
+    
+    <rect x="25" y="100" width="200" height="40" rx="5" fill="#0b0f19" stroke="#00f3ff" stroke-width="1" />
+    <text x="125" y="125" fill="#ffffff" font-size="14" text-anchor="middle">Génération de Code</text>
+
+    <rect x="25" y="160" width="200" height="40" rx="5" fill="#0b0f19" stroke="#00f3ff" stroke-width="1" />
+    <text x="125" y="185" fill="#ffffff" font-size="14" text-anchor="middle">Logique &amp; Analyse</text>
+
+    <rect x="25" y="220" width="200" height="40" rx="5" fill="#0b0f19" stroke="#00f3ff" stroke-width="1" />
+    <text x="125" y="245" fill="#ffffff" font-size="14" text-anchor="middle">Modélisation Symbolique</text>
+  </g>
+
+  <!-- Right Hemisphere (Palladion) -->
+  <g transform="translate(650, 150)">
+    <rect width="250" height="300" rx="15" fill="url(#red-grad)" stroke="#ff0055" stroke-width="2" filter="url(#glow-red)" />
+    <text x="125" y="40" fill="#ffffff" font-size="20" font-weight="bold" text-anchor="middle">PALLADION</text>
+    <text x="125" y="60" fill="#ff0055" font-size="12" text-anchor="middle">[ Hémisphère Droit ]</text>
+    
+    <line x1="20" y1="80" x2="230" y2="80" stroke="#ff0055" stroke-width="1" opacity="0.5" />
+    
+    <rect x="25" y="100" width="200" height="40" rx="5" fill="#0b0f19" stroke="#ff0055" stroke-width="1" />
+    <text x="125" y="125" fill="#ffffff" font-size="14" text-anchor="middle">Sécurité &amp; Sandbox</text>
+
+    <rect x="25" y="160" width="200" height="40" rx="5" fill="#0b0f19" stroke="#ff0055" stroke-width="1" />
+    <text x="125" y="185" fill="#ffffff" font-size="14" text-anchor="middle">Intuition &amp; Évaluation</text>
+
+    <rect x="25" y="220" width="200" height="40" rx="5" fill="#0b0f19" stroke="#ff0055" stroke-width="1" />
+    <text x="125" y="245" fill="#ffffff" font-size="14" text-anchor="middle">Critique Éthique / Risques</text>
+  </g>
+
+  <!-- Flow Arrows -->
+  <path d="M 360 250 L 440 280" stroke="#00f3ff" stroke-width="2" marker-end="url(#arrow)" />
+  <path d="M 640 350 L 560 320" stroke="#ff0055" stroke-width="2" marker-end="url(#arrow)" />
+
+  <!-- Data Stream Nodes -->
+  <circle cx="420" cy="272" r="5" fill="#00f3ff" filter="url(#glow-cyan)" />
+  <circle cx="580" cy="328" r="5" fill="#ff0055" filter="url(#glow-red)" />
+</svg>

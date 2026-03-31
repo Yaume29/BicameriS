@@ -1,0 +1,60 @@
+/* BICAMERIS - Theme: Warm Ember
+ * Alternative theme - warm amber/amber tones
+ * 
+ * Usage: This file defines CSS variables only.
+ */
+
+:root {
+  /* ===== Backgrounds ===== */
+  --bg-primary: #0f0a08;
+  --bg-secondary: #1a0d08;
+  --bg-tertiary: #2a1210;
+  --bg-card: rgba(42, 18, 16, 0.7);
+  --bg-glass: rgba(255, 255, 255, 0.02);
+  --bg-hover: rgba(255, 255, 255, 0.04);
+  --bg-active: rgba(255, 255, 255, 0.08);
+  
+  /* ===== Borders ===== */
+  --border-subtle: rgba(255, 170, 0, 0.06);
+  --border-accent: rgba(255, 170, 0, 0.12);
+  
+  /* ===== Accents ===== */
+  --accent-cyan: #ffb700;
+  --accent-magenta: #ff6b35;
+  --accent-purple: #ff9500;
+  --accent-amber: #ffb700;
+  --accent-green: #ffcc00;
+  --accent-red: #ff4444;
+  
+  /* ===== Text ===== */
+  --text-primary: #ffeedd;
+  --text-secondary: #aa9988;
+  --text-muted: #776655;
+  
+  /* ===== Hemisphere Colors ===== */
+  --left-hemi: #ffb700;
+  --right-hemi: #ff6b35;
+  --corpus: #ff9500;
+  
+  /* ===== Glow Colors ===== */
+  --glow-cyan: rgba(255, 183, 0, 0.3);
+  --glow-magenta: rgba(255, 107, 53, 0.3);
+  --glow-purple: rgba(255, 149, 0, 0.3);
+  --glow-amber: rgba(255, 183, 0, 0.3);
+  --glow-green: rgba(255, 204, 0, 0.3);
+  
+  /* ===== Scrollbar ===== */
+  --scrollbar-thumb: rgba(255, 170, 0, 0.1);
+  --scrollbar-thumb-hover: rgba(255, 170, 0, 0.2);
+  
+  /* ===== Logo Gradient ===== */
+  --logo-gradient-start: #ffb700;
+  --logo-gradient-end: #ff6b35;
+  
+  /* ===== BICAMERIS Logo ===== */
+  --logo-bicameris-gradient: linear-gradient(90deg, #ff6b35, #ffffff, #ffb700);
+  
+  /* ===== Shadow ===== */
+  --shadow-color: rgba(0, 0, 0, 0.4);
+  --shadow-glow: rgba(255, 170, 0, 0.1);
+}

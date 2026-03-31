@@ -1,0 +1,61 @@
+/* BICAMERIS - Theme: Cyberpunk Dark
+ * Default theme - dark mode with neon accents
+ * 
+ * Usage: This file defines CSS variables only.
+ * All other CSS files reference these variables.
+ */
+
+:root {
+  /* ===== Backgrounds ===== */
+  --bg-primary: #08080f;
+  --bg-secondary: #0d0d1a;
+  --bg-tertiary: #12122a;
+  --bg-card: rgba(18, 18, 42, 0.7);
+  --bg-glass: rgba(255, 255, 255, 0.03);
+  --bg-hover: rgba(255, 255, 255, 0.06);
+  --bg-active: rgba(255, 255, 255, 0.1);
+  
+  /* ===== Borders ===== */
+  --border-subtle: rgba(255, 255, 255, 0.06);
+  --border-accent: rgba(255, 255, 255, 0.12);
+  
+  /* ===== Accents ===== */
+  --accent-cyan: #00d4ff;
+  --accent-magenta: #ff006e;
+  --accent-purple: #8b5cf6;
+  --accent-amber: #f59e0b;
+  --accent-green: #10b981;
+  --accent-red: #ef4444;
+  
+  /* ===== Text ===== */
+  --text-primary: #e8e8f0;
+  --text-secondary: #8888aa;
+  --text-muted: #555577;
+  
+  /* ===== Hemisphere Colors ===== */
+  --left-hemi: #00d4ff;
+  --right-hemi: #ff006e;
+  --corpus: #8b5cf6;
+  
+  /* ===== Glow Colors (for animations) ===== */
+  --glow-cyan: rgba(0, 212, 255, 0.3);
+  --glow-magenta: rgba(255, 0, 110, 0.3);
+  --glow-purple: rgba(139, 92, 246, 0.3);
+  --glow-amber: rgba(245, 158, 11, 0.3);
+  --glow-green: rgba(16, 185, 129, 0.3);
+  
+  /* ===== Scrollbar ===== */
+  --scrollbar-thumb: rgba(255, 255, 255, 0.1);
+  --scrollbar-thumb-hover: rgba(255, 255, 255, 0.2);
+  
+  /* ===== Logo Gradient ===== */
+  --logo-gradient-start: #00d4ff;
+  --logo-gradient-end: #ff006e;
+  
+  /* ===== BICAMERIS Logo (Red → White → Blue) ===== */
+  --logo-bicameris-gradient: linear-gradient(90deg, #ff006e, #ffffff, #00d4ff);
+  
+  /* ===== Shadow ===== */
+  --shadow-color: rgba(0, 0, 0, 0.3);
+  --shadow-glow: rgba(0, 212, 255, 0.1);
+}

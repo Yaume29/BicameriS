@@ -1,0 +1,42 @@
+<svg width="500" height="120" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="neuroGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#ff6b6b"/>
+      <stop offset="100%" style="stop-color:#48dbfb"/>
+    </linearGradient>
+  </defs>
+  
+  <rect x="10" y="10" width="80" height="100" rx="10" fill="#1a1a2e" stroke="#ff6b6b" stroke-width="2"/>
+  <text x="50" y="35" text-anchor="middle" fill="#ff6b6b" font-size="10" font-weight="bold">ÉCHEC</text>
+  <text x="50" y="55" text-anchor="middle" fill="#666" font-size="8">DÉTECTÉ</text>
+  
+  <line x1="90" y1="60" x2="130" y2="60" stroke="#ff6b6b" stroke-width="2"/>
+  <polygon points="130,55 140,60 130,65" fill="#ff6b6b"/>
+  
+  <rect x="140" y="30" width="100" height="60" rx="10" fill="#1a1a2e" stroke="#feca57" stroke-width="2"/>
+  <text x="190" y="55" text-anchor="middle" fill="#feca57" font-size="10" font-weight="bold">TRAUMA STORE</text>
+  <text x="190" y="75" text-anchor="middle" fill="#666" font-size="8">Mémoire échecs</text>
+  
+  <line x1="240" y1="60" x2="280" y2="60" stroke="#feca57" stroke-width="2"/>
+  <polygon points="280,55 290,60 280,65" fill="#feca57"/>
+  
+  <rect x="290" y="10" width="80" height="40" rx="8" fill="#1a1a2e" stroke="#00ff88" stroke-width="2"/>
+  <text x="330" y="30" text-anchor="middle" fill="#00ff88" font-size="8" font-weight="bold">RÉESSAYER</text>
+  
+  <rect x="290" y="55" width="80" height="40" rx="8" fill="#1a1a2e" stroke="#ff6b6b" stroke-width="2"/>
+  <text x="330" y="75" text-anchor="middle" fill="#ff6b6b" font-size="9">ABANDON</text>
+  
+  <line x1="370" y1="30" x2="410" y2="30" stroke="#00ff88" stroke-width="2"/>
+  <line x1="370" y1="75" x2="410" y2="75" stroke="#ff6b6b" stroke-width="2"/>
+  
+  <rect x="410" y="15" width="80" height="30" rx="8" fill="#1a1a2e" stroke="#00ff88" stroke-width="2"/>
+  <text x="450" y="35" text-anchor="middle" fill="#00ff88" font-size="10">SUCCÈS</text>
+  
+  <rect x="410" y="55" width="80" height="30" rx="8" fill="#1a1a2e" stroke="#666" stroke-width="2"/>
+  <text x="450" y="75" text-anchor="middle" fill="#666" font-size="10">GUÉRISON</text>
+  
+  <text x="50" y="100" fill="#666" font-size="8">État t</text>
+  <text x="190" y="100" fill="#666" font-size="8">Mémoire</text>
+  <text x="330" y="100" fill="#666" font-size="8">Décision</text>
+  <text x="450" y="100" fill="#666" font-size="8">État t+1</text>
+</svg>
