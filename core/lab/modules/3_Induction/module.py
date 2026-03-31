@@ -43,85 +43,13 @@ class InductionModule(LabModule):
             if registry.corps_calleux:
                 self._tot_reasoner.connect_corps_calleux(registry.corps_calleux)
     
-    def render(self) -> str:
-        return """
-        <div class="module-induction module-3_Induction" id="module-induction" style="--module-color: #f59e0b; --module-color-rgb: 245, 158, 11;">
-            <div class="module-description">
-                <p>🧲 <strong>Induction</strong>: Injection contextuelle continue et répétée. 
-                Contrairement à l'Inception (ponctuelle), l'Induction maintient un contexte actif 
-                pendant une durée déterminée. <strong>Intensité</strong> contrôle la force du signal.
-                <br><br>
-                <strong>Méthodes:</strong><br>
-                • <em>&lt; Contexte</em>: Préfixe le contexte avant chaque pensée<br>
-                • <em>&gt; Contexte</em>: Suffixe le contexte après chaque pensée<br>
-                • <em>🌊 Flood</em>: Injections répétées jusqu'à arrêt<br>
-                • <em>🔄 Cycle</em>: Boucle cyclique avec intervalle variable
-                </p>
-            </div>
-            
-            <div class="induction-form">
-                <h3>🧲 Module d'Induction</h3>
-                
-                <div class="method-selector">
-                    <label>Méthode</label>
-                    <div class="method-buttons">
-                        <button class="method-btn" data-method="context-prefix" onclick="selectInductionMethod(this)">
-                            &lt; Contexte
-                        </button>
-                        <button class="method-btn" data-method="context-suffix" onclick="selectInductionMethod(this)">
-                            &gt; Contexte
-                        </button>
-                        <button class="method-btn" data-method="flood" onclick="selectInductionMethod(this)">
-                            🌊 Flood
-                        </button>
-                        <button class="method-btn" data-method="cycle" onclick="selectInductionMethod(this)">
-                            🔄 Cycle
-                        </button>
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <label>Texte d'induction</label>
-                    <textarea id="induction-text" rows="4" placeholder="Entrez le texte à induire..."></textarea>
-                </div>
-                
-                <div class="form-group">
-                    <label>Intensité (0-100)</label>
-                    <input type="range" id="induction-intensity" min="0" max="100" value="50">
-                    <span class="intensity-value" id="intensity-value">50</span>
-                    <div class="setting-hint">
-                        <small>0 = signal faible | 50 = modéré | 100 = signal dominant</small>
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <label>Cible</label>
-                    <div class="radio-group">
-                        <label><input type="radio" name="induction-target" value="LEFT" checked> Gauche</label>
-                        <label><input type="radio" name="induction-target" value="RIGHT"> Droit</label>
-                        <label><input type="radio" name="induction-target" value="BOTH"> Les Deux</label>
-                    </div>
-                </div>
-                
-                <div class="action-buttons">
-                    <button class="btn btn-primary" onclick="startInduction()">
-                        🚀 Démarrer l'Induction
-                    </button>
-                    <button class="btn btn-danger" onclick="stopInduction()" disabled id="stop-induction-btn">
-                        ⏹ Arrêter
-                    </button>
-                </div>
-            </div>
-            
-            <div class="induction-log">
-                <h3>📜 Journal d'Induction</h3>
-                <div id="induction-log-content">
-                    <p class="empty">En attente...</p>
-                </div>
-            </div>
-        </div>
-        """
-    
+    settings_schema = {
+        "method": {"type": "select", "label": "Méthode", "options": ["context-prefix", "context-suffix", "flood", "cycle"], "default": "context-prefix"},
+        "text": {"type": "textarea", "label": "Texte d'induction", "default": ""},
+        "intensity": {"type": "range", "label": "Intensité", "min": 0, "max": 100, "default": 50},
+        "target": {"type": "select", "label": "Cible", "options": ["LEFT", "RIGHT", "BOTH"], "default": "BOTH"}
+    }
+
     def handle_action(self, action: str, data: Dict) -> Dict:
         if action == "start":
             return self._start_induction(data)

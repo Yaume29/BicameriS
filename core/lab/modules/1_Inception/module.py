@@ -37,55 +37,12 @@ class InceptionModule(LabModule):
             if registry.corps_calleux:
                 self._tot_reasoner.connect_corps_calleux(registry.corps_calleux)
     
-    def render(self) -> str:
-        return """
-        <div class="module-inception module-1_Inception" id="module-inception" style="--module-color: #00d4ff; --module-color-rgb: 0, 212, 255;">
-            <div class="module-description">
-                <p>🎯 <strong>Inception</strong>: Injection ponctuelle d'une pensée ciblée. 
-                Idéal pour introduire un concept, une direction, ou une hypothèse dans le flux cognitif.
-                Le <strong>poids</strong> détermine l'influence sur la réflexion (0=ignoré, 100=dominant).</p>
-            </div>
-            
-            <div class="inception-form">
-                <h3>🎯 Injection de Pensée</h3>
-                
-                <div class="form-group">
-                    <label>Pensée à injecter</label>
-                    <textarea id="inception-prompt" rows="4" placeholder="Entrez la pensée à inoculer..."></textarea>
-                </div>
-                
-                <div class="form-group">
-                    <label>Poids de l'Inception (0-100)</label>
-                    <input type="range" id="inception-weight" min="0" max="100" value="50">
-                    <span class="weight-value" id="weight-value">50</span>
-                    <div class="setting-hint">
-                        <small>0 = ignoré | 50 = modéré | 100 = dominant dans la réflexion</small>
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <label>Cible</label>
-                    <div class="radio-group">
-                        <label><input type="radio" name="target" value="LEFT" checked> Hémisphère Gauche</label>
-                        <label><input type="radio" name="target" value="RIGHT"> Hémisphère Droit</label>
-                        <label><input type="radio" name="target" value="BOTH"> Les Deux</label>
-                    </div>
-                </div>
-                
-                <button class="btn btn-primary" onclick="sendInception()">
-                    🚀 Injecter l'Inception
-                </button>
-            </div>
-            
-            <div class="inceptions-list">
-                <h3>📜 Inceptions Actives</h3>
-                <div id="active-inceptions">
-                    <p class="empty">Aucune inception active</p>
-                </div>
-            </div>
-        </div>
-        """
-    
+    settings_schema = {
+        "prompt": {"type": "textarea", "label": "Pensée à injecter", "default": ""},
+        "weight": {"type": "range", "label": "Poids", "min": 0, "max": 100, "default": 50},
+        "target": {"type": "select", "label": "Cible", "options": ["LEFT", "RIGHT", "BOTH"], "default": "BOTH"}
+    }
+
     def handle_action(self, action: str, data: Dict) -> Dict:
         if action == "create":
             return self._create_inception(data)

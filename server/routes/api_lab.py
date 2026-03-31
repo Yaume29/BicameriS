@@ -546,3 +546,54 @@ async def module_action(module_id: str, request: Request):
     except Exception as e:
         logger.error(f"Module action error: {e}")
         return {"status": "error", "message": str(e)}
+
+
+@router.get("/lab/modules")
+async def get_lab_modules():
+    """Get all available lab modules with settings_schema"""
+    try:
+        import importlib.util
+        from pathlib import Path
+        
+        modules_dir = Path(__file__).parent.parent.parent / "core" / "lab" / "modules"
+        result = []
+        
+        for module_dir in sorted(modules_dir.iterdir()):
+            if not module_dir.is_dir() or module_dir.name.startswith("_"):
+                continue
+            
+            module_file = module_dir / "module.py"
+            if not module_file.exists():
+                continue
+            
+            try:
+                spec = importlib.util.spec_from_file_location(
+                    f"module_{module_dir.name}",
+                    str(module_file)
+                )
+                if spec and spec.loader:
+                    mod = importlib.util.module_from_spec(spec)
+                    spec.loader.exec_module(mod)
+                    
+                    module_class = None
+                    for attr_name in dir(mod):
+                        attr = getattr(mod, attr_name)
+                        if isinstance(attr, type) and hasattr(attr, "settings_schema"):
+                            module_class = attr
+                            break
+                    
+                    if module_class:
+                        result.append({
+                            "id": module_class.id if hasattr(module_class, "id") else module_dir.name,
+                            "name": module_class.name if hasattr(module_class, "name") else module_dir.name,
+                            "icon": module_class.icon if hasattr(module_class, "icon") else "🔧",
+                            "description": module_class.description if hasattr(module_class, "description") else "",
+                            "settings_schema": module_class.settings_schema
+                        })
+            except Exception as e:
+                logger.warning(f"Failed to load module {module_dir.name}: {e}")
+        
+        return {"modules": result}
+    except Exception as e:
+        logger.error(f"Failed to get lab modules: {e}")
+        return {"modules": [], "error": str(e)}

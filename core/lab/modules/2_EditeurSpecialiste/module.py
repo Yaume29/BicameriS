@@ -118,100 +118,12 @@ class EditeurSpecialisteModule(LabModule):
         self._current_mode = "chat"
         self._auto_confirm_enabled = False
     
-    def render(self) -> str:
-        themes_html = self._render_themes_accordion()
-        
-        return f"""
-        <div class="module-editeur module-2_EditeurSpecialiste" id="module-editeur" style="--module-color: #8b5cf6; --module-color-rgb: 139, 92, 246;">
-            <div class="editeur-layout">
-                <!-- Left Panel - Thèmes -->
-                <div class="editeur-sidebar" id="editeur-sidebar">
-                    <div class="sidebar-header">
-                        <h3>🔧 Thèmes</h3>
-                    </div>
-                    <div class="themes-accordion" id="themes-accordion">
-                        {themes_html}
-                    </div>
-                </div>
-                
-                <!-- Center - Chat -->
-                <div class="editeur-main">
-                    <div class="chat-header">
-                        <div class="current-theme" id="current-theme">
-                            <span class="theme-icon">📁</span>
-                            <span class="theme-name">Sélectionnez un thème</span>
-                        </div>
-                        <div class="chat-actions">
-                            <div class="mode-selector">
-                                <button class="mode-btn active" data-mode="chat" onclick="setEditeurMode('chat')" title="Chat">💬</button>
-                                <button class="mode-btn" data-mode="planifier" onclick="setEditeurMode('planifier')" title="Planifier">📋</button>
-                                <button class="mode-btn" data-mode="construire" onclick="setEditeurMode('construire')" title="Construire">🔨</button>
-                                <button class="mode-btn" data-mode="etudier" onclick="setEditeurMode('etudier')" title="Étudier">📚</button>
-                            </div>
-                            <button class="btn-icon auto-confirm-btn" id="auto-confirm-btn" onclick="toggleAutoConfirm()" title="Auto-confirmer (désactivé)" style="display:none;">
-                                🔒
-                            </button>
-                            <button class="btn-icon" onclick="toggleVerifyHypotheses()" title="Vérifier hypothèses">
-                                ✅
-                            </button>
-                            <button class="btn-icon" onclick="sendDirection()" title="Donner une direction">
-                                📝
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <div class="chat-messages" id="editeur-messages">
-                        <div class="message system">
-                            <div class="message-content">
-                                Bienvenue dans l'Éditeur Spécialiste!<br>
-                                Sélectionnez un thème à gauche pour commencer.<br>
-                                <small>L'IA vérifiera toujours ses hypothèses avant de conclure.</small>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="chat-input-area">
-                        <textarea 
-                            id="editeur-input" 
-                            placeholder="Tapez votre message..."
-                            rows="2"
-                        ></textarea>
-                        <button class="send-btn" onclick="sendEditeurMessage()">
-                            ➤
-                        </button>
-                    </div>
-                </div>
-                
-                <!-- Right Panel - Workspace -->
-                <div class="editeur-workspace" id="editeur-workspace">
-                    <div class="workspace-header">
-                        <h4>📁 Workspace</h4>
-                        <div class="workspace-actions">
-                            <button class="btn-icon" onclick="createWorkspace()" title="Créer workspace">➕</button>
-                            <button class="btn-icon" onclick="openWorkspaceFolder()" title="Ouvrir dossier">📂</button>
-                            <button class="btn-icon" onclick="refreshWorkspaceTree()" title="Actualiser">🔄</button>
-                        </div>
-                    </div>
-                    <div class="workspace-toolbar">
-                        <button class="btn-small" onclick="executeCurrentCode()" title="Exécuter">▶</button>
-                        <button class="btn-small" onclick="saveWorkspaceFile()" title="Sauvegarder">💾</button>
-                        <button class="btn-small" onclick="searchInWorkspace()" title="Rechercher">🔍</button>
-                        <button class="btn-small" onclick="checkAvailableLanguages()" title="Langages dispo">⚙️</button>
-                    </div>
-                    <div class="workspace-files" id="workspace-files">
-                        <p class="empty">Aucun workspace ouvert</p>
-                    </div>
-                    <div class="file-editor">
-                        <div class="file-tabs">
-                            <span class="file-tab" id="current-file">main.py</span>
-                        </div>
-                        <textarea class="file-content" id="file-content" placeholder="// Contenu du fichier..."></textarea>
-                    </div>
-                </div>
-            </div>
-        </div>
-        """
-    
+    settings_schema = {
+        "mode": {"type": "select", "label": "Mode", "options": ["chat", "planifier", "construire", "etudier"], "default": "chat"},
+        "theme": {"type": "select", "label": "Thème", "options": ["python", "javascript", "rust", "go"], "default": "python"},
+        "auto_confirm": {"type": "checkbox", "label": "Auto-confirmer", "default": false}
+    }
+
     def _render_themes_accordion(self) -> str:
         html = ""
         for theme_name, theme_data in THEMES.items():
