@@ -240,7 +240,6 @@ from server.routes import api_inception, api_laboratoire, api_research, api_iden
 
 views.set_templates(templates)
 
-app.include_router(views.router)
 app.include_router(api_hardware.router)
 app.include_router(api_cognitive.router)
 app.include_router(api_inference.router)
@@ -256,6 +255,7 @@ app.include_router(api_dashboard.router, prefix="/api")
 app.include_router(api_knowledge.router, prefix="/api")
 app.include_router(api_agents.router, prefix="/api")
 app.include_router(api_lab.router, prefix="/api")
+app.include_router(views.router)
 
 
 @app.get("/api/stats")
