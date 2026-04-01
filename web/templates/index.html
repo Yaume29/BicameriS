@@ -658,8 +658,17 @@
 
         <!-- Chat Page -->
         <div class="page" id="page-chat">
-          <div id="chat-content">
-            <!-- Chat content will be loaded here -->
+          <div class="chat-container">
+            <div class="chat-messages" id="chat-messages"></div>
+            <div class="chat-input-area">
+              <textarea id="chat-input" placeholder="Entrez votre message..." rows="1"></textarea>
+              <button id="send-btn" class="send-btn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <path d="M22 2L11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+            </div>
           </div>
         </div>
 
@@ -938,6 +947,31 @@
 
       // Apply preset values (simulated)
       console.log('Selected preset:', presetId);
+    }
+    
+    function sendMessage() {
+      const input = document.getElementById('chat-input');
+      const message = input.value.trim();
+      if (!message) return;
+      
+      if (window.ChatStream) {
+        window.ChatStream.sendMessage();
+      } else {
+        input.value = '';
+        console.log('Send:', message);
+      }
+    }
+    
+    function switchView(targetId) {
+      document.querySelectorAll('.page').forEach(el => {
+        el.style.display = 'none';
+        el.classList.remove('active');
+      });
+      const targetView = document.getElementById(targetId);
+      if (targetView) {
+        targetView.style.display = 'block';
+        targetView.classList.add('active');
+      }
     }
   </script>
 </body>

@@ -75,8 +75,8 @@ body {
 }
 
 @keyframes socket-pulse {
-  0%, 100% { r: 3; opacity: 0.6; }
-  50% { r: 5; opacity: 1; }
+  0%, 100% { transform: scale(0.6); opacity: 0.6; }
+  50% { transform: scale(1); opacity: 1; }
 }
 
 @keyframes brainwave {

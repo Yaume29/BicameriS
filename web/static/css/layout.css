@@ -232,8 +232,6 @@
   background: var(--bg-hover);
   border-color: var(--accent-cyan);
 }
-  display: block;
-}
 
 /* Quick Params */
 .quick-params {
