@@ -651,8 +651,20 @@
       <div class="page-container">
         <!-- Models Page -->
         <div class="page active" id="page-models">
-          <div id="models-content">
-            <!-- Models content will be loaded here -->
+          <div class="page-placeholder">
+            <div class="placeholder-icon">🧠</div>
+            <h2>Selection des Modeles</h2>
+            <p>Configurez vos modeles pour les hemispheres gauche et droit</p>
+            <div class="model-status" id="model-list">
+              <div class="model-card">
+                <span class="model-name">Hemisphere Gauche (DIA)</span>
+                <span class="model-status-badge" id="left-model-status">Non configure</span>
+              </div>
+              <div class="model-card">
+                <span class="model-name">Hemisphere Droit (PAL)</span>
+                <span class="model-status-badge" id="right-model-status">Non configure</span>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -682,16 +694,19 @@
 
         <!-- Journal Page -->
         <div class="page" id="page-journal">
-          <div id="journal-content">
-            <!-- Journal content will be loaded here -->
+          <div class="page-placeholder">
+            <div class="placeholder-icon">📊</div>
+            <h2>Journal & Telemetrie</h2>
+            <p>Historique des pensees et activite du systeme</p>
+            <div class="journal-entries" id="journal-entries">
+              <p class="empty-journal">Aucune entree pour le moment</p>
+            </div>
           </div>
         </div>
 
         <!-- Settings Page -->
         <div class="page" id="page-settings">
-          <div id="settings-content">
-            <!-- Settings content will be loaded here -->
-          </div>
+          <div id="settings-content"></div>
         </div>
       </div>
     </div>

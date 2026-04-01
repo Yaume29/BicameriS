@@ -39,4 +39,7 @@ async def root(request: Request):
 
 @router.get("/{path:path}")
 async def catch_all(request: Request, path: str):
+    if path.startswith("api/") or path.startswith("static/") or path.startswith("ws/"):
+        from fastapi.responses import JSONResponse
+        return JSONResponse({"error": "Not found"}, status_code=404)
     return FileResponse(str(BASE_DIR / "web" / "templates" / "index.html"))
