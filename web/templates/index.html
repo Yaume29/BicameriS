@@ -651,18 +651,102 @@
       <div class="page-container">
         <!-- Models Page -->
         <div class="page active" id="page-models">
-          <div class="page-placeholder">
-            <div class="placeholder-icon">🧠</div>
-            <h2>Selection des Modeles</h2>
-            <p>Configurez vos modeles pour les hemispheres gauche et droit</p>
-            <div class="model-status" id="model-list">
-              <div class="model-card">
-                <span class="model-name">Hemisphere Gauche (DIA)</span>
-                <span class="model-status-badge" id="left-model-status">Non configure</span>
+          <h2>Configuration des Modeles</h2>
+          <div class="tabs-container">
+            <div class="tabs-header main-tabs">
+              <button class="tab-btn active" data-tab="presentation">Presentation</button>
+              <button class="tab-btn" data-tab="configuration">Configuration</button>
+            </div>
+            <div class="tab-content active" id="tab-presentation">
+              <div class="presentation-section">
+                <h3>Architecture Bicamerale BicameriS</h3>
+                <div class="info-card">
+                  <h4>Comment fonctionne le chargement des modeles?</h4>
+                  <p>BicameriS utilise une architecture a <strong>deux hemispheres</strong> inspiree du cerveau humain :</p>
+                  <ul>
+                    <li>Hemisphere Gauche : Logique, analyse, raisonnement structure</li>
+                    <li>Hemisphere Droit : Intuition, creativite, patterns</li>
+                  </ul>
+                </div>
               </div>
-              <div class="model-card">
-                <span class="model-name">Hemisphere Droit (PAL)</span>
-                <span class="model-status-badge" id="right-model-status">Non configure</span>
+            </div>
+            <div class="tab-content" id="tab-configuration">
+              <div class="scanner-box">
+                <h4>Rechercher des modeles GGUF</h4>
+                <p>Selectionnez un dossier ou entrez un chemin</p>
+                <div class="scanner-row">
+                  <input type="text" id="scan-path" placeholder="C:\Users\...\models" style="flex:1; padding:12px; background:#0a0a0f; border:2px solid #333; color:#fff; border-radius:6px; font-family:monospace;">
+                  <button type="button" id="btn-browse" class="btn-secondary" style="padding:12px 20px;" title="Parcourir..."></button>
+                  <button type="button" id="btn-scan" class="btn-primary" style="padding:12px 30px;">Scanner</button>
+                </div>
+                <div id="scan-status" class="scan-status"></div>
+              </div>
+              <div class="sub-tabs-container">
+                <div class="tabs-header sub-tabs">
+                  <button class="sub-tab-btn active" data-subtab="local">Local (llama-cpp)</button>
+                  <button class="sub-tab-btn" data-subtab="lmstudio">LM Studio</button>
+                  <button class="sub-tab-btn" data-subtab="apikeys">Cles API</button>
+                </div>
+                <div class="sub-tab-content active" id="subtab-local">
+                  <h4>Selection des Modeles Locaux</h4>
+                  <div class="hemisphere-config">
+                    <div class="hemisphere-box left">
+                      <div class="hemisphere-header">
+                        <div class="brain-half-icon left-half"></div>
+                        <h5>Hemisphere Gauche (Logique)</h5>
+                      </div>
+                      <select id="left-model-select" class="model-select">
+                        <option value="">Selectionner un modele...</option>
+                      </select>
+                    </div>
+                    <div class="hemisphere-box right">
+                      <div class="hemisphere-header">
+                        <div class="brain-half-icon right-half"></div>
+                        <h5>Hemisphere Droit (Intuition)</h5>
+                      </div>
+                      <select id="right-model-select" class="model-select">
+                        <option value="">Selectionner un modele...</option>
+                        <option value="EMPTY">-- Laisser Vide --</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="load-actions">
+                    <button id="btn-load-local" class="btn-primary load-btn">Initialiser les Modeles</button>
+                    <div id="load-status" class="load-status"></div>
+                  </div>
+                </div>
+                <div class="sub-tab-content" id="subtab-lmstudio">
+                  <h4>Connexion LM Studio</h4>
+                  <div class="lmstudio-config">
+                    <label>URL du Serveur:</label>
+                    <div class="input-group">
+                      <input type="text" id="lmstudio-url" value="http://localhost:1234/v1" placeholder="http://localhost:1234/v1">
+                      <button id="btn-check-lmstudio" class="btn-secondary">Verifier</button>
+                    </div>
+                    <div id="lmstudio-status" class="status-message"></div>
+                  </div>
+                </div>
+                <div class="sub-tab-content" id="subtab-apikeys">
+                  <h4>Configuration API</h4>
+                  <div class="api-providers">
+                    <div class="provider-card">
+                      <h5>Google Gemini</h5>
+                      <input type="password" id="key-gemini" placeholder="Cle API Gemini...">
+                    </div>
+                    <div class="provider-card">
+                      <h5>Groq</h5>
+                      <input type="password" id="key-groq" placeholder="Cle API Groq...">
+                    </div>
+                    <div class="provider-card">
+                      <h5>OpenRouter</h5>
+                      <input type="password" id="key-openrouter" placeholder="Cle API OpenRouter...">
+                    </div>
+                  </div>
+                  <div class="load-actions">
+                    <button id="btn-save-keys" class="btn-primary">Sauvegarder les Cles</button>
+                    <div id="keys-status" class="status-message"></div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -670,16 +754,18 @@
 
         <!-- Chat Page -->
         <div class="page" id="page-chat">
+          <div class="chat-header">
+            <h2>Chat avec BicameriS</h2>
+            <div class="chat-controls">
+              <label>Temperature: <input type="range" id="temperature" min="0" max="2" step="0.1" value="0.7"><span id="temp-value">0.7</span></label>
+              <button id="clear-chat" class="btn-danger">Effacer</button>
+            </div>
+          </div>
           <div class="chat-container">
-            <div class="chat-messages" id="chat-messages"></div>
+            <div id="chat-messages" class="chat-messages"></div>
             <div class="chat-input-area">
-              <textarea id="chat-input" placeholder="Entrez votre message..." rows="1"></textarea>
-              <button id="send-btn" class="send-btn">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                  <path d="M22 2L11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                  <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </button>
+              <input type="text" id="chat-input" placeholder="Discute avec BicameriS..." autocomplete="off">
+              <button id="send-btn" class="btn-primary">Envoyer</button>
             </div>
           </div>
         </div>
@@ -692,14 +778,75 @@
           </div>
         </div>
 
-        <!-- Journal Page -->
+        <!-- Journal/Dashboard Page -->
         <div class="page" id="page-journal">
-          <div class="page-placeholder">
-            <div class="placeholder-icon">📊</div>
-            <h2>Journal & Telemetrie</h2>
-            <p>Historique des pensees et activite du systeme</p>
-            <div class="journal-entries" id="journal-entries">
-              <p class="empty-journal">Aucune entree pour le moment</p>
+          <h2>Dashboard</h2>
+          <div class="metrics-row">
+            <div class="metric-card">
+              <h4>Modele</h4>
+              <p class="metric-value" id="dash-model">Aucun</p>
+            </div>
+            <div class="metric-card">
+              <h4>Total Flux</h4>
+              <p class="metric-value" id="dash-flux">0</p>
+            </div>
+            <div class="metric-card">
+              <h4>Taches</h4>
+              <p class="metric-value" id="dash-tasks">0</p>
+            </div>
+          </div>
+          <div class="dashboard-grid">
+            <div class="dashboard-card">
+              <h3>Controles</h3>
+              <div class="control-group">
+                <label>Temperature</label>
+                <input type="range" min="0" max="2" step="0.1" value="0.7" id="dash-temp">
+                <span>0.7</span>
+              </div>
+              <div class="control-group">
+                <label>Max Tokens</label>
+                <input type="range" min="256" max="8192" step="256" value="2048" id="dash-tokens">
+                <span>2048</span>
+              </div>
+            </div>
+            <div class="dashboard-card">
+              <h3>Entropie Materielle</h3>
+              <div class="entropy-visualization">
+                <div class="entropy-gauge">
+                  <svg viewBox="0 0 100 100" class="gauge-svg">
+                    <circle cx="50" cy="50" r="40" fill="none" stroke="#333" stroke-width="8"/>
+                    <circle cx="50" cy="50" r="40" fill="none" stroke="url(#gaugeGradient)" stroke-width="8" stroke-dasharray="251.2" stroke-dashoffset="251.2" id="entropy-arc"/>
+                    <defs>
+                      <linearGradient id="gaugeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" style="stop-color:#00ff88"/>
+                        <stop offset="50%" style="stop-color:#ffaa00"/>
+                        <stop offset="100%" style="stop-color:#ff0044"/>
+                      </linearGradient>
+                    </defs>
+                  </svg>
+                  <div class="gauge-center">
+                    <span class="pulse-value" id="pulse-display">0.00</span>
+                    <span class="pulse-label">PULSE</span>
+                  </div>
+                </div>
+                <div class="entropy-details">
+                  <div class="entropy-bar">
+                    <label>CPU</label>
+                    <div class="bar-container"><div class="bar-fill" id="cpu-bar"></div></div>
+                    <span id="cpu-val">0%</span>
+                  </div>
+                  <div class="entropy-bar">
+                    <label>RAM</label>
+                    <div class="bar-container"><div class="bar-fill" id="ram-bar"></div></div>
+                    <span id="ram-val">0%</span>
+                  </div>
+                  <div class="entropy-bar">
+                    <label>VRAM</label>
+                    <div class="bar-container"><div class="bar-fill" id="vram-bar"></div></div>
+                    <span id="vram-val">0%</span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
