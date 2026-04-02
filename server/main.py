@@ -237,7 +237,7 @@ templates = Jinja2Templates(directory=str(BASE_DIR / "web/templates"))
 
 from server.routes import views, api_hardware, api_cognitive, api_inference, api_system
 from server.routes import api_inception, api_laboratoire, api_research, api_identity, api_launch, api_models, api_chat, api_dashboard, api_knowledge, api_agents, api_lab
-from server.routes import api_skills
+from server.routes import api_skills, api_specialist_editor
 
 views.set_templates(templates)
 
@@ -257,6 +257,7 @@ app.include_router(api_knowledge.router, prefix="/api")
 app.include_router(api_agents.router, prefix="/api")
 app.include_router(api_lab.router, prefix="/api")
 app.include_router(api_skills.router, prefix="/api")
+app.include_router(api_specialist_editor.router, prefix="/api")
 app.include_router(views.router)
 
 
