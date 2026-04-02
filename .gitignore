@@ -89,3 +89,7 @@ storage/skills-reference/
 
 # Compiled binaries
 llama-server.exe
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
