@@ -118,6 +118,12 @@ class SystemConfig:
     auto_scaffolding_full: bool = False    # Level 1: Full (docker, execute, web)
     auto_scaffolding_limited: bool = False # Level 2: File creation + web tools
     auto_optimization: bool = False        # Level 3: LLM params only
+    # BrainCache (KV cache compression):
+    braincache_enabled: bool = False
+    braincache_cache_type: str = "braincache3"  # braincache2, braincache3, braincache4
+    braincache_asymmetric: bool = False  # q8_0-K + braincache-V
+    braincache_boundary_v: bool = True   # Layer-aware V compression
+    braincache_block_size: int = 64      # 32, 64 ou 128 (64 = meilleur compromis)
 
 
 @dataclass

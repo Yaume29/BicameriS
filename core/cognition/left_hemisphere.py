@@ -214,23 +214,47 @@ class LeftHemisphere:
         self._load_model()
 
     def _load_model(self):
-        """Charge le modèle avec llama-cpp-python"""
+        """Charge le modèle avec llama-cpp-python + BrainCache optionnel"""
         try:
             from llama_cpp import Llama
-
+            from core.system.config_manager import get_config
+            
             print(f"[LEFT] Chargement de {self.model_path}...")
             print(f"[LEFT] n_ctx={self.n_ctx}, n_gpu_layers={self.n_gpu_layers}")
             print(f"[LEFT] temp={self.temperature}, top_p={self.top_p}")
-
-            self.model = Llama(
-                model_path=self.model_path,
-                n_gpu_layers=self.n_gpu_layers,
-                n_ctx=self.n_ctx,
-                n_threads=os.cpu_count() or 8,
-                flash_attention=True,
-                use_mmap=False,
-                verbose=False,
-            )
+            
+            # Paramètres de base
+            llama_params = {
+                "model_path": self.model_path,
+                "n_gpu_layers": self.n_gpu_layers,
+                "n_ctx": self.n_ctx,
+                "n_threads": os.cpu_count() or 8,
+                "flash_attention": True,
+                "use_mmap": False,
+                "verbose": False,
+            }
+            
+            # BrainCache si activé
+            try:
+                config = get_config()
+                if config.config.system.braincache_enabled:
+                    from core.cognition.braincache_integration import get_braincache_detector
+                    detector = get_braincache_detector()
+                    detection = detector.detect()
+                    
+                    if detection.get("braincache_supported"):
+                        cache_type = config.config.system.braincache_cache_type
+                        llama_params["cache_type_k"] = cache_type
+                        llama_params["cache_type_v"] = cache_type
+                        
+                        if config.config.system.braincache_asymmetric:
+                            llama_params["cache_type_k"] = "q8_0"
+                        
+                        print(f"[LEFT] BrainCache activé: {cache_type}")
+            except Exception as e:
+                print(f"[LEFT] BrainCache non disponible: {e}")
+            
+            self.model = Llama(**llama_params)
 
             self.is_loaded = True
             print(f"[LEFT] Modèle chargé avec succès!")

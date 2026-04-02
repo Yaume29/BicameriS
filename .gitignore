@@ -73,3 +73,19 @@ ZONE_AETHERIS/workspace/
 ZONE_RESERVEE/logs/
 test
 ZONE_AETHERIS/ZONE_AETHERIS/
+
+# Binary files
+*.exe
+*.dll
+*.dylib
+*.so
+
+# IDE configs
+.agent/
+.opencode/
+
+# Reference files (too large)
+storage/skills-reference/
+
+# Compiled binaries
+llama-server.exe

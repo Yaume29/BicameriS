@@ -277,10 +277,20 @@ class EditeurSpecialisteModule(LabModule):
     def _generate_response(self, message: str, preprompt: str, direction: str = None) -> str:
         """
         Génère une réponse en utilisant le système cognitif.
-        Inclut la boucle de vérification des hypothèses.
+        Inclut la boucle de vérification des hypothèses et la délégation aux skills.
         """
         try:
             from server.extensions import registry
+            from core.agents.bicameral_skills import get_skills_manager
+            
+            # Check if a skill is relevant for this question
+            skills_manager = get_skills_manager()
+            relevant_skills = skills_manager.get_relevant_skills(self._current_theme or "")
+            
+            skill_context = ""
+            if relevant_skills:
+                skill = relevant_skills[0]
+                skill_context = f"\n\n[SKILL DISPONIBLE: {skill.name}]\n{skill.content[:500]}\n"
             
             history = "\n".join([
                 f"{m.role}: {m.content[:150]}" 
@@ -312,7 +322,7 @@ Avant de donner ta réponse finale, tu DOIS:
 """
             
             full_prompt = f"""{preprompt}
-
+{skill_context}
 {direction_text}
 Historique de la conversation:
 {history}
@@ -338,7 +348,12 @@ Réponds en français, de manière complète et rigoureuse."""
                     temperature=0.7
                 )
                 
-                return f"**Analyse (Hémisphère Gauche):**\n{left_resp}\n\n**Intuition (Hémisphère Droit):**\n{right_resp}"
+                # Add skill usage note if relevant
+                skill_note = ""
+                if relevant_skills:
+                    skill_note = f"\n\n**Skill utilisé:** {relevant_skills[0].name}"
+                
+                return f"**Analyse (Hémisphère Gauche):**\n{left_resp}\n\n**Intuition (Hémisphère Droit):**\n{right_resp}{skill_note}"
             
             elif registry.corps_calleux:
                 hemi = registry.corps_calleux.left or registry.corps_calleux.right
@@ -839,3 +854,37 @@ Documente tout pour apprendre efficacement."""
             "permissions": safe_perms,
             "auto_confirm_enabled": self._auto_confirm_enabled if perms.get("execute") == "confirm" else False
         }
+    
+    def _list_available_skills(self, data: Dict) -> Dict:
+        """List available skills for the current theme"""
+        try:
+            from core.agents.bicameral_skills import get_skills_manager
+            manager = get_skills_manager()
+            
+            theme = data.get("theme", self._current_theme or "")
+            skills = manager.get_relevant_skills(theme)
+            
+            return {
+                "status": "ok",
+                "theme": theme,
+                "skills": [
+                    {"name": s.name, "description": s.description, "tools": s.tools}
+                    for s in skills
+                ],
+                "all_skills": manager.list_skills()[:20]  # First 20
+            }
+        except Exception as e:
+            return {"status": "error", "message": str(e)}
+    
+    def _list_available_agents(self, data: Dict) -> Dict:
+        """List available agents"""
+        try:
+            from core.agents.bicameral_skills import get_skills_manager
+            manager = get_skills_manager()
+            
+            return {
+                "status": "ok",
+                "agents": manager.list_agents()[:20]  # First 20
+            }
+        except Exception as e:
+            return {"status": "error", "message": str(e)}
