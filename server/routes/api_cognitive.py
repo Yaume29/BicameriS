@@ -489,3 +489,67 @@ async def memory_summary(hours: int = 24):
         return {"summary": recent}
     except Exception as e:
         return {"summary": []}
+
+
+# ===================== BRAINCACHE =====================
+
+@router.get("/braincache/status")
+async def braincache_status():
+    """Get BrainCache detection status"""
+    try:
+        from core.cognition.braincache_integration import get_braincache_detector
+        detector = get_braincache_detector()
+        return detector.detect()
+    except Exception as e:
+        return {"error": str(e), "ready": False}
+
+
+@router.get("/braincache/config")
+async def braincache_config():
+    """Get BrainCache configuration"""
+    try:
+        from core.system.config_manager import get_config
+        config = get_config()
+        
+        return {
+            "enabled": config.config.system.braincache_enabled,
+            "cache_type": config.config.system.braincache_cache_type,
+            "asymmetric": config.config.system.braincache_asymmetric,
+            "boundary_v": config.config.system.braincache_boundary_v,
+            "block_size": config.config.system.braincache_block_size
+        }
+    except Exception as e:
+        return {"error": str(e)}
+
+
+@router.put("/braincache/config")
+async def braincache_update_config(request: Request):
+    """Update BrainCache configuration"""
+    try:
+        data = await request.json()
+        
+        from core.system.config_manager import get_config
+        config = get_config()
+        
+        if "enabled" in data:
+            config.config.system.braincache_enabled = data["enabled"]
+        if "cache_type" in data:
+            config.config.system.braincache_cache_type = data["cache_type"]
+        if "asymmetric" in data:
+            config.config.system.braincache_asymmetric = data["asymmetric"]
+        if "boundary_v" in data:
+            config.config.system.braincache_boundary_v = data["boundary_v"]
+        if "block_size" in data:
+            config.config.system.braincache_block_size = data["block_size"]
+        
+        config.save()
+        
+        return {"status": "ok", "config": {
+            "enabled": config.config.system.braincache_enabled,
+            "cache_type": config.config.system.braincache_cache_type,
+            "asymmetric": config.config.system.braincache_asymmetric,
+            "boundary_v": config.config.system.braincache_boundary_v,
+            "block_size": config.config.system.braincache_block_size
+        }}
+    except Exception as e:
+        return {"error": str(e)}

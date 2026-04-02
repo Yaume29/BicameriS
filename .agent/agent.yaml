@@ -1,0 +1,89 @@
+# Antigravity Agent Configuration
+# For BicameriS Bicameral AI System
+
+name: bicameris-agent
+version: 1.0.0
+description: Bicameral AI agent with specialized skills and tools
+
+# Agent settings
+settings:
+  default_model: anthropic/claude-sonnet-4-5
+  timeout: 300000
+  max_retries: 3
+
+# Available skills
+skills:
+  - tdd-workflow
+  - security-review
+  - coding-standards
+  - verification-loop
+  - api-design
+  - continuous-learning
+  - autonomous-loops
+  - bicameral-thinking
+
+# Available tools
+tools:
+  - read
+  - write
+  - edit
+  - bash
+  - search
+  - web-fetch
+
+# Hooks configuration
+hooks:
+  pre-tool:
+    - name: permission-check
+      script: hooks/pre-tool-check.js
+    - name: security-scan
+      script: hooks/security-scan.js
+  
+  post-tool:
+    - name: format-check
+      script: hooks/format-check.js
+    - name: type-check
+      script: hooks/type-check.js
+  
+  session-start:
+    - name: load-context
+      script: hooks/load-context.js
+  
+  session-end:
+    - name: save-context
+      script: hooks/save-context.js
+
+# Commands
+commands:
+  plan:
+    description: Create implementation plan
+    template: prompts/plan.md
+  
+  tdd:
+    description: Test-driven development workflow
+    template: prompts/tdd.md
+  
+  review:
+    description: Code review
+    template: prompts/review.md
+  
+  security:
+    description: Security analysis
+    template: prompts/security.md
+  
+  bicameral:
+    description: Run bicameral analysis
+    template: prompts/bicameral.md
+
+# Model routing
+models:
+  fast: anthropic/claude-haiku-4-5
+  balanced: anthropic/claude-sonnet-4-5
+  powerful: anthropic/claude-opus-4-5
+
+# Permissions
+permissions:
+  bash: allow
+  network: ask
+  file-write: allow
+  file-read: allow

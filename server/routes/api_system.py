@@ -67,7 +67,7 @@ async def stop_initialization():
     
     switchboard = get_switchboard()
     switchboard.toggle("autonomous_loop", False)
-    switchboard.toggle("auto_scaffolding", False)
+    switchboard.toggle("auto_scaffolding_full", False)
     
     config = get_config()
     config.config.system.initialized = False

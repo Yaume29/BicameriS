@@ -46,7 +46,7 @@ async def lifespan(app: FastAPI):
         registry.switchboard = get_switchboard()
         if not is_initialized:
             registry.switchboard.toggle("autonomous_loop", False)
-            registry.switchboard.toggle("auto_scaffolding", False)
+            registry.switchboard.toggle("auto_scaffolding_full", False)
         logging.info("[DIADIKOS] ✅ Switchboard initialisé")
     except Exception as e:
         logging.warning(f"⚠️ Switchboard non disponible: {e}")
@@ -237,6 +237,7 @@ templates = Jinja2Templates(directory=str(BASE_DIR / "web/templates"))
 
 from server.routes import views, api_hardware, api_cognitive, api_inference, api_system
 from server.routes import api_inception, api_laboratoire, api_research, api_identity, api_launch, api_models, api_chat, api_dashboard, api_knowledge, api_agents, api_lab
+from server.routes import api_skills
 
 views.set_templates(templates)
 
@@ -255,6 +256,7 @@ app.include_router(api_dashboard.router, prefix="/api")
 app.include_router(api_knowledge.router, prefix="/api")
 app.include_router(api_agents.router, prefix="/api")
 app.include_router(api_lab.router, prefix="/api")
+app.include_router(api_skills.router, prefix="/api")
 app.include_router(views.router)
 
 
