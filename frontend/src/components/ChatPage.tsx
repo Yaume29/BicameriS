@@ -1,90 +1,40 @@
-import { useState, useRef, useEffect } from 'react';
+import { useRef, useEffect } from 'react';
+import { useBicameralStream } from '../hooks/useBicameralStream';
+import type { Message, AppMode } from '../types/api';
 
-interface Message {
-  id: string;
-  role: 'user' | 'assistant-left' | 'assistant-right' | 'corpus' | 'system';
-  content: string;
-  timestamp: Date;
-}
+const MODE: AppMode = 'chat';
 
 export default function ChatPage() {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: '1',
-      role: 'system',
-      content: 'BicameriS initialisé. Les deux hémisphères sont en ligne.',
-      timestamp: new Date(),
-    },
-  ]);
-  const [input, setInput] = useState('');
-  const [isTyping, setIsTyping] = useState<{ left: boolean; right: boolean; corpus: boolean }>({
-    left: false,
-    right: false,
-    corpus: false,
-  });
+  const {
+    messages,
+    isTyping,
+    isConnected,
+    isLoading,
+    error,
+    sendMessage,
+    clearMessages,
+  } = useBicameralStream({ mode: MODE, autoConnect: true });
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  const sendMessage = async () => {
-    if (!input.trim()) return;
+  const handleSend = async () => {
+    const input = inputRef.current;
+    if (!input || !input.value.trim()) return;
 
-    const userMsg: Message = {
-      id: `msg-${Date.now()}`,
-      role: 'user',
-      content: input,
-      timestamp: new Date(),
-    };
-    setMessages((prev) => [...prev, userMsg]);
-    setInput('');
-
-    // Simulate bicameral response
-    setIsTyping({ left: true, right: false, corpus: false });
-
-    setTimeout(() => {
-      setIsTyping({ left: false, right: false, corpus: false });
-      const leftResp: Message = {
-        id: `resp-l-${Date.now()}`,
-        role: 'assistant-left',
-        content: `[Analyse logique] J'ai analysé votre requête.`,
-        timestamp: new Date(),
-      };
-      setMessages((prev) => [...prev, leftResp]);
-
-      setIsTyping({ left: false, right: true, corpus: false });
-    }, 800);
-
-    setTimeout(() => {
-      setIsTyping({ left: false, right: false, corpus: false });
-      const rightResp: Message = {
-        id: `resp-r-${Date.now()}`,
-        role: 'assistant-right',
-        content: `[Intuition créative] Je perçois des connexions intéressantes.`,
-        timestamp: new Date(),
-      };
-      setMessages((prev) => [...prev, rightResp]);
-
-      setIsTyping({ left: false, right: false, corpus: true });
-    }, 1500);
-
-    setTimeout(() => {
-      setIsTyping({ left: false, right: false, corpus: false });
-      const corpusResp: Message = {
-        id: `resp-c-${Date.now()}`,
-        role: 'corpus',
-        content: `⚡ [Corpus Callosum] Synthèse bicamérale complète.`,
-        timestamp: new Date(),
-      };
-      setMessages((prev) => [...prev, corpusResp]);
-    }, 2200);
+    const value = input.value;
+    input.value = '';
+    await sendMessage(value);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      sendMessage();
+      handleSend();
     }
   };
 
@@ -105,6 +55,15 @@ export default function ChatPage() {
     }
   };
 
+  const getConnectionStatus = () => {
+    if (error) return { color: 'text-red-400', text: 'Erreur' };
+    if (isLoading) return { color: 'text-yellow-400', text: 'Traitement...' };
+    if (!isConnected) return { color: 'text-gray-500', text: 'Déconnecté' };
+    return { color: 'text-green-400', text: 'En ligne' };
+  };
+
+  const status = getConnectionStatus();
+
   return (
     <div className="flex flex-col h-full">
       {/* Chat Header */}
@@ -119,7 +78,7 @@ export default function ChatPage() {
               <span className={`${isTyping.left ? 'text-cyan-400 animate-pulse' : 'text-gray-500'}`}>●</span>
               <span className={`${isTyping.corpus ? 'text-green-400 animate-pulse' : 'text-gray-500'}`}>●</span>
               <span className={`${isTyping.right ? 'text-purple-400 animate-pulse' : 'text-gray-500'}`}>●</span>
-              <span className="text-green-400 ml-1">En ligne</span>
+              <span className={`${status.color} ml-1`}>{status.text}</span>
             </div>
           </div>
         </div>
@@ -127,6 +86,14 @@ export default function ChatPage() {
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
+        {messages.length === 0 && (
+          <div className="flex justify-center py-8">
+            <div className="text-xs text-gray-500">
+              BicameriS initialisé. Les deux hemispheres sont en ligne.
+            </div>
+          </div>
+        )}
+
         {messages.map((msg) => {
           const style = getRoleStyle(msg.role);
           return (
@@ -162,17 +129,17 @@ export default function ChatPage() {
       <div className="border-t border-gray-700 bg-gray-800/80 p-3">
         <div className="flex items-end gap-2">
           <textarea
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
+            ref={inputRef}
             onKeyDown={handleKeyDown}
             placeholder="Message à BicameriS..."
             rows={1}
             className="flex-1 bg-gray-900 border border-gray-700 rounded-xl px-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500/40 resize-none"
             style={{ minHeight: '42px', maxHeight: '120px' }}
+            disabled={!isConnected || isLoading}
           />
           <button
-            onClick={sendMessage}
-            disabled={!input.trim()}
+            onClick={handleSend}
+            disabled={!isConnected || isLoading}
             className="p-2.5 rounded-xl bg-gradient-to-r from-cyan-500/20 to-purple-500/20 text-white border border-purple-500/30 hover:from-cyan-500/30 hover:to-purple-500/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
