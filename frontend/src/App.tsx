@@ -2,14 +2,20 @@ import { useState, useEffect, useCallback } from 'react';
 import ChatPage from './components/ChatPage';
 import ResearchPage from './components/ResearchPage';
 import CodePage from './components/CodePage';
+import BootScreen from './components/BootScreen';
 import type { AppMode } from './types/api';
 
 const API_BASE = '/api/specialist';
 
 export default function App() {
+  const [isBooted, setIsBooted] = useState(false);
   const [mode, setModeState] = useState<AppMode>('chat');
   const [isSyncing, setIsSyncing] = useState(false);
   const [backendMode, setBackendMode] = useState<string | null>(null);
+
+  if (!isBooted) {
+    return <BootScreen onBootSuccess={() => setIsBooted(true)} />;
+  }
 
   const syncModeToBackend = useCallback(async (newMode: AppMode) => {
     setIsSyncing(true);
