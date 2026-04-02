@@ -1,10 +1,16 @@
 #!/usr/bin/env python3
 """
 BicameriS Launcher - Professional TUI
-======================================
+=====================================
 Diadikos & Palladion - By Hope 'n Mind
 
 Industrial-grade launcher for BicameriS cognitive kernel.
+
+Usage:
+    python launcher.py              # Interactive TUI menu
+    python launcher.py --start       # Start server directly
+    python launcher.py --scan        # Scan models only
+    python launcher.py --help        # Show help
 """
 
 import sys
@@ -13,6 +19,7 @@ import json
 import time
 import re
 import copy
+import argparse
 from pathlib import Path
 from typing import Optional, Dict, Any, List
 
@@ -801,4 +808,67 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(
+        description="BicameriS Launcher - Cortex Cognitif Bicaméral",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+    python launcher.py              # Interactive TUI menu
+    python launcher.py --start       # Start server directly
+    python launcher.py --scan        # Scan models only
+    python launcher.py --port 9000   # Start on custom port
+    python launcher.py --no-gpu      # Disable GPU layers
+        """
+    )
+    parser.add_argument("--start", action="store_true", help="Start server directly without TUI")
+    parser.add_argument("--scan", action="store_true", help="Scan models and exit")
+    parser.add_argument("--port", type=int, default=8000, help="Server port (default: 8000)")
+    parser.add_argument("--host", type=str, default="0.0.0.0", help="Server host (default: 0.0.0.0)")
+    parser.add_argument("--no-gpu", action="store_true", help="Disable GPU acceleration")
+    parser.add_argument("--reload", action="store_true", help="Enable auto-reload")
+    parser.add_argument("--version", action="store_true", help="Show version")
+    
+    args = parser.parse_args()
+    
+    if args.version:
+        print(f"BicameriS Launcher v{VERSION}")
+        sys.exit(0)
+    
+    if args.start or args.scan:
+        config = Config()
+        scanner = Scanner()
+        
+        if args.scan:
+            username = os.environ.get("USERNAME", "user")
+            common = [
+                str(BASE_DIR / "models"),
+                f"C:\\Users\\{username}\\.lmstudio\\models",
+                f"C:\\Users\\{username}\\AppData\\Local\\.lmstudio\\models",
+            ]
+            scan_path = None
+            for p in common:
+                if os.path.exists(p):
+                    scan_path = p
+                    break
+            
+            if scan_path:
+                models = scanner.scan(scan_path)
+                print(f"\n[OK] {len(models)} models found")
+                for m in models[:10]:
+                    print(f"  - {m['name']} ({m['size_mb']:.0f} MB)")
+            else:
+                print("[!] No model paths found")
+            sys.exit(0)
+        
+        if args.start:
+            config.set("server.port", args.port)
+            config.set("server.host", args.host)
+            config.set("server.reload", args.reload)
+            
+            if args.no_gpu:
+                config.set("models.left_hemisphere.n_gpu_layers", 0)
+                config.set("models.right_hemisphere.n_gpu_layers", 0)
+            
+            start_server(config)
+    else:
+        main()
