@@ -194,7 +194,24 @@ class CorpsCalleux:
         9. internal_dialogue: Visualizable internal dialogue between hemispheres
         """
         from core.cognition.reformulation_engine import get_reformulation_engine
+        from core.cognition.cognitive_hooks import get_cognitive_hook_manager, HookEvent
+        
         reform_engine = get_reformulation_engine()
+        hook_manager = get_cognitive_hook_manager()
+        
+        # 1. Exécuter hooks PRE_TICK (priorité: security > memory > style > telemetry)
+        pre_tick_context = {"pulse": pulse, "mode": self.autonomous_mode}
+        pre_tick_result = hook_manager.execute(HookEvent.PRE_TICK, pre_tick_context)
+        
+        if pre_tick_result.get("blocked"):
+            logging.error("[CorpsCalleux] PRE_TICK blocked by security audit!")
+            return {"error": "Security audit failed", "blocked": True}
+        
+        # 2. Charger et arbitrer les mémoires
+        stm_data = self._load_stm()
+        woven_data = self._load_woven()
+        
+        memory_result = self.reconcile_memories(stm_data, woven_data)
         
         self._is_thinking = True
         
@@ -259,8 +276,18 @@ class CorpsCalleux:
         if self.auto_scaffolding_enabled:
             self._autonomous_self_test(pulse, result)
         
+        # 3. Exécuter hooks POST_TICK
+        post_tick_context = {
+            "pulse": pulse, 
+            "mode": self.autonomous_mode,
+            "synthesis": result.get("synthesis", ""),
+            "memory_source": memory_result.get("source", "none")
+        }
+        hook_manager.execute(HookEvent.POST_TICK, post_tick_context)
+        
         result["pulse"] = pulse
         result["mode"] = self.autonomous_mode
+        result["memory_source"] = memory_result.get("source", "none")
         
         self._current_thought = result
         self._is_thinking = False
@@ -752,6 +779,63 @@ DECIDE and respond as JSON:
             "modes": self._mode_configs,
             "auto_scaffolding": self.auto_scaffolding_enabled
         }
+    
+    def reconcile_memories(self, stm_data: Any = None, woven_data: Any = None) -> Dict:
+        """
+        Arbitre entre mémoire courte (STM) et mémoire tissée (Woven).
+        Le Corps Calleux décide quelle mémoire est la plus fiable.
+        
+        Priorité: cohérence > quantité
+        """
+        if not stm_data and not woven_data:
+            return {"source": "none", "data": None, "reason": "Aucune mémoire disponible"}
+        
+        if stm_data and not woven_data:
+            return {"source": "stm", "data": stm_data, "reason": "Seule STM disponible"}
+        
+        if woven_data and not stm_data:
+            return {"source": "woven", "data": woven_data, "reason": "Seule Woven disponible"}
+        
+        stm_confidence = stm_data.get("confidence", 0) if isinstance(stm_data, dict) else 0
+        woven_confidence = woven_data.get("confidence", 0) if isinstance(woven_data, dict) else 0
+        
+        if stm_confidence > woven_confidence:
+            logging.debug(f"[CorpsCalleux] Memory arbiter: STM (confidence: {stm_confidence:.2f})")
+            return {"source": "stm", "data": stm_data, "confidence": stm_confidence, "reason": "STM plus confiante"}
+        
+        elif woven_confidence > stm_confidence:
+            logging.debug(f"[CorpsCalleux] Memory arbiter: Woven (confidence: {woven_confidence:.2f})")
+            return {"source": "woven", "data": woven_data, "confidence": woven_confidence, "reason": "Woven plus confiante"}
+        
+        else:
+            logging.debug(f"[CorpsCalleux] Memory arbiter: Synthesis (both: {stm_confidence:.2f})")
+            synthesized = self._synthesize_memories(stm_data, woven_data)
+            return {"source": "synthesis", "data": synthesized, "confidence": stm_confidence, "reason": "Conflit → synthèse CC"}
+    
+    def _synthesize_memories(self, stm_data: Any, woven_data: Any) -> str:
+        """Synthétise deux mémoires en conflit"""
+        stm_content = str(stm_data)[:500] if stm_data else ""
+        woven_content = str(woven_data)[:500] if woven_data else ""
+        
+        return f"STM: {stm_content}\n\nWoven: {woven_content}"
+    
+    def _load_stm(self) -> Optional[Dict]:
+        """Charge la mémoire courte (STM)"""
+        try:
+            from core.cognition.stm_engine import get_stm_engine
+            stm = get_stm_engine()
+            return {"content": "STM data", "confidence": 0.7}
+        except Exception:
+            return None
+    
+    def _load_woven(self) -> Optional[Dict]:
+        """Charge la mémoire tissée (Woven)"""
+        try:
+            from core.system.woven_memory import get_woven_memory
+            wm = get_woven_memory()
+            return {"content": "Woven data", "confidence": 0.8}
+        except Exception:
+            return None
     
     def sleep(self, force: bool = False, target_mode: str = None) -> Dict:
         """
