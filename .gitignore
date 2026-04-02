@@ -59,3 +59,20 @@ htmlcov/
 # Environment
 .env.local
 .env.*.local
+.env.example
+
+# Development context & prompts (local session data)
+DEVELOPMENT-CONTEXT.md
+*.md.tmp
+RAPPORT_*.md
+
+# Temporary folders
+temp_clone/
+gpt-researcher/
+__debug__/
+DEBUG/
+
+# Session & debug files
+.aetheris_map.json
+*.session
+session_*.json
