@@ -90,7 +90,7 @@ async def lab_specialists():
 
 
 @router.post("/lab/conversation/create")
-async def create_conversation(request: Request):
+async def create_conversation(request: Request = None):
     """Create a new lab conversation"""
     try:
         data = await request.json()
@@ -180,7 +180,7 @@ async def get_conversation(conv_id: str):
 
 
 @router.post("/lab/conversation/{conv_id}/message")
-async def send_message(conv_id: str, request: Request):
+async def send_message(conv_id: str, request: Request = None):
     """Send a message to a conversation"""
     try:
         data = await request.json()
@@ -212,7 +212,7 @@ async def send_message(conv_id: str, request: Request):
 
 
 @router.post("/lab/conversation/{conv_id}/stream")
-async def stream_message(conv_id: str, request: Request):
+async def stream_message(conv_id: str, request: Request = None):
     """Stream a message response"""
     try:
         data = await request.json()
@@ -323,7 +323,7 @@ async def get_file(workspace_id: str, filename: str):
 
 
 @router.post("/lab/workspace/{workspace_id}/file")
-async def create_file(workspace_id: str, request: Request):
+async def create_file(workspace_id: str, request: Request = None):
     """Create or update a file in workspace"""
     try:
         data = await request.json()
@@ -390,7 +390,7 @@ async def get_lab_config():
 
 
 @router.post("/lab/config")
-async def update_lab_config(request: Request):
+async def update_lab_config(request: Request = None):
     """Update lab configuration"""
     try:
         data = await request.json()
@@ -422,7 +422,7 @@ async def list_tools():
 
 
 @router.post("/lab/tool/{tool_name}")
-async def run_tool(tool_name: str, request: Request):
+async def run_tool(tool_name: str, request: Request = None):
     """Run a tool"""
     try:
         data = await request.json()
@@ -441,7 +441,7 @@ async def run_tool(tool_name: str, request: Request):
 
 
 @router.post("/lab/autonomous/{conv_id}")
-async def run_autonomous(conv_id: str, request: Request):
+async def run_autonomous(conv_id: str, request: Request = None):
     """Run autonomous task"""
     try:
         data = await request.json()
@@ -474,7 +474,7 @@ async def recall_memory(q: str = "", limit: int = 3):
 
 
 @router.post("/lab/memory/weave")
-async def weave_memory(request: Request):
+async def weave_memory(request: Request = None):
     """Weave a memory"""
     try:
         data = await request.json()
@@ -529,7 +529,7 @@ async def render_module(module_id: str):
 
 
 @router.post("/lab/module/{module_id}/action")
-async def module_action(module_id: str, request: Request):
+async def module_action(module_id: str, request: Request = None):
     """Handle module action"""
     try:
         data = await request.json()

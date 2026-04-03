@@ -224,7 +224,7 @@ async def stop_thinking(corps_calleux=Depends(get_corps_calleux)):
 
 
 @router.post("/think/set_interval")
-async def set_think_interval(request: Request, corps_calleux=Depends(get_corps_calleux)):
+async def set_think_interval(corps_calleux=Depends(get_corps_calleux), request: Request = None):
     """Set thinking interval"""
     try:
         data = await request.json()
@@ -253,7 +253,7 @@ async def stm_status():
 
 
 @router.post("/stm/toggle/{module_id}")
-async def stm_toggle(module_id: str, request: Request):
+async def stm_toggle(module_id: str, request: Request = None):
     """Toggle a STM module"""
     try:
         data = await request.json()

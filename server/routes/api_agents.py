@@ -80,7 +80,7 @@ async def get_agent_config(agent_name: str):
 
 
 @router.put("/agents/{agent_name}/config")
-async def update_agent_config(agent_name: str, request: Request):
+async def update_agent_config(agent_name: str, request: Request = None):
     """Update agent configuration"""
     try:
         from core.agents.agent_system import get_agent_registry
@@ -95,7 +95,7 @@ async def update_agent_config(agent_name: str, request: Request):
 
 
 @router.post("/agents/{agent_name}/execute")
-async def execute_agent(agent_name: str, request: Request):
+async def execute_agent(agent_name: str, request: Request = None):
     """Execute an agent"""
     try:
         from core.agents.agent_system import get_agent_coordinator
