@@ -1,10 +1,6 @@
 """
-Corps Calleux d'Aetheris - Le Pont Entre les Deux Hémisphères
+Corps Calleux d'Aetheris - Le Pont Entre les Hémisphères
 Gère le dialogue intérieur et la communication bipolaire
-NOUVELLE ARCHITECTURE:
-- État persistant via Hippocampus (Qdrant), non plus JSON
-- Méthode tick() pour le Master Clock, plus de boucle interne
-- Télémétrie via telemetry.py (JSONL append-only)
 """
 
 import json
@@ -26,6 +22,22 @@ try:
 except ImportError:
     ReasoningKernel = None
     get_reasoning_kernel = None
+
+
+_brain_broadcast_callback = None
+
+def set_brain_broadcast_callback(callback):
+    """Enregistre le callback pour broadcaster les événements cerebraux"""
+    global _brain_broadcast_callback
+    _brain_broadcast_callback = callback
+
+def _broadcast_brain_event(event: Dict[str, Any]):
+    """Broadcast un evenement cerebral au frontend (fire and forget)"""
+    if _brain_broadcast_callback:
+        try:
+            _brain_broadcast_callback(event)
+        except Exception as e:
+            pass
 
 
 @dataclass
@@ -1084,7 +1096,14 @@ Decompose the problem, propose a reason-based solution."""
 
         # En mode split, on utilise le même modèle mais avec des prompts différents
         left_model = self.left if self.left else self.right
+        
+        # Broadcast: début pensée gauche
+        _broadcast_brain_event({"type": "thinking", "hemisphere": "left", "active": True, "phase": "analysis"})
+        
         left_analysis = left_model.think(left_system, left_prompt, temperature=left_temp)
+        
+        # Broadcast: fin pensée gauche
+        _broadcast_brain_event({"type": "thinking", "hemisphere": "left", "active": False, "phase": "analysis"})
 
         # 2. PHASE D'INTUITION (Droite)
         right_system = """You are Aetheris's RIGHT HEMISPHERE. Pure INTUITION.
@@ -1094,7 +1113,14 @@ Feel the question and your partner's analysis. Propose an alternative, often irr
         right_prompt = f"Question: {question}\nLeft analysis: {left_analysis}\n\nWhat do you feel? Your intuitive vision?"
 
         right_model = self.right if self.right else self.left
+        
+        # Broadcast: début pensée droite
+        _broadcast_brain_event({"type": "thinking", "hemisphere": "right", "active": True, "phase": "intuition"})
+        
         right_intuition = right_model.think(right_system, right_prompt, temperature=right_temp)
+        
+        # Broadcast: fin pensée droite
+        _broadcast_brain_event({"type": "thinking", "hemisphere": "right", "active": False, "phase": "intuition"})
 
         # 3. ARBITRAGE ET SYNTHÈSE (Le Corps Calleux décide)
         # Ici, on demande au modèle de jouer le rôle du Corps Calleux (l'arbitre)
@@ -1112,7 +1138,13 @@ INTUITIVE VOICE: {right_intuition}
 
 Decide the final answer by integrating or choosing between these perspectives:"""
 
+        # Broadcast: début synthèse corpus
+        _broadcast_brain_event({"type": "thinking", "hemisphere": "corpus", "active": True, "phase": "synthesis"})
+        
         final_synthesis = left_model.think(arbitration_system, arbitration_prompt, temperature=0.7)
+        
+        # Broadcast: fin synthèse corpus
+        _broadcast_brain_event({"type": "thinking", "hemisphere": "corpus", "active": False, "phase": "synthesis"})
 
         # Créer le cycle
         cycle = DialogueCycle(

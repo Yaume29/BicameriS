@@ -80,8 +80,12 @@ async def lifespan(app: FastAPI):
             raise RuntimeError("Moteur d'inférence indisponible. Arrêt du système.")
 
         try:
-            from core.cognition.corps_calleux import CorpsCalleux
+            from core.cognition.corps_calleux import CorpsCalleux, set_brain_broadcast_callback
             registry.corps_calleux = CorpsCalleux()
+            
+            # Enregistrer le callback pour broadcaster les événements cérébraux
+            set_brain_broadcast_callback(broadcast_brain_event)
+            logging.info("[DIADIKOS] ✅ Brain broadcast callback enregistré")
             
             if models_loaded:
                 from server.routes.api_models import get_left_hemisphere, get_right_hemisphere
@@ -399,6 +403,14 @@ async def broadcast_brain_event(event: dict):
     if registry.brain_ws:
         try:
             await registry.brain_ws.send_json(event)
+        except:
+            pass
+    
+    # Also broadcast to SSE endpoint if active
+    from server.routes.api_specialist_editor import _active_streams
+    for session_id, queue in _active_streams.items():
+        try:
+            await queue.put(event)
         except:
             pass
 
