@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import Sidebar from './components/Sidebar';
 import TabBar from './components/TabBar';
 import ModelsPage from './components/ModelsPage';
-import ChatPage from './components/ChatPage';
+import EditorChatPage from './components/EditorChatPage';
 import LabPage from './components/LabPage';
 import type { MainTab, ModelConfig } from './types/app';
 
@@ -38,7 +38,7 @@ export default function App() {
       case 'models':
         return <ModelsPage models={models} onModelsChange={handleModelsChange} />;
       case 'chat':
-        return <ChatPage />;
+        return <EditorChatPage />;
       case 'lab':
         return <LabPage />;
       default:
