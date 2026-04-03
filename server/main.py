@@ -3,6 +3,7 @@ Diadikos & Palladion
 """
 
 import asyncio
+import json
 import logging
 import signal
 import socket
@@ -364,6 +365,40 @@ async def websocket_neural(websocket: WebSocket):
     finally:
         try:
             await websocket.close()
+        except:
+            pass
+
+
+@app.websocket("/ws/brain")
+async def websocket_brain(websocket: WebSocket):
+    """WebSocket pour le flux cerebral temps reel - Sidebar BrainSVG"""
+    await websocket.accept()
+    registry.brain_ws = websocket
+    
+    try:
+        while True:
+            data = await websocket.receive_text()
+            try:
+                msg = json.loads(data)
+                if msg.get("type") == "ping":
+                    await websocket.send_json({"type": "pong"})
+            except:
+                pass
+    except WebSocketDisconnect:
+        logging.info("WebSocket brain déconnecté.")
+    except Exception as e:
+        logging.warning(f"WebSocket brain error: {e}")
+    finally:
+        if registry.brain_ws == websocket:
+            registry.brain_ws = None
+
+
+async def broadcast_brain_event(event: dict):
+    """Broadcast un evenement cerebral a tous les clients connectes"""
+    from server.extensions import registry
+    if registry.brain_ws:
+        try:
+            await registry.brain_ws.send_json(event)
         except:
             pass
 

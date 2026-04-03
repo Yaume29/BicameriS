@@ -24,6 +24,7 @@ class Registry:
     scheduler: Optional[object] = None
     left_hemisphere: Optional[object] = None
     right_hemisphere: Optional[object] = None
+    brain_ws: Optional[object] = None
 
 
 # Global instance
